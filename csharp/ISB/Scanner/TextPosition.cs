@@ -1,10 +1,12 @@
 // This is a derived work of Microsoft Small Basic (https://github.com/sb).
 // The original code is licensed under the MIT License.
 
+using System;
+using System.Diagnostics;
+
 namespace ISB.Scanner
 {
-    using System;
-
+    [DebuggerDisplay("{ToDisplayString()}")]
     public readonly struct TextPosition : IEquatable<TextPosition>
     {
         internal TextPosition(int line, int column)
