@@ -8,7 +8,7 @@
             "name": ".NET Core Launch (console)",
             "type": "coreclr",
             "request": "launch",
-            "preLaunchTask": "build",
+            "preLaunchTask": "Build Debug",
             // If you have changed target frameworks, make sure to update the program path.
             "program": "${workspaceFolder}/csharp/ISB/bin/Debug/net5.0/ISB.dll",
             "args": [],

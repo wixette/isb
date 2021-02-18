@@ -1,4 +1,5 @@
 ﻿using System;
+using ISB.Scanner;
 
 namespace ISB
 {
@@ -6,7 +7,8 @@ namespace ISB
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("ISB Shell");
+            TextPosition pos = new TextPosition(0, 0);
+            Console.WriteLine(pos.ToDisplayString());
         }
     }
 }
