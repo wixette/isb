@@ -11,7 +11,7 @@ namespace ISB
                 System.Reflection.Assembly.GetExecutingAssembly();
             System.Diagnostics.FileVersionInfo fvi =
                 System.Diagnostics.FileVersionInfo.GetVersionInfo(assembly.Location);
-            Console.WriteLine($"{fvi.ProductName}, v{fvi.ProductVersion}");
+            Console.WriteLine($"{fvi.ProductName}, v{fvi.ProductVersion}, {fvi.LegalCopyright}");
         }
     }
 }
