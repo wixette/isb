@@ -7,8 +7,11 @@ namespace ISB
     {
         static void Main(string[] args)
         {
-            TextPosition pos = new TextPosition(0, 0);
-            Console.WriteLine(pos.ToDisplayString());
+            System.Reflection.Assembly assembly =
+                System.Reflection.Assembly.GetExecutingAssembly();
+            System.Diagnostics.FileVersionInfo fvi =
+                System.Diagnostics.FileVersionInfo.GetVersionInfo(assembly.Location);
+            Console.WriteLine($"{fvi.ProductName}, v{fvi.ProductVersion}");
         }
     }
 }

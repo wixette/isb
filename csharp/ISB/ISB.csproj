@@ -1,7 +1,15 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+    <AssemblyTitle>ISB</AssemblyTitle>
+    <AssemblyVersion>0.0.1.0</AssemblyVersion>
+    <Company>wixette</Company>
+    <Copyright>Copyright 2019 wixette</Copyright>
+    <Description>Iteractive Small Basic (ISB)</Description>
+    <FileVersion>0.0.1</FileVersion>
+    <InformationalVersion>0.0.1</InformationalVersion>
     <OutputType>Exe</OutputType>
+    <Product>ISB</Product>
     <TargetFramework>net5.0</TargetFramework>
   </PropertyGroup>
 
