@@ -1,5 +1,7 @@
 ﻿using System;
-using ISB.Scanner;
+using System.Diagnostics;
+using System.Reflection;
+using ISB.Properties;
 
 namespace ISB
 {
@@ -7,11 +9,10 @@ namespace ISB
     {
         static void Main(string[] args)
         {
-            System.Reflection.Assembly assembly =
-                System.Reflection.Assembly.GetExecutingAssembly();
-            System.Diagnostics.FileVersionInfo fvi =
-                System.Diagnostics.FileVersionInfo.GetVersionInfo(assembly.Location);
+            Assembly assembly = Assembly.GetExecutingAssembly();
+            FileVersionInfo fvi = FileVersionInfo.GetVersionInfo(assembly.Location);
             Console.WriteLine($"{fvi.ProductName}, v{fvi.ProductVersion}, {fvi.LegalCopyright}");
+            Console.WriteLine(Resources.Welcome);
         }
     }
 }
