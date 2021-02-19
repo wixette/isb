@@ -1,1 +1,2 @@
-# The C# Code of ISB.
+# ISB Interpreter and Shell in C#
+
