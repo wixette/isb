@@ -1,6 +1,6 @@
 using System;
 using Xunit;
-using ISB.Scanner;
+using ISB.Scanning;
 
 namespace ISB.Tests
 {

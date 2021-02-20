@@ -4,7 +4,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
-using ISB.Scanner;
+using ISB.Scanning;
 
 namespace ISB.Utilities
 {

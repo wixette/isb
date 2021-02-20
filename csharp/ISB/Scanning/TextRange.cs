@@ -4,7 +4,7 @@
 using System;
 using System.Diagnostics;
 
-namespace ISB.Scanner
+namespace ISB.Scanning
 {
     [DebuggerDisplay("{ToDisplayString()}")]
     public readonly struct TextRange : IEquatable<TextRange>
@@ -40,6 +40,8 @@ namespace ISB.Scanner
 
         public string ToDisplayString() =>
             $"({this.Start.ToDisplayString()}, {this.End.ToDisplayString()})";
+
+        public override string ToString() => ToDisplayString();
 
         public bool Contains(in TextPosition position) =>
             this.Start <= position && position <= this.End;

@@ -3,7 +3,7 @@
 
 using ISB.Utilities;
 
-namespace ISB.Scanner
+namespace ISB.Scanning
 {
     internal enum TokenKind
     {

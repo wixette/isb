@@ -4,7 +4,7 @@
 using System;
 using System.Diagnostics;
 
-namespace ISB.Scanner
+namespace ISB.Scanning
 {
     [DebuggerDisplay("{ToDisplayString()}")]
     public readonly struct TextPosition : IEquatable<TextPosition>
@@ -49,5 +49,7 @@ namespace ISB.Scanner
         public bool Equals(TextPosition other) => this == other;
 
         public string ToDisplayString() => $"({this.Line}, {this.Column})";
+
+        public override string ToString() => ToDisplayString();
     }
 }

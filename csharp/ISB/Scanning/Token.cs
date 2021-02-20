@@ -6,7 +6,7 @@ using System.Runtime.CompilerServices;
 
 [assembly:InternalsVisibleTo("ISB.Tests")]
 
-namespace ISB.Scanner
+namespace ISB.Scanning
 {
     [DebuggerDisplay("{ToDisplayString()}")]
     internal sealed class Token
@@ -29,5 +29,7 @@ namespace ISB.Scanner
 
         public string ToDisplayString() =>
             $"{nameof(TokenKind)}.{this.Kind}: '{this.Text}' at {this.Range.ToDisplayString()}";
+
+        public override string ToString() => ToDisplayString();
     }
 }
