@@ -23,6 +23,8 @@ namespace ISB.Parsing
         public SyntaxNode(SyntaxNodeKind kind, Token terminator)
         {
             this.Kind = kind;
+            this.Children = new List<SyntaxNode>();
+            this.Parent = null;
             this.Terminator = terminator;
             this.IsTerminator = true;
         }
@@ -34,10 +36,12 @@ namespace ISB.Parsing
                 "Non-terminal nodes alwyas have children.");
             this.Kind = kind;
             this.Children = new List<SyntaxNode>(children);
+            this.Parent = null;
             foreach (SyntaxNode child in this.Children)
             {
                 child.Parent = this;
             }
+            this.Terminator = null;
             this.IsTerminator = false;
         }
 
@@ -82,7 +86,7 @@ namespace ISB.Parsing
                     }
                     else
                     {
-                        return this.Children[this.Children.Count - 1].Range.Start;
+                        return this.Children[this.Children.Count - 1].Range.End;
                     }
                 }
             }
