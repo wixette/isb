@@ -25,7 +25,7 @@ namespace ISB.Tests
         }
 
         [Fact]
-        public void TerminatorNode()
+        public void TestTerminatorNode()
         {
             Assert.True(standaloneNode.IsTerminator);
             Assert.Empty(standaloneNode.Children);
@@ -36,7 +36,7 @@ namespace ISB.Tests
         }
 
         [Fact]
-        public void BinaryExpressionNode()
+        public void TestBinaryExpressionNode()
         {
             Assert.False(binaryExpressionNode.IsTerminator);
             Assert.Equal(3, binaryExpressionNode.Children.Count);
@@ -51,6 +51,17 @@ namespace ISB.Tests
             Assert.Equal(binaryExpressionNode, binaryExpressionNode.Children[0].Parent);
             Assert.Equal(binaryExpressionNode, binaryExpressionNode.Children[1].Parent);
             Assert.Equal(binaryExpressionNode, binaryExpressionNode.Children[2].Parent);
+        }
+
+        [Fact]
+        public void TestFindNodeAt()
+        {
+            var node = binaryExpressionNode.FindNodeAt((0, 4));
+            Assert.Equal(SyntaxNodeKind.TerminatorSyntax, node.Kind);
+            Assert.Equal("=", node.Terminator.Text);
+            node = binaryExpressionNode.FindNodeAt((0, 9));
+            Assert.Equal(SyntaxNodeKind.NumberLiteralExpressionSyntax, node.Kind);
+            Assert.Equal("3.14", node.Terminator.Text);
         }
     }
 }
