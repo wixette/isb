@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using Xunit;
 using ISB.Scanning;
 using ISB.Utilities;
