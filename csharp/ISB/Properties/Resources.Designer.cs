@@ -52,5 +52,137 @@ namespace ISB.Properties {
                 return ResourceManager.GetString("Welcome", resourceCulture);
             }
         }
+        
+        internal static string AssigningNonSubModuleToEvent {
+            get {
+                return ResourceManager.GetString("AssigningNonSubModuleToEvent", resourceCulture);
+            }
+        }
+        
+        internal static string ExpectedExpressionWithAValue {
+            get {
+                return ResourceManager.GetString("ExpectedExpressionWithAValue", resourceCulture);
+            }
+        }
+        
+        internal static string GoToUndefinedLabel {
+            get {
+                return ResourceManager.GetString("GoToUndefinedLabel", resourceCulture);
+            }
+        }
+        
+        internal static string InvalidExpressionStatement {
+            get {
+                return ResourceManager.GetString("InvalidExpressionStatement", resourceCulture);
+            }
+        }
+        
+        internal static string LibraryMemberDeprecatedFromOlderVersion {
+            get {
+                return ResourceManager.GetString("LibraryMemberDeprecatedFromOlderVersion", resourceCulture);
+            }
+        }
+        
+        internal static string LibraryMemberNotFound {
+            get {
+                return ResourceManager.GetString("LibraryMemberNotFound", resourceCulture);
+            }
+        }
+        
+        internal static string PropertyHasNoSetter {
+            get {
+                return ResourceManager.GetString("PropertyHasNoSetter", resourceCulture);
+            }
+        }
+        
+        internal static string TwoLabelsWithTheSameName {
+            get {
+                return ResourceManager.GetString("TwoLabelsWithTheSameName", resourceCulture);
+            }
+        }
+        
+        internal static string TwoSubModulesWithTheSameName {
+            get {
+                return ResourceManager.GetString("TwoSubModulesWithTheSameName", resourceCulture);
+            }
+        }
+        
+        internal static string UnassignedExpressionStatement {
+            get {
+                return ResourceManager.GetString("UnassignedExpressionStatement", resourceCulture);
+            }
+        }
+        
+        internal static string UnexpectedArgumentsCount {
+            get {
+                return ResourceManager.GetString("UnexpectedArgumentsCount", resourceCulture);
+            }
+        }
+        
+        internal static string UnexpectedEndOfStream {
+            get {
+                return ResourceManager.GetString("UnexpectedEndOfStream", resourceCulture);
+            }
+        }
+        
+        internal static string UnexpectedStatementInsteadOfNewLine {
+            get {
+                return ResourceManager.GetString("UnexpectedStatementInsteadOfNewLine", resourceCulture);
+            }
+        }
+        
+        internal static string UnexpectedTokenFound {
+            get {
+                return ResourceManager.GetString("UnexpectedTokenFound", resourceCulture);
+            }
+        }
+        
+        internal static string UnexpectedTokenInsteadOfStatement {
+            get {
+                return ResourceManager.GetString("UnexpectedTokenInsteadOfStatement", resourceCulture);
+            }
+        }
+        
+        internal static string UnrecognizedCharacter {
+            get {
+                return ResourceManager.GetString("UnrecognizedCharacter", resourceCulture);
+            }
+        }
+        
+        internal static string UnsupportedArrayBaseExpression {
+            get {
+                return ResourceManager.GetString("UnsupportedArrayBaseExpression", resourceCulture);
+            }
+        }
+        
+        internal static string UnsupportedDotBaseExpression {
+            get {
+                return ResourceManager.GetString("UnsupportedDotBaseExpression", resourceCulture);
+            }
+        }
+        
+        internal static string UnsupportedInvocationBaseExpression {
+            get {
+                return ResourceManager.GetString("UnsupportedInvocationBaseExpression", resourceCulture);
+            }
+        }
+        
+        internal static string UnterminatedStringLiteral {
+            get {
+                return ResourceManager.GetString("UnterminatedStringLiteral", resourceCulture);
+            }
+        }
+        
+        internal static string ValueIsNotANumber {
+            get {
+                return ResourceManager.GetString("ValueIsNotANumber", resourceCulture);
+            }
+        }
+        
+        internal static string LibraryMemberNeedsDesktop {
+            get {
+                return ResourceManager.GetString("LibraryMemberNeedsDesktop", resourceCulture);
+            }
+        }
     }
 }
