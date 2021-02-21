@@ -55,11 +55,11 @@ namespace ISB.Parsing
 
             if (statements.Count > 0)
             {
-                this.SyntaxTree = new SyntaxNode(SyntaxNodeKind.StatementBlockSyntax, statements);
+                this.SyntaxTree = SyntaxNode.CreateNonTerminal(SyntaxNodeKind.StatementBlockSyntax, statements);
             }
             else
             {
-                this.SyntaxTree = null;
+                this.SyntaxTree = SyntaxNode.CreateEmpty();
             }
         }
 
@@ -133,11 +133,11 @@ namespace ISB.Parsing
             var endSubToken = this.Eat(TokenKind.EndSub);
             this.RunToEndOfLine();
 
-            return new SyntaxNode(SyntaxNodeKind.SubModuleStatementSyntax,
-                new SyntaxNode(SyntaxNodeKind.TerminatorSyntax, subToken),
-                new SyntaxNode(SyntaxNodeKind.TerminatorSyntax, nameToken),
+            return SyntaxNode.CreateNonTerminal(SyntaxNodeKind.SubModuleStatementSyntax,
+                SyntaxNode.CreateTerminal(SyntaxNodeKind.TerminatorSyntax, subToken),
+                SyntaxNode.CreateTerminal(SyntaxNodeKind.TerminatorSyntax, nameToken),
                 statements,
-                new SyntaxNode(SyntaxNodeKind.TerminatorSyntax, endSubToken)
+                SyntaxNode.CreateTerminal(SyntaxNodeKind.TerminatorSyntax, endSubToken)
             );
         }
 
@@ -148,7 +148,7 @@ namespace ISB.Parsing
             {
                 children.Add(this.ParseStatement());
             }
-            return new SyntaxNode(SyntaxNodeKind.StatementBlockSyntax, children);
+            return SyntaxNode.CreateNonTerminal(SyntaxNodeKind.StatementBlockSyntax, children);
         }
 
         private SyntaxNode ParseStatement()
@@ -169,9 +169,9 @@ namespace ISB.Parsing
                         var colonToken = this.Eat(TokenKind.Colon);
                         this.RunToEndOfLine();
 
-                        return new SyntaxNode(SyntaxNodeKind.LabelStatementSyntax,
-                            new SyntaxNode(SyntaxNodeKind.TerminatorSyntax, labelToken),
-                            new SyntaxNode(SyntaxNodeKind.TerminatorSyntax, colonToken)
+                        return SyntaxNode.CreateNonTerminal(SyntaxNodeKind.LabelStatementSyntax,
+                            SyntaxNode.CreateTerminal(SyntaxNodeKind.TerminatorSyntax, labelToken),
+                            SyntaxNode.CreateTerminal(SyntaxNodeKind.TerminatorSyntax, colonToken)
                         );
                     }
                     else
@@ -203,15 +203,15 @@ namespace ISB.Parsing
                     var identifier = this.Eat(TokenKind.Identifier);
                     this.RunToEndOfLine();
 
-                    return new SyntaxNode(SyntaxNodeKind.GoToStatementSyntax,
-                        new SyntaxNode(SyntaxNodeKind.TerminatorSyntax, goToToken),
-                        new SyntaxNode(SyntaxNodeKind.TerminatorSyntax, identifier)
+                    return SyntaxNode.CreateNonTerminal(SyntaxNodeKind.GoToStatementSyntax,
+                        SyntaxNode.CreateTerminal(SyntaxNodeKind.TerminatorSyntax, goToToken),
+                        SyntaxNode.CreateTerminal(SyntaxNodeKind.TerminatorSyntax, identifier)
                     );
 
                 case TokenKind.Comment:
                     var commentToken = this.Eat(TokenKind.Comment);
                     this.RunToEndOfLine();
-                    return new SyntaxNode(SyntaxNodeKind.CommentStatementSyntax, commentToken);
+                    return SyntaxNode.CreateTerminal(SyntaxNodeKind.CommentStatementSyntax, commentToken);
 
                 case TokenKind foundKind:
                     var foundToken = this.Eat(foundKind);
@@ -221,7 +221,7 @@ namespace ISB.Parsing
                     {
                         this.diagnostics.ReportUnexpectedTokenInsteadOfStatement(foundToken.Range, foundToken.Kind);
                     }
-                    return new SyntaxNode(SyntaxNodeKind.UnrecognizedStatementSyntax, foundToken);
+                    return SyntaxNode.CreateTerminal(SyntaxNodeKind.UnrecognizedStatementSyntax, foundToken);
             }
         }
 
@@ -233,10 +233,10 @@ namespace ISB.Parsing
             this.RunToEndOfLine();
             var statements = this.ParseStatementsExcept(TokenKind.ElseIf, TokenKind.Else, TokenKind.EndIf);
 
-            var ifPart = new SyntaxNode(SyntaxNodeKind.IfPartSyntax,
-                new SyntaxNode(SyntaxNodeKind.TerminatorSyntax, ifToken),
+            var ifPart = SyntaxNode.CreateNonTerminal(SyntaxNodeKind.IfPartSyntax,
+                SyntaxNode.CreateTerminal(SyntaxNodeKind.TerminatorSyntax, ifToken),
                 expression,
-                new SyntaxNode(SyntaxNodeKind.TerminatorSyntax, thenToken),
+                SyntaxNode.CreateTerminal(SyntaxNodeKind.TerminatorSyntax, thenToken),
                 statements
             );
 
@@ -249,17 +249,17 @@ namespace ISB.Parsing
                 this.RunToEndOfLine();
                 statements = this.ParseStatementsExcept(TokenKind.ElseIf, TokenKind.Else, TokenKind.EndIf);
 
-                var elseIfPart = new SyntaxNode(SyntaxNodeKind.ElseIfPartSyntax,
-                    new SyntaxNode(SyntaxNodeKind.TerminatorSyntax, elseIfToken),
+                var elseIfPart = SyntaxNode.CreateNonTerminal(SyntaxNodeKind.ElseIfPartSyntax,
+                    SyntaxNode.CreateTerminal(SyntaxNodeKind.TerminatorSyntax, elseIfToken),
                     expression,
-                    new SyntaxNode(SyntaxNodeKind.TerminatorSyntax, thenToken),
+                    SyntaxNode.CreateTerminal(SyntaxNodeKind.TerminatorSyntax, thenToken),
                     statements
                 );
                 elseIfPartGroupChildren.Add(elseIfPart);
             }
             SyntaxNode elseIfPartGroup = (elseIfPartGroupChildren.Count > 0) ?
-                new SyntaxNode(SyntaxNodeKind.ElseIfPartGroupSyntax, elseIfPartGroupChildren) :
-                null;
+                SyntaxNode.CreateNonTerminal(SyntaxNodeKind.ElseIfPartGroupSyntax, elseIfPartGroupChildren) :
+                SyntaxNode.CreateEmpty();
 
             SyntaxNode elsePart = null;
             if (this.index < this.tokens.Count && this.Peek() == TokenKind.Else)
@@ -268,8 +268,8 @@ namespace ISB.Parsing
                 this.RunToEndOfLine();
                 statements = this.ParseStatementsExcept(TokenKind.ElseIf, TokenKind.Else, TokenKind.EndIf);
 
-                elsePart = new SyntaxNode(SyntaxNodeKind.ElsePartSyntax,
-                    new SyntaxNode(SyntaxNodeKind.TerminatorSyntax, elseToken),
+                elsePart = SyntaxNode.CreateNonTerminal(SyntaxNodeKind.ElsePartSyntax,
+                    SyntaxNode.CreateTerminal(SyntaxNodeKind.TerminatorSyntax, elseToken),
                     statements
                 );
             }
@@ -277,11 +277,11 @@ namespace ISB.Parsing
             var endIfToken = this.Eat(TokenKind.EndIf);
             this.RunToEndOfLine();
 
-            return new SyntaxNode(SyntaxNodeKind.IfStatementSyntax,
+            return SyntaxNode.CreateNonTerminal(SyntaxNodeKind.IfStatementSyntax,
                 ifPart,
                 elseIfPartGroup,
                 elsePart,
-                new SyntaxNode(SyntaxNodeKind.TerminatorSyntax, endIfToken)
+                SyntaxNode.CreateTerminal(SyntaxNodeKind.TerminatorSyntax, endIfToken)
             );
         }
 
@@ -300,8 +300,8 @@ namespace ISB.Parsing
                 var stepToken = this.Eat(TokenKind.Step);
                 var expression = this.ParseBaseExpression();
 
-                stepClause = new SyntaxNode(SyntaxNodeKind.ForStepClauseSyntax,
-                    new SyntaxNode(SyntaxNodeKind.TerminatorSyntax, stepToken),
+                stepClause = SyntaxNode.CreateNonTerminal(SyntaxNodeKind.ForStepClauseSyntax,
+                    SyntaxNode.CreateTerminal(SyntaxNodeKind.TerminatorSyntax, stepToken),
                     expression
                 );
             }
@@ -311,16 +311,16 @@ namespace ISB.Parsing
             var endForToken = this.Eat(TokenKind.EndFor);
             this.RunToEndOfLine();
 
-            return new SyntaxNode(SyntaxNodeKind.ForStatementSyntax,
-                new SyntaxNode(SyntaxNodeKind.TerminatorSyntax, forToken),
-                new SyntaxNode(SyntaxNodeKind.TerminatorSyntax, identifierToken),
-                new SyntaxNode(SyntaxNodeKind.TerminatorSyntax, equalToken),
+            return SyntaxNode.CreateNonTerminal(SyntaxNodeKind.ForStatementSyntax,
+                SyntaxNode.CreateTerminal(SyntaxNodeKind.TerminatorSyntax, forToken),
+                SyntaxNode.CreateTerminal(SyntaxNodeKind.TerminatorSyntax, identifierToken),
+                SyntaxNode.CreateTerminal(SyntaxNodeKind.TerminatorSyntax, equalToken),
                 fromExpression,
-                new SyntaxNode(SyntaxNodeKind.TerminatorSyntax, toToken),
+                SyntaxNode.CreateTerminal(SyntaxNodeKind.TerminatorSyntax, toToken),
                 toExpression,
                 stepClause,
                 statements,
-                new SyntaxNode(SyntaxNodeKind.TerminatorSyntax, endForToken)
+                SyntaxNode.CreateTerminal(SyntaxNodeKind.TerminatorSyntax, endForToken)
             );
         }
 
@@ -335,11 +335,11 @@ namespace ISB.Parsing
             var endWhileToken = this.Eat(TokenKind.EndWhile);
             this.RunToEndOfLine();
 
-            return new SyntaxNode(SyntaxNodeKind.WhileStatementSyntax,
-                new SyntaxNode(SyntaxNodeKind.TerminatorSyntax, whileToken),
+            return SyntaxNode.CreateNonTerminal(SyntaxNodeKind.WhileStatementSyntax,
+                SyntaxNode.CreateTerminal(SyntaxNodeKind.TerminatorSyntax, whileToken),
                 expression,
                 statements,
-                new SyntaxNode(SyntaxNodeKind.TerminatorSyntax, endWhileToken)
+                SyntaxNode.CreateTerminal(SyntaxNodeKind.TerminatorSyntax, endWhileToken)
             );
         }
 
@@ -363,9 +363,9 @@ namespace ISB.Parsing
                 var operatorToken = this.Eat(expectedOperatorKind);
                 var rightHandSide = this.ParseBinaryOperator(precedence + 1);
 
-                expression = new SyntaxNode(SyntaxNodeKind.BinaryOperatorExpressionSyntax,
+                expression = SyntaxNode.CreateNonTerminal(SyntaxNodeKind.BinaryOperatorExpressionSyntax,
                     expression,
-                    new SyntaxNode(SyntaxNodeKind.TerminatorSyntax, operatorToken),
+                    SyntaxNode.CreateTerminal(SyntaxNodeKind.TerminatorSyntax, operatorToken),
                     rightHandSide
                 );
             }
@@ -380,8 +380,8 @@ namespace ISB.Parsing
                 var minusToken = this.Eat(TokenKind.Minus);
                 var expression = this.ParseCoreExpression();
 
-                return new SyntaxNode(SyntaxNodeKind.UnaryOperatorExpressionSyntax,
-                    new SyntaxNode(SyntaxNodeKind.TerminatorSyntax, minusToken),
+                return SyntaxNode.CreateNonTerminal(SyntaxNodeKind.UnaryOperatorExpressionSyntax,
+                    SyntaxNode.CreateTerminal(SyntaxNodeKind.TerminatorSyntax, minusToken),
                     expression
                 );
             }
@@ -400,10 +400,10 @@ namespace ISB.Parsing
                     case TokenKind.Dot:
                         var dotToken = this.Eat(TokenKind.Dot);
                         var identifierToken = this.Eat(TokenKind.Identifier);
-                        expression = new SyntaxNode(SyntaxNodeKind.ObjectAccessExpressionSyntax,
+                        expression = SyntaxNode.CreateNonTerminal(SyntaxNodeKind.ObjectAccessExpressionSyntax,
                             expression,
-                            new SyntaxNode(SyntaxNodeKind.TerminatorSyntax, dotToken),
-                            new SyntaxNode(SyntaxNodeKind.TerminatorSyntax, identifierToken)
+                            SyntaxNode.CreateTerminal(SyntaxNodeKind.TerminatorSyntax, dotToken),
+                            SyntaxNode.CreateTerminal(SyntaxNodeKind.TerminatorSyntax, identifierToken)
                         );
                         break;
 
@@ -411,11 +411,11 @@ namespace ISB.Parsing
                         var leftBracketToken = this.Eat(TokenKind.LeftBracket);
                         var indexExpression = this.ParseBaseExpression();
                         var rightBracketToken = this.Eat(TokenKind.RightBracket);
-                        expression = new SyntaxNode(SyntaxNodeKind.ArrayAccessExpressionSyntax,
+                        expression = SyntaxNode.CreateNonTerminal(SyntaxNodeKind.ArrayAccessExpressionSyntax,
                             expression,
-                            new SyntaxNode(SyntaxNodeKind.TerminatorSyntax, leftBracketToken),
+                            SyntaxNode.CreateTerminal(SyntaxNodeKind.TerminatorSyntax, leftBracketToken),
                             indexExpression,
-                            new SyntaxNode(SyntaxNodeKind.TerminatorSyntax, rightBracketToken)
+                            SyntaxNode.CreateTerminal(SyntaxNodeKind.TerminatorSyntax, rightBracketToken)
                         );
                         break;
 
@@ -423,11 +423,11 @@ namespace ISB.Parsing
                         var leftParenToken = this.Eat(TokenKind.LeftParen);
                         var arguments = this.ParseArguments();
                         var rightParenToken = this.Eat(TokenKind.RightParen);
-                        expression = new SyntaxNode(SyntaxNodeKind.InvocationExpressionSyntax,
+                        expression = SyntaxNode.CreateNonTerminal(SyntaxNodeKind.InvocationExpressionSyntax,
                             expression,
-                            new SyntaxNode(SyntaxNodeKind.TerminatorSyntax, leftParenToken),
+                            SyntaxNode.CreateTerminal(SyntaxNodeKind.TerminatorSyntax, leftParenToken),
                             arguments,
-                            new SyntaxNode(SyntaxNodeKind.TerminatorSyntax, rightParenToken)
+                            SyntaxNode.CreateTerminal(SyntaxNodeKind.TerminatorSyntax, rightParenToken)
                         );
                         break;
 
@@ -451,25 +451,25 @@ namespace ISB.Parsing
                     {
                         case TokenKind.Comma:
                             var commaTokenOpt = this.Eat(TokenKind.Comma);
-                            arguments.Add(new SyntaxNode(SyntaxNodeKind.ArgumentSyntax,
+                            arguments.Add(SyntaxNode.CreateNonTerminal(SyntaxNodeKind.ArgumentSyntax,
                                 currentArgument,
-                                new SyntaxNode(SyntaxNodeKind.TerminatorSyntax, commaTokenOpt)
+                                SyntaxNode.CreateTerminal(SyntaxNodeKind.TerminatorSyntax, commaTokenOpt)
                             ));
                             currentArgument = null;
                             break;
 
                         case TokenKind.RightParen:
-                            arguments.Add(new SyntaxNode(SyntaxNodeKind.ArgumentSyntax,
+                            arguments.Add(SyntaxNode.CreateNonTerminal(SyntaxNodeKind.ArgumentSyntax,
                                 currentArgument,
-                                null
+                                SyntaxNode.CreateEmpty()
                             ));
-                            return new SyntaxNode(SyntaxNodeKind.ArgumentGroupSyntax, arguments);
+                            return SyntaxNode.CreateNonTerminal(SyntaxNodeKind.ArgumentGroupSyntax, arguments);
 
                         case TokenKind foundKind:
                             this.diagnostics.ReportUnexpectedTokenFound(this.tokens[this.index].Range, foundKind, TokenKind.Comma);
-                            arguments.Add(new SyntaxNode(SyntaxNodeKind.ArgumentSyntax,
+                            arguments.Add(SyntaxNode.CreateNonTerminal(SyntaxNodeKind.ArgumentSyntax,
                                 currentArgument,
-                                null
+                                SyntaxNode.CreateEmpty()
                             ));
                             currentArgument = null;
                             break;
@@ -477,7 +477,7 @@ namespace ISB.Parsing
                 }
                 else if (this.Peek() == TokenKind.RightParen)
                 {
-                    return new SyntaxNode(SyntaxNodeKind.ArgumentGroupSyntax, arguments);
+                    return SyntaxNode.CreateNonTerminal(SyntaxNodeKind.ArgumentGroupSyntax, arguments);
                 }
                 else
                 {
@@ -487,13 +487,13 @@ namespace ISB.Parsing
 
             if (currentArgument != null)
             {
-                arguments.Add(new SyntaxNode(SyntaxNodeKind.ArgumentSyntax,
+                arguments.Add(SyntaxNode.CreateNonTerminal(SyntaxNodeKind.ArgumentSyntax,
                     currentArgument,
-                    null
+                    SyntaxNode.CreateEmpty()
                 ));
             }
 
-            return new SyntaxNode(SyntaxNodeKind.ArgumentGroupSyntax, arguments);
+            return SyntaxNode.CreateNonTerminal(SyntaxNodeKind.ArgumentGroupSyntax, arguments);
         }
 
         private SyntaxNode ParseTerminalExpression()
@@ -504,31 +504,31 @@ namespace ISB.Parsing
                 var missingToken = new Token(TokenKind.Identifier, string.Empty, range);
 
                 this.diagnostics.ReportUnexpectedEndOfStream(range, missingToken.Kind);
-                return new SyntaxNode(SyntaxNodeKind.IdentifierExpressionSyntax, missingToken);
+                return SyntaxNode.CreateTerminal(SyntaxNodeKind.IdentifierExpressionSyntax, missingToken);
             }
 
             switch (this.Peek())
             {
                 case TokenKind.Identifier:
                     var identifierToken = this.Eat(TokenKind.Identifier);
-                    return new SyntaxNode(SyntaxNodeKind.IdentifierExpressionSyntax, identifierToken);
+                    return SyntaxNode.CreateTerminal(SyntaxNodeKind.IdentifierExpressionSyntax, identifierToken);
 
                 case TokenKind.NumberLiteral:
                     var numberToken = this.Eat(TokenKind.NumberLiteral);
-                    return new SyntaxNode(SyntaxNodeKind.NumberLiteralExpressionSyntax, numberToken);
+                    return SyntaxNode.CreateTerminal(SyntaxNodeKind.NumberLiteralExpressionSyntax, numberToken);
 
                 case TokenKind.StringLiteral:
                     var stringToken = this.Eat(TokenKind.StringLiteral);
-                    return new SyntaxNode(SyntaxNodeKind.StringLiteralExpressionSyntax, stringToken);
+                    return SyntaxNode.CreateTerminal(SyntaxNodeKind.StringLiteralExpressionSyntax, stringToken);
 
                 case TokenKind.LeftParen:
                     var leftParenToken = this.Eat(TokenKind.LeftParen);
                     var expression = this.ParseBaseExpression();
                     var rightParenToken = this.Eat(TokenKind.RightParen);
-                    return new SyntaxNode(SyntaxNodeKind.ParenthesisExpressionSyntax,
-                        new SyntaxNode(SyntaxNodeKind.TerminatorSyntax, leftParenToken),
+                    return SyntaxNode.CreateNonTerminal(SyntaxNodeKind.ParenthesisExpressionSyntax,
+                        SyntaxNode.CreateTerminal(SyntaxNodeKind.TerminatorSyntax, leftParenToken),
                         expression,
-                        new SyntaxNode(SyntaxNodeKind.TerminatorSyntax, rightParenToken)
+                        SyntaxNode.CreateTerminal(SyntaxNodeKind.TerminatorSyntax, rightParenToken)
                     );
 
                 case TokenKind foundKind:
@@ -539,7 +539,7 @@ namespace ISB.Parsing
                         this.diagnostics.ReportUnexpectedTokenFound(foundToken.Range, foundKind, TokenKind.Identifier);
                     }
 
-                    return new SyntaxNode(SyntaxNodeKind.UnrecognizedExpressionSyntax, foundToken);
+                    return SyntaxNode.CreateTerminal(SyntaxNodeKind.UnrecognizedExpressionSyntax, foundToken);
             }
         }
     }

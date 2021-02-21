@@ -19,19 +19,28 @@ namespace ISB.Parsing
 {
     internal class SyntaxNode
     {
-        // Initializes a terminator node.
-        public SyntaxNode(SyntaxNodeKind kind, Token terminator)
+        private SyntaxNode()
         {
+            this.Kind = SyntaxNodeKind.EmptySyntax;
+            this.Children = null;
+            this.Parent = null;
+            this.Terminator = null;
+            this.IsTerminator = true;
+        }
+
+        private SyntaxNode(SyntaxNodeKind kind, Token terminator)
+        {
+            Debug.Assert(kind != SyntaxNodeKind.EmptySyntax);
             this.Kind = kind;
-            this.Children = new List<SyntaxNode>();
+            this.Children = null;
             this.Parent = null;
             this.Terminator = terminator;
             this.IsTerminator = true;
         }
 
-        // Initializes a non-terminal node.
-        public SyntaxNode(SyntaxNodeKind kind, in IReadOnlyList<SyntaxNode> children)
+        private SyntaxNode(SyntaxNodeKind kind, in IReadOnlyList<SyntaxNode> children)
         {
+            Debug.Assert(kind != SyntaxNodeKind.EmptySyntax);
             Debug.Assert(children != null && children.Count > 0,
                 "Non-terminal nodes alwyas have children.");
             this.Kind = kind;
@@ -39,16 +48,39 @@ namespace ISB.Parsing
             this.Parent = null;
             foreach (SyntaxNode child in this.Children)
             {
+                Debug.Assert(child != null);
                 child.Parent = this;
             }
             this.Terminator = null;
             this.IsTerminator = false;
         }
 
-        // Initializes a non-terminal node.
-        public SyntaxNode(SyntaxNodeKind kind, params SyntaxNode[] children)
+        private SyntaxNode(SyntaxNodeKind kind, params SyntaxNode[] children)
             : this(kind, new List<SyntaxNode>(children))
         {
+        }
+
+        // Initializes an empty node, which represents the zero-occurrence
+        // case of an optional grammar child.
+        public static SyntaxNode CreateEmpty() =>
+            new SyntaxNode();
+
+        // Initializes a terminal node.
+        public static SyntaxNode CreateTerminal(SyntaxNodeKind kind, Token terminator) =>
+            new SyntaxNode(kind, terminator);
+
+
+        // Initializes a non-terminal node.
+        public static SyntaxNode CreateNonTerminal(SyntaxNodeKind kind, in IReadOnlyList<SyntaxNode> children) =>
+            new SyntaxNode(kind, children);
+
+        // Initializes a non-terminal node.
+        public static SyntaxNode CreateNonTerminal(SyntaxNodeKind kind, params SyntaxNode[] children) =>
+            new SyntaxNode(kind, children);
+
+        public bool IsEmpty
+        {
+            get => (this.Kind == SyntaxNodeKind.EmptySyntax);
         }
 
         public bool IsTerminator { get; }
@@ -64,7 +96,7 @@ namespace ISB.Parsing
         public TextRange Range {
             get
             {
-                return (calculateStart(), calculateEnd());
+                return this.IsEmpty ? ((0, 0), (0, 0)) : (calculateStart(), calculateEnd());
 
                 TextPosition calculateStart()
                 {
@@ -94,8 +126,11 @@ namespace ISB.Parsing
 
         public SyntaxNode FindNodeAt(TextPosition position)
         {
-            if (!this.Range.Contains(position))
+            if (this.IsEmpty || !this.Range.Contains(position))
                 return null;
+
+            if (this.Children == null)
+                return this;
 
             foreach (var child in this.Children)
             {

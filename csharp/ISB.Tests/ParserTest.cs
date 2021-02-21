@@ -9,7 +9,8 @@ namespace ISB.Tests
     public class ParserTest
     {
         const string code0 = @"";
-        const string tree0 = @"";
+        const string tree0 = @"EmptySyntax
+";
 
         const string code1 = @"a";
         const string tree1 = @"StatementBlockSyntax
@@ -79,6 +80,39 @@ namespace ISB.Tests
       TerminatorSyntax: )
 ";
 
+        const string code7 = @"Cos(1)";
+        const string tree7 = @"StatementBlockSyntax
+  InvocationExpressionSyntax
+    IdentifierExpressionSyntax: Cos
+    TerminatorSyntax: (
+    ArgumentGroupSyntax
+      ArgumentSyntax
+        NumberLiteralExpressionSyntax: 1
+        EmptySyntax
+    TerminatorSyntax: )
+";
+
+        const string code8 = @"Math.Pow(x, y + 0.5)";
+        const string tree8 = @"StatementBlockSyntax
+  InvocationExpressionSyntax
+    ObjectAccessExpressionSyntax
+      IdentifierExpressionSyntax: Math
+      TerminatorSyntax: .
+      TerminatorSyntax: Pow
+    TerminatorSyntax: (
+    ArgumentGroupSyntax
+      ArgumentSyntax
+        IdentifierExpressionSyntax: x
+        TerminatorSyntax: ,
+      ArgumentSyntax
+        BinaryOperatorExpressionSyntax
+          IdentifierExpressionSyntax: y
+          TerminatorSyntax: +
+          NumberLiteralExpressionSyntax: 0.5
+        EmptySyntax
+    TerminatorSyntax: )
+";
+
         [Theory]
         [InlineData(code0, tree0)]
         [InlineData(code1, tree1)]
@@ -87,14 +121,29 @@ namespace ISB.Tests
         [InlineData(code4, tree4)]
         [InlineData(code5, tree5)]
         [InlineData(code6, tree6)]
-        public void Test1(string input, string expected)
+        [InlineData(code7, tree7)]
+        [InlineData(code8, tree8)]
+        public void TestExpectedParsing(string input, string expected)
         {
             DiagnosticBag diagnostics = new DiagnosticBag();
             Scanner scanner = new Scanner(input, diagnostics);
+            Assert.Empty(diagnostics.Contents);
             Parser parser = new Parser(scanner.Tokens, diagnostics);
+            Assert.Empty(diagnostics.Contents);
             string treeDump = SyntaxTreeDumper.Dump(parser.SyntaxTree);
             Console.WriteLine("] {0}\n{1}", input, treeDump);
             Assert.Equal(expected, treeDump);
+        }
+
+        [Fact]
+        public void TestUnsupportedParsing()
+        {
+            // .5
+        }
+
+        [Fact]
+        public void TestErrorCases()
+        {
         }
     }
 }

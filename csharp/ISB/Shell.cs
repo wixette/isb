@@ -1,10 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Reflection;
-using ISB.Scanning;
-using ISB.Parsing;
 using ISB.Properties;
-using ISB.Utilities;
 
 namespace ISB
 {

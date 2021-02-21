@@ -33,8 +33,9 @@ namespace ISB.Parsing
         IdentifierExpressionSyntax,
         StringLiteralExpressionSyntax,
         NumberLiteralExpressionSyntax,
+        TerminatorSyntax,
+        EmptySyntax,
         UnrecognizedExpressionSyntax,
-        TerminatorSyntax
     }
 
     internal static partial class SyntaxNodeKindExtensions
@@ -69,8 +70,9 @@ namespace ISB.Parsing
                 case SyntaxNodeKind.IdentifierExpressionSyntax: return "IdentifierExpressionSyntax";
                 case SyntaxNodeKind.StringLiteralExpressionSyntax: return "StringLiteralExpressionSyntax";
                 case SyntaxNodeKind.NumberLiteralExpressionSyntax: return "NumberLiteralExpressionSyntax";
-                case SyntaxNodeKind.UnrecognizedExpressionSyntax: return "UnrecognizedExpressionSyntax";
                 case SyntaxNodeKind.TerminatorSyntax: return "TerminatorSyntax";
+                case SyntaxNodeKind.EmptySyntax: return "EmptySyntax";
+                case SyntaxNodeKind.UnrecognizedExpressionSyntax: return "UnrecognizedExpressionSyntax";
                 default: throw ExceptionUtilities.UnexpectedValue(kind);
             }
         }

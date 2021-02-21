@@ -2,6 +2,7 @@
 // The original code is licensed under the MIT License.
 
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 
 namespace ISB.Parsing
@@ -29,24 +30,20 @@ namespace ISB.Parsing
 
         private void InternalWalk(SyntaxNode node, int level, ISyntaxNodeVisitor visitor, IEnumerable<SyntaxNodeKind> acceptedNodeKinds)
         {
-            if (node == null)
-            {
-                return;
-            }
+            Debug.Assert(node != null);
+
             if (acceptedNodeKinds == null || acceptedNodeKinds.Contains(node.Kind))
             {
                 visitor.VisitNode(node, level);
             }
-            if (node.IsTerminator)
+            if (node.IsEmpty || node.IsTerminator)
             {
                 return;
             }
+
             foreach (var child in node.Children)
             {
-                if (child != null)
-                {
-                    InternalWalk(child, level + 1, visitor, acceptedNodeKinds);
-                }
+                InternalWalk(child, level + 1, visitor, acceptedNodeKinds);
             }
         }
     }

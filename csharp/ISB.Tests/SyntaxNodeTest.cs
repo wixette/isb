@@ -1,34 +1,46 @@
 using Xunit;
 using ISB.Scanning;
 using ISB.Parsing;
-using ISB.Utilities;
 
 namespace ISB.Tests
 {
     public class SyntaxNodeTest
     {
+        private SyntaxNode emptyNode;
         private SyntaxNode standaloneNode;
         private SyntaxNode binaryExpressionNode;
 
         public SyntaxNodeTest()
         {
-            standaloneNode = new SyntaxNode(SyntaxNodeKind.IdentifierExpressionSyntax,
+            emptyNode = SyntaxNode.CreateEmpty();
+            standaloneNode = SyntaxNode.CreateTerminal(SyntaxNodeKind.IdentifierExpressionSyntax,
                 new Token(TokenKind.Identifier, "abc", ((0, 0), (0, 2))));
 
-            binaryExpressionNode = new SyntaxNode(SyntaxNodeKind.BinaryOperatorExpressionSyntax,
-                new SyntaxNode(SyntaxNodeKind.IdentifierExpressionSyntax,
+            binaryExpressionNode = SyntaxNode.CreateNonTerminal(SyntaxNodeKind.BinaryOperatorExpressionSyntax,
+                SyntaxNode.CreateTerminal(SyntaxNodeKind.IdentifierExpressionSyntax,
                     new Token(TokenKind.Identifier, "abc", ((0, 0), (0, 2)))),
-                new SyntaxNode(SyntaxNodeKind.TerminatorSyntax,
+                SyntaxNode.CreateTerminal(SyntaxNodeKind.TerminatorSyntax,
                     new Token(TokenKind.Equal, "=", ((0, 4), (0, 4)))),
-                new SyntaxNode(SyntaxNodeKind.NumberLiteralExpressionSyntax,
+                SyntaxNode.CreateTerminal(SyntaxNodeKind.NumberLiteralExpressionSyntax,
                     new Token(TokenKind.NumberLiteral, "3.14", ((0, 6), (0, 9)))));
         }
 
         [Fact]
-        public void TestTerminatorNode()
+        public void TestEmptyNode()
+        {
+            Assert.True(emptyNode.IsEmpty);
+            Assert.True(emptyNode.IsTerminator);
+            Assert.Null(emptyNode.Children);
+            Assert.Null(emptyNode.Parent);
+            Assert.Null(emptyNode.Terminator);
+        }
+
+        [Fact]
+        public void TestTerminalNode()
         {
             Assert.True(standaloneNode.IsTerminator);
-            Assert.Empty(standaloneNode.Children);
+            Assert.False(standaloneNode.IsEmpty);
+            Assert.Null(standaloneNode.Children);
             Assert.Null(standaloneNode.Parent);
             Assert.Equal(TokenKind.Identifier, standaloneNode.Terminator.Kind);
             Assert.Equal("abc", standaloneNode.Terminator.Text);
@@ -39,6 +51,7 @@ namespace ISB.Tests
         public void TestBinaryExpressionNode()
         {
             Assert.False(binaryExpressionNode.IsTerminator);
+            Assert.False(binaryExpressionNode.IsEmpty);
             Assert.Equal(3, binaryExpressionNode.Children.Count);
             Assert.Null(binaryExpressionNode.Parent);
             Assert.Equal(((0, 0), (0, 9)), binaryExpressionNode.Range);

@@ -33,14 +33,14 @@ namespace ISB.Parsing
                 {
                     this.sb.Append("  ");
                 }
-                if (node.IsTerminator)
+                if (node.IsEmpty || !node.IsTerminator)
                 {
-                    this.sb.AppendFormat("{0}: {1}", node.Kind.ToDisplayString(),
-                        this.cleanOutput ? node.Terminator.Text : node.Terminator.ToDisplayString());
+                    this.sb.AppendFormat("{0}", node.Kind.ToDisplayString());
                 }
                 else
                 {
-                    this.sb.AppendFormat("{0}", node.Kind.ToDisplayString());
+                    this.sb.AppendFormat("{0}: {1}", node.Kind.ToDisplayString(),
+                        this.cleanOutput ? node.Terminator.Text : node.Terminator.ToDisplayString());
                 }
                 this.sb.Append("\n");
             }
