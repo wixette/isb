@@ -46,7 +46,7 @@ namespace ISB.Tests
     StringLiteralExpressionSyntax: ""Hello""
 ";
 
-        const string code6 = @"a = (6 + -3 * (7 - (x + (y))))";
+        const string code6 = @"a = (6 + -3 * 2 - (7 - (x + (y))))";
         const string tree6 = @"StatementBlockSyntax
   BinaryOperatorExpressionSyntax
     IdentifierExpressionSyntax: a
@@ -57,10 +57,13 @@ namespace ISB.Tests
         NumberLiteralExpressionSyntax: 6
         PunctuationSyntax: +
         BinaryOperatorExpressionSyntax
-          UnaryOperatorExpressionSyntax
-            PunctuationSyntax: -
-            NumberLiteralExpressionSyntax: 3
-          PunctuationSyntax: *
+          BinaryOperatorExpressionSyntax
+            UnaryOperatorExpressionSyntax
+              PunctuationSyntax: -
+              NumberLiteralExpressionSyntax: 3
+            PunctuationSyntax: *
+            NumberLiteralExpressionSyntax: 2
+          PunctuationSyntax: -
           ParenthesisExpressionSyntax
             PunctuationSyntax: (
             BinaryOperatorExpressionSyntax
@@ -80,15 +83,12 @@ namespace ISB.Tests
       PunctuationSyntax: )
 ";
 
-        const string code7 = @"Cos(1)";
+        const string code7 = @"Cos()";
         const string tree7 = @"StatementBlockSyntax
   InvocationExpressionSyntax
     IdentifierExpressionSyntax: Cos
     PunctuationSyntax: (
-    ArgumentGroupSyntax
-      ArgumentSyntax
-        NumberLiteralExpressionSyntax: 1
-        EmptySyntax
+    EmptySyntax
     PunctuationSyntax: )
 ";
 
@@ -113,6 +113,231 @@ namespace ISB.Tests
     PunctuationSyntax: )
 ";
 
+        const string code9 = @"a[0] = 3";
+        const string tree9 = @"StatementBlockSyntax
+  BinaryOperatorExpressionSyntax
+    ArrayAccessExpressionSyntax
+      IdentifierExpressionSyntax: a
+      PunctuationSyntax: [
+      NumberLiteralExpressionSyntax: 0
+      PunctuationSyntax: ]
+    PunctuationSyntax: =
+    NumberLiteralExpressionSyntax: 3
+";
+
+        const string code10 = @"If a = 3 Then
+  b = 4
+EndIf";
+        const string tree10 = @"StatementBlockSyntax
+  IfStatementSyntax
+    IfPartSyntax
+      KeywordSyntax: If
+      BinaryOperatorExpressionSyntax
+        IdentifierExpressionSyntax: a
+        PunctuationSyntax: =
+        NumberLiteralExpressionSyntax: 3
+      KeywordSyntax: Then
+      StatementBlockSyntax
+        BinaryOperatorExpressionSyntax
+          IdentifierExpressionSyntax: b
+          PunctuationSyntax: =
+          NumberLiteralExpressionSyntax: 4
+    EmptySyntax
+    EmptySyntax
+    KeywordSyntax: EndIf
+";
+
+        const string code11 = @"If a = 3 Then
+  b = 4
+ElseIf a = 4 Then
+  b = 5
+Else
+  b = 6
+EndIf";
+        const string tree11 = @"StatementBlockSyntax
+  IfStatementSyntax
+    IfPartSyntax
+      KeywordSyntax: If
+      BinaryOperatorExpressionSyntax
+        IdentifierExpressionSyntax: a
+        PunctuationSyntax: =
+        NumberLiteralExpressionSyntax: 3
+      KeywordSyntax: Then
+      StatementBlockSyntax
+        BinaryOperatorExpressionSyntax
+          IdentifierExpressionSyntax: b
+          PunctuationSyntax: =
+          NumberLiteralExpressionSyntax: 4
+    ElseIfPartGroupSyntax
+      ElseIfPartSyntax
+        KeywordSyntax: ElseIf
+        BinaryOperatorExpressionSyntax
+          IdentifierExpressionSyntax: a
+          PunctuationSyntax: =
+          NumberLiteralExpressionSyntax: 4
+        KeywordSyntax: Then
+        StatementBlockSyntax
+          BinaryOperatorExpressionSyntax
+            IdentifierExpressionSyntax: b
+            PunctuationSyntax: =
+            NumberLiteralExpressionSyntax: 5
+    ElsePartSyntax
+      KeywordSyntax: Else
+      StatementBlockSyntax
+        BinaryOperatorExpressionSyntax
+          IdentifierExpressionSyntax: b
+          PunctuationSyntax: =
+          NumberLiteralExpressionSyntax: 6
+    KeywordSyntax: EndIf
+";
+
+        const string code12 = @"If a = 3 Then
+EndIf";
+        const string tree12 = @"StatementBlockSyntax
+  IfStatementSyntax
+    IfPartSyntax
+      KeywordSyntax: If
+      BinaryOperatorExpressionSyntax
+        IdentifierExpressionSyntax: a
+        PunctuationSyntax: =
+        NumberLiteralExpressionSyntax: 3
+      KeywordSyntax: Then
+      EmptySyntax
+    EmptySyntax
+    EmptySyntax
+    KeywordSyntax: EndIf
+";
+
+        const string code13 = @"For i = 1 to 5
+EndFor";
+        const string tree13 = @"StatementBlockSyntax
+  ForStatementSyntax
+    KeywordSyntax: For
+    IdentifierExpressionSyntax: i
+    KeywordSyntax: =
+    NumberLiteralExpressionSyntax: 1
+    KeywordSyntax: to
+    NumberLiteralExpressionSyntax: 5
+    EmptySyntax
+    EmptySyntax
+    KeywordSyntax: EndFor
+";
+
+        const string code14 = @"For i = 10 to 1 step -1
+  j = i * 2
+EndFor";
+        const string tree14 = @"StatementBlockSyntax
+  ForStatementSyntax
+    KeywordSyntax: For
+    IdentifierExpressionSyntax: i
+    KeywordSyntax: =
+    NumberLiteralExpressionSyntax: 10
+    KeywordSyntax: to
+    NumberLiteralExpressionSyntax: 1
+    ForStepClauseSyntax
+      KeywordSyntax: step
+      UnaryOperatorExpressionSyntax
+        PunctuationSyntax: -
+        NumberLiteralExpressionSyntax: 1
+    StatementBlockSyntax
+      BinaryOperatorExpressionSyntax
+        IdentifierExpressionSyntax: j
+        PunctuationSyntax: =
+        BinaryOperatorExpressionSyntax
+          IdentifierExpressionSyntax: i
+          PunctuationSyntax: *
+          NumberLiteralExpressionSyntax: 2
+    KeywordSyntax: EndFor
+";
+
+        const string code15 = @"While i < 10
+  i = i + 1
+EndWhile";
+        const string tree15 = @"StatementBlockSyntax
+  WhileStatementSyntax
+    KeywordSyntax: While
+    BinaryOperatorExpressionSyntax
+      IdentifierExpressionSyntax: i
+      PunctuationSyntax: <
+      NumberLiteralExpressionSyntax: 10
+    StatementBlockSyntax
+      BinaryOperatorExpressionSyntax
+        IdentifierExpressionSyntax: i
+        PunctuationSyntax: =
+        BinaryOperatorExpressionSyntax
+          IdentifierExpressionSyntax: i
+          PunctuationSyntax: +
+          NumberLiteralExpressionSyntax: 1
+    KeywordSyntax: EndWhile
+";
+
+        const string code16 = @"Label101:
+Goto Label101";
+        const string tree16 = @"StatementBlockSyntax
+  LabelStatementSyntax
+    IdentifierExpressionSyntax: Label101
+    PunctuationSyntax: :
+  GoToStatementSyntax
+    KeywordSyntax: Goto
+    IdentifierExpressionSyntax: Label101
+";
+
+        const string code17 = @"Sub Foo
+  array[""key""] = (Math.Pi * ((((((x))))) - y)) + b[j]
+EndSub";
+        const string tree17 = @"StatementBlockSyntax
+  SubModuleStatementSyntax
+    KeywordSyntax: Sub
+    IdentifierExpressionSyntax: Foo
+    StatementBlockSyntax
+      BinaryOperatorExpressionSyntax
+        ArrayAccessExpressionSyntax
+          IdentifierExpressionSyntax: array
+          PunctuationSyntax: [
+          StringLiteralExpressionSyntax: ""key""
+          PunctuationSyntax: ]
+        PunctuationSyntax: =
+        BinaryOperatorExpressionSyntax
+          ParenthesisExpressionSyntax
+            PunctuationSyntax: (
+            BinaryOperatorExpressionSyntax
+              ObjectAccessExpressionSyntax
+                IdentifierExpressionSyntax: Math
+                PunctuationSyntax: .
+                IdentifierExpressionSyntax: Pi
+              PunctuationSyntax: *
+              ParenthesisExpressionSyntax
+                PunctuationSyntax: (
+                BinaryOperatorExpressionSyntax
+                  ParenthesisExpressionSyntax
+                    PunctuationSyntax: (
+                    ParenthesisExpressionSyntax
+                      PunctuationSyntax: (
+                      ParenthesisExpressionSyntax
+                        PunctuationSyntax: (
+                        ParenthesisExpressionSyntax
+                          PunctuationSyntax: (
+                          ParenthesisExpressionSyntax
+                            PunctuationSyntax: (
+                            IdentifierExpressionSyntax: x
+                            PunctuationSyntax: )
+                          PunctuationSyntax: )
+                        PunctuationSyntax: )
+                      PunctuationSyntax: )
+                    PunctuationSyntax: )
+                  PunctuationSyntax: -
+                  IdentifierExpressionSyntax: y
+                PunctuationSyntax: )
+            PunctuationSyntax: )
+          PunctuationSyntax: +
+          ArrayAccessExpressionSyntax
+            IdentifierExpressionSyntax: b
+            PunctuationSyntax: [
+            IdentifierExpressionSyntax: j
+            PunctuationSyntax: ]
+    KeywordSyntax: EndSub
+";
+
         [Theory]
         [InlineData(code0, tree0)]
         [InlineData(code1, tree1)]
@@ -123,6 +348,15 @@ namespace ISB.Tests
         [InlineData(code6, tree6)]
         [InlineData(code7, tree7)]
         [InlineData(code8, tree8)]
+        [InlineData(code9, tree9)]
+        [InlineData(code10, tree10)]
+        [InlineData(code11, tree11)]
+        [InlineData(code12, tree12)]
+        [InlineData(code13, tree13)]
+        [InlineData(code14, tree14)]
+        [InlineData(code15, tree15)]
+        [InlineData(code16, tree16)]
+        [InlineData(code17, tree17)]
         public void TestExpectedParsing(string input, string expected)
         {
             DiagnosticBag diagnostics = new DiagnosticBag();
@@ -139,6 +373,7 @@ namespace ISB.Tests
         public void TestUnsupportedParsing()
         {
             // .5
+            // a = 1 : b = 2
         }
 
         [Fact]

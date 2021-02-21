@@ -148,7 +148,9 @@ namespace ISB.Parsing
             {
                 children.Add(this.ParseStatement());
             }
-            return SyntaxNode.CreateNonTerminal(SyntaxNodeKind.StatementBlockSyntax, children);
+            return children.Count > 0 ?
+                SyntaxNode.CreateNonTerminal(SyntaxNodeKind.StatementBlockSyntax, children) :
+                SyntaxNode.CreateEmpty();
         }
 
         private SyntaxNode ParseStatement()
@@ -273,6 +275,10 @@ namespace ISB.Parsing
                     statements
                 );
             }
+            else
+            {
+                elsePart = SyntaxNode.CreateEmpty();
+            }
 
             var endIfToken = this.Eat(TokenKind.EndIf);
             this.RunToEndOfLine();
@@ -304,6 +310,10 @@ namespace ISB.Parsing
                     SyntaxNode.CreateTerminal(SyntaxNodeKind.KeywordSyntax, stepToken),
                     expression
                 );
+            }
+            else
+            {
+                stepClause = SyntaxNode.CreateEmpty();
             }
 
             this.RunToEndOfLine();
@@ -478,7 +488,9 @@ namespace ISB.Parsing
                 }
                 else if (this.Peek() == TokenKind.RightParen)
                 {
-                    return SyntaxNode.CreateNonTerminal(SyntaxNodeKind.ArgumentGroupSyntax, arguments);
+                    return arguments.Count > 0 ?
+                        SyntaxNode.CreateNonTerminal(SyntaxNodeKind.ArgumentGroupSyntax, arguments) :
+                        SyntaxNode.CreateEmpty();
                 }
                 else
                 {
@@ -494,7 +506,9 @@ namespace ISB.Parsing
                 ));
             }
 
-            return SyntaxNode.CreateNonTerminal(SyntaxNodeKind.ArgumentGroupSyntax, arguments);
+            return arguments.Count > 0 ?
+                SyntaxNode.CreateNonTerminal(SyntaxNodeKind.ArgumentGroupSyntax, arguments) :
+                SyntaxNode.CreateEmpty();
         }
 
         private SyntaxNode ParseTerminalExpression()
