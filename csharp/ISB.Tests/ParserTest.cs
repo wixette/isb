@@ -369,16 +369,117 @@ EndSub";
             Assert.Equal(expected, treeDump);
         }
 
-        [Fact]
-        public void TestUnsupportedParsing()
+        const string errInput1 = @"Sub a";
+        const string errInput2 = @"If x < 1 Then
+Sub b
+EndSub
+EndIf";
+        const string errInput3 = @"Sub a
+Sub b
+EndSub";
+        const string errInput4 = @"x = 1
+EndSub";
+        const string errInput5 = @"x = 1
+ElseIf x < 1 Then
+EndIf";
+        const string errInput6 = @"x = 1
+Else
+EndIf";
+        const string errInput7 = @"x = 1
+EndIf";
+        const string errInput8 = @"x = 1
+If x > 1 Then
+Else
+ElseIf x < 1
+EndIf";
+        const string errInput9 = @"x = 1
+EndWhile";
+        const string errInput10 = @"x = 1
+Then";
+        const string errInput11 = @"
+If x = 1 Then y
+EndIf";
+        const string errInput12 = @"x = .";
+        const string errInput13 = @"x =";
+        const string errInput14 = @"While .
+EndWhile";
+        const string errInput15 = @"If x < 1
+EndIf";
+        const string errInput16 = @"If x < 1 Then
+ElseIf x > 1
+EndIf";
+        const string errInput17 = @"If x < 1 Step
+EndIf";
+        const string errInput18 = @"If x > 1 Then
+ElseIf x < 1 Step
+EndIf";
+        const string errInput19 = @"For x  = 1 To 2 Step 1 :
+EndFor";
+        const string errInput20 = @"TextWindow.WriteLine(5";
+        const string errInput21 = @"x = a[1";
+        const string errInput22 = @"x = Math.Power(1 4)";
+        const string errInput23 = @"x = Math.Sin(, )";
+
+        [Theory]
+        [InlineData(errInput1, new DiagnosticCode[] {DiagnosticCode.UnexpectedEndOfStream})]
+        [InlineData(errInput2, new DiagnosticCode[] {DiagnosticCode.UnexpectedTokenInsteadOfStatement,
+            DiagnosticCode.UnexpectedTokenInsteadOfStatement})]
+        [InlineData(errInput3, new DiagnosticCode[] {DiagnosticCode.UnexpectedTokenFound})]
+        [InlineData(errInput4, new DiagnosticCode[] {DiagnosticCode.UnexpectedTokenInsteadOfStatement})]
+        [InlineData(errInput5, new DiagnosticCode[] {DiagnosticCode.UnexpectedTokenInsteadOfStatement,
+            DiagnosticCode.UnexpectedTokenInsteadOfStatement})]
+        [InlineData(errInput6, new DiagnosticCode[] {DiagnosticCode.UnexpectedTokenInsteadOfStatement,
+            DiagnosticCode.UnexpectedTokenInsteadOfStatement})]
+        [InlineData(errInput7, new DiagnosticCode[] {DiagnosticCode.UnexpectedTokenInsteadOfStatement})]
+        [InlineData(errInput8, new DiagnosticCode[] {DiagnosticCode.UnexpectedTokenFound,
+            DiagnosticCode.UnexpectedTokenInsteadOfStatement,
+            DiagnosticCode.UnexpectedTokenInsteadOfStatement})]
+        [InlineData(errInput9, new DiagnosticCode[] {DiagnosticCode.UnexpectedTokenInsteadOfStatement})]
+        [InlineData(errInput10, new DiagnosticCode[] {DiagnosticCode.UnexpectedTokenInsteadOfStatement})]
+        [InlineData(errInput11, new DiagnosticCode[] {DiagnosticCode.UnexpectedStatementInsteadOfNewLine})]
+        [InlineData(errInput12, new DiagnosticCode[] {DiagnosticCode.UnexpectedTokenFound})]
+        [InlineData(errInput13, new DiagnosticCode[] {DiagnosticCode.UnexpectedEndOfStream})]
+        [InlineData(errInput14, new DiagnosticCode[] {DiagnosticCode.UnexpectedTokenFound})]
+        [InlineData(errInput15, new DiagnosticCode[] {DiagnosticCode.UnexpectedTokenFound})]
+        [InlineData(errInput16, new DiagnosticCode[] {DiagnosticCode.UnexpectedTokenFound})]
+        [InlineData(errInput17, new DiagnosticCode[] {DiagnosticCode.UnexpectedTokenFound,
+            DiagnosticCode.UnexpectedStatementInsteadOfNewLine})]
+        [InlineData(errInput18, new DiagnosticCode[] {DiagnosticCode.UnexpectedTokenFound,
+            DiagnosticCode.UnexpectedStatementInsteadOfNewLine})]
+        [InlineData(errInput19, new DiagnosticCode[] {DiagnosticCode.UnexpectedStatementInsteadOfNewLine})]
+        [InlineData(errInput20, new DiagnosticCode[] {DiagnosticCode.UnexpectedEndOfStream})]
+        [InlineData(errInput21, new DiagnosticCode[] {DiagnosticCode.UnexpectedEndOfStream})]
+        [InlineData(errInput22, new DiagnosticCode[] {DiagnosticCode.UnexpectedTokenFound})]
+        [InlineData(errInput23, new DiagnosticCode[] {DiagnosticCode.UnexpectedTokenFound})]
+        public void TestErrorCases(string errInput, DiagnosticCode[] errDiagnostics)
         {
-            // .5
-            // a = 1 : b = 2
+            DiagnosticBag diagnostics = new DiagnosticBag();
+            Scanner scanner = new Scanner(errInput, diagnostics);
+            Assert.Empty(diagnostics.Contents);
+            Parser parser = new Parser(scanner.Tokens, diagnostics);
+            Assert.Equal(errDiagnostics.Length, diagnostics.Contents.Count);
+            for (int i = 0; i < errDiagnostics.Length; i++)
+            {
+                Assert.Equal(errDiagnostics[i], diagnostics.Contents[i].Code);
+            }
         }
 
-        [Fact]
-        public void TestErrorCases()
+        const string unsupportedInput1 = @".5";
+        const string unsupportedInput2 = @"a = 1 : b = 2";
+        [Theory]
+        [InlineData(unsupportedInput1, new DiagnosticCode[] {DiagnosticCode.UnexpectedTokenInsteadOfStatement})]
+        [InlineData(unsupportedInput2, new DiagnosticCode[] {DiagnosticCode.UnexpectedStatementInsteadOfNewLine})]
+        public void TestUnsupportedParsing(string errInput, DiagnosticCode[] errDiagnostics)
         {
+            DiagnosticBag diagnostics = new DiagnosticBag();
+            Scanner scanner = new Scanner(errInput, diagnostics);
+            Assert.Empty(diagnostics.Contents);
+            Parser parser = new Parser(scanner.Tokens, diagnostics);
+            Assert.Equal(errDiagnostics.Length, diagnostics.Contents.Count);
+            for (int i = 0; i < errDiagnostics.Length; i++)
+            {
+                Assert.Equal(errDiagnostics[i], diagnostics.Contents[i].Code);
+            }
         }
     }
 }
