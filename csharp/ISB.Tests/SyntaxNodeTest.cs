@@ -19,7 +19,7 @@ namespace ISB.Tests
             binaryExpressionNode = SyntaxNode.CreateNonTerminal(SyntaxNodeKind.BinaryOperatorExpressionSyntax,
                 SyntaxNode.CreateTerminal(SyntaxNodeKind.IdentifierExpressionSyntax,
                     new Token(TokenKind.Identifier, "abc", ((0, 0), (0, 2)))),
-                SyntaxNode.CreateTerminal(SyntaxNodeKind.TerminatorSyntax,
+                SyntaxNode.CreateTerminal(SyntaxNodeKind.PunctuationSyntax,
                     new Token(TokenKind.Equal, "=", ((0, 4), (0, 4)))),
                 SyntaxNode.CreateTerminal(SyntaxNodeKind.NumberLiteralExpressionSyntax,
                     new Token(TokenKind.NumberLiteral, "3.14", ((0, 6), (0, 9)))));
@@ -59,7 +59,7 @@ namespace ISB.Tests
             Assert.True(binaryExpressionNode.Children[1].IsTerminator);
             Assert.True(binaryExpressionNode.Children[2].IsTerminator);
             Assert.Equal(SyntaxNodeKind.IdentifierExpressionSyntax, binaryExpressionNode.Children[0].Kind);
-            Assert.Equal(SyntaxNodeKind.TerminatorSyntax, binaryExpressionNode.Children[1].Kind);
+            Assert.Equal(SyntaxNodeKind.PunctuationSyntax, binaryExpressionNode.Children[1].Kind);
             Assert.Equal(SyntaxNodeKind.NumberLiteralExpressionSyntax, binaryExpressionNode.Children[2].Kind);
             Assert.Equal(binaryExpressionNode, binaryExpressionNode.Children[0].Parent);
             Assert.Equal(binaryExpressionNode, binaryExpressionNode.Children[1].Parent);
@@ -70,7 +70,7 @@ namespace ISB.Tests
         public void TestFindNodeAt()
         {
             var node = binaryExpressionNode.FindNodeAt((0, 4));
-            Assert.Equal(SyntaxNodeKind.TerminatorSyntax, node.Kind);
+            Assert.Equal(SyntaxNodeKind.PunctuationSyntax, node.Kind);
             Assert.Equal("=", node.Terminator.Text);
             node = binaryExpressionNode.FindNodeAt((0, 9));
             Assert.Equal(SyntaxNodeKind.NumberLiteralExpressionSyntax, node.Kind);

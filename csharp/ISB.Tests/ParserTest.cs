@@ -32,9 +32,9 @@ namespace ISB.Tests
   BinaryOperatorExpressionSyntax
     BinaryOperatorExpressionSyntax
       NumberLiteralExpressionSyntax: 3.14
-      TerminatorSyntax: *
+      PunctuationSyntax: *
       IdentifierExpressionSyntax: r
-    TerminatorSyntax: *
+    PunctuationSyntax: *
     IdentifierExpressionSyntax: r
 ";
 
@@ -42,7 +42,7 @@ namespace ISB.Tests
         const string tree5 = @"StatementBlockSyntax
   BinaryOperatorExpressionSyntax
     IdentifierExpressionSyntax: a
-    TerminatorSyntax: =
+    PunctuationSyntax: =
     StringLiteralExpressionSyntax: ""Hello""
 ";
 
@@ -50,46 +50,46 @@ namespace ISB.Tests
         const string tree6 = @"StatementBlockSyntax
   BinaryOperatorExpressionSyntax
     IdentifierExpressionSyntax: a
-    TerminatorSyntax: =
+    PunctuationSyntax: =
     ParenthesisExpressionSyntax
-      TerminatorSyntax: (
+      PunctuationSyntax: (
       BinaryOperatorExpressionSyntax
         NumberLiteralExpressionSyntax: 6
-        TerminatorSyntax: +
+        PunctuationSyntax: +
         BinaryOperatorExpressionSyntax
           UnaryOperatorExpressionSyntax
-            TerminatorSyntax: -
+            PunctuationSyntax: -
             NumberLiteralExpressionSyntax: 3
-          TerminatorSyntax: *
+          PunctuationSyntax: *
           ParenthesisExpressionSyntax
-            TerminatorSyntax: (
+            PunctuationSyntax: (
             BinaryOperatorExpressionSyntax
               NumberLiteralExpressionSyntax: 7
-              TerminatorSyntax: -
+              PunctuationSyntax: -
               ParenthesisExpressionSyntax
-                TerminatorSyntax: (
+                PunctuationSyntax: (
                 BinaryOperatorExpressionSyntax
                   IdentifierExpressionSyntax: x
-                  TerminatorSyntax: +
+                  PunctuationSyntax: +
                   ParenthesisExpressionSyntax
-                    TerminatorSyntax: (
+                    PunctuationSyntax: (
                     IdentifierExpressionSyntax: y
-                    TerminatorSyntax: )
-                TerminatorSyntax: )
-            TerminatorSyntax: )
-      TerminatorSyntax: )
+                    PunctuationSyntax: )
+                PunctuationSyntax: )
+            PunctuationSyntax: )
+      PunctuationSyntax: )
 ";
 
         const string code7 = @"Cos(1)";
         const string tree7 = @"StatementBlockSyntax
   InvocationExpressionSyntax
     IdentifierExpressionSyntax: Cos
-    TerminatorSyntax: (
+    PunctuationSyntax: (
     ArgumentGroupSyntax
       ArgumentSyntax
         NumberLiteralExpressionSyntax: 1
         EmptySyntax
-    TerminatorSyntax: )
+    PunctuationSyntax: )
 ";
 
         const string code8 = @"Math.Pow(x, y + 0.5)";
@@ -97,20 +97,20 @@ namespace ISB.Tests
   InvocationExpressionSyntax
     ObjectAccessExpressionSyntax
       IdentifierExpressionSyntax: Math
-      TerminatorSyntax: .
-      TerminatorSyntax: Pow
-    TerminatorSyntax: (
+      PunctuationSyntax: .
+      IdentifierExpressionSyntax: Pow
+    PunctuationSyntax: (
     ArgumentGroupSyntax
       ArgumentSyntax
         IdentifierExpressionSyntax: x
-        TerminatorSyntax: ,
+        PunctuationSyntax: ,
       ArgumentSyntax
         BinaryOperatorExpressionSyntax
           IdentifierExpressionSyntax: y
-          TerminatorSyntax: +
+          PunctuationSyntax: +
           NumberLiteralExpressionSyntax: 0.5
         EmptySyntax
-    TerminatorSyntax: )
+    PunctuationSyntax: )
 ";
 
         [Theory]
