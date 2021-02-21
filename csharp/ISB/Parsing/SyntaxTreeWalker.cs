@@ -36,7 +36,7 @@ namespace ISB.Parsing
             {
                 visitor.VisitNode(node, level);
             }
-            if (node.IsEmpty || node.IsTerminator)
+            if (node.IsTerminator)
             {
                 return;
             }
