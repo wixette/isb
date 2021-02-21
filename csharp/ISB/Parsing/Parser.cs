@@ -53,7 +53,14 @@ namespace ISB.Parsing
                 }
             }
 
-            this.SyntaxTree = new SyntaxNode(SyntaxNodeKind.StatementBlockSyntax, statements);
+            if (statements.Count > 0)
+            {
+                this.SyntaxTree = new SyntaxNode(SyntaxNodeKind.StatementBlockSyntax, statements);
+            }
+            else
+            {
+                this.SyntaxTree = null;
+            }
         }
 
         public SyntaxNode SyntaxTree { get; private set; }
@@ -173,6 +180,23 @@ namespace ISB.Parsing
                         this.RunToEndOfLine();
                         return expression;
                     }
+
+                // The original MSB Parser does not accept standalone expression
+                // statements such as "3.14", "(1+1)*2", etc. The error message
+                // looks like:
+                //
+                // "I didn't expect to see 'string' here."
+                // "I was expecting the start of a new statement."
+                //
+                // An interactive scripting language environemnt need support
+                // standalone expression statements to make itself a quick
+                // "calculator".
+                case TokenKind.NumberLiteral:
+                case TokenKind.StringLiteral:
+                case TokenKind.LeftParen:
+                    var standaloneExpression = this.ParseBaseExpression();
+                    this.RunToEndOfLine();
+                    return standaloneExpression;
 
                 case TokenKind.GoTo:
                     var goToToken = this.Eat(TokenKind.GoTo);

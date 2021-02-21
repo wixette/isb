@@ -29,6 +29,10 @@ namespace ISB.Parsing
 
         private void InternalWalk(SyntaxNode node, int level, ISyntaxNodeVisitor visitor, IEnumerable<SyntaxNodeKind> acceptedNodeKinds)
         {
+            if (node == null)
+            {
+                return;
+            }
             if (acceptedNodeKinds == null || acceptedNodeKinds.Contains(node.Kind))
             {
                 visitor.VisitNode(node, level);

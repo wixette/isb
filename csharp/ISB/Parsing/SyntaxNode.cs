@@ -32,7 +32,7 @@ namespace ISB.Parsing
         // Initializes a non-terminal node.
         public SyntaxNode(SyntaxNodeKind kind, in IReadOnlyList<SyntaxNode> children)
         {
-            Debug.Assert(children.Count > 0,
+            Debug.Assert(children != null && children.Count > 0,
                 "Non-terminal nodes alwyas have children.");
             this.Kind = kind;
             this.Children = new List<SyntaxNode>(children);

@@ -7,6 +7,15 @@ namespace ISB.Tests
     public class ScannerTest
     {
         [Fact]
+        public void Test0()
+        {
+            DiagnosticBag bag = new DiagnosticBag();
+            Scanner scanner = new Scanner("", bag);
+            Assert.Empty(scanner.Tokens);
+            Assert.Empty(bag.Contents);
+        }
+
+        [Fact]
         public void Test1()
         {
             DiagnosticBag bag = new DiagnosticBag();
