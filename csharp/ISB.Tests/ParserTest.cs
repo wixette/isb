@@ -466,9 +466,12 @@ EndFor";
 
         const string unsupportedInput1 = @".5";
         const string unsupportedInput2 = @"a = 1 : b = 2";
+        const string unsupportedInput3 = @"If a = 1 Then b = 2 EndIf";
         [Theory]
         [InlineData(unsupportedInput1, new DiagnosticCode[] {DiagnosticCode.UnexpectedTokenInsteadOfStatement})]
         [InlineData(unsupportedInput2, new DiagnosticCode[] {DiagnosticCode.UnexpectedStatementInsteadOfNewLine})]
+        [InlineData(unsupportedInput3, new DiagnosticCode[] {DiagnosticCode.UnexpectedStatementInsteadOfNewLine,
+            DiagnosticCode.UnexpectedEndOfStream})]
         public void TestUnsupportedParsing(string errInput, DiagnosticCode[] errDiagnostics)
         {
             DiagnosticBag diagnostics = new DiagnosticBag();
