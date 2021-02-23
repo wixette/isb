@@ -118,7 +118,6 @@ namespace ISB.Runtime
             }
             if (oprand2Kind != OprandKind.None)
             {
-                sb.Append(',');
                 sb.Append(' ');
                 sb.Append(FormatOprand(oprand2Kind, this.Oprand2));
             }

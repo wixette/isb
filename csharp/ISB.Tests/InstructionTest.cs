@@ -15,7 +15,7 @@ namespace ISB.Tests
             i = new Instruction(null, "br", new StringValue("init"), null);
             Assert.Equal("    br init", i.ToDisplayString());
             i = new Instruction(null, "store_arr", new StringValue("a"), new NumberValue(2));
-            Assert.Equal("    store_arr a, 2", i.ToDisplayString());
+            Assert.Equal("    store_arr a 2", i.ToDisplayString());
         }
 
         [Fact]
