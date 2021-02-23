@@ -3,15 +3,12 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using ISB.Scanning;
 using ISB.Utilities;
 
-[assembly:InternalsVisibleTo("ISB.Tests")]
-
 namespace ISB.Parsing
 {
-    internal sealed class Parser
+    public sealed class Parser
     {
         private static readonly TokenKind[] BinaryOperatorPrecedence =
         {

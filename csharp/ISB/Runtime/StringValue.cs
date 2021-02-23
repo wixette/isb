@@ -23,7 +23,7 @@ namespace ISB.Runtime
 
         public string Value { get; private set; }
 
-        internal static StringValue Empty => new StringValue(string.Empty);
+        public static StringValue Empty => new StringValue(string.Empty);
 
         public static BaseValue Parse(string value)
         {
@@ -43,9 +43,9 @@ namespace ISB.Runtime
 
         public override string ToDisplayString() => this.Value;
 
-        internal override bool ToBoolean() => this.Value.Length == 0 ? false : true;
+        public override bool ToBoolean() => this.Value.Length == 0 ? false : true;
 
-        internal override decimal ToNumber()
+        public override decimal ToNumber()
         {
             var value = StringValue.Parse(this.Value);
             return value is NumberValue ? value.ToNumber() : 0;

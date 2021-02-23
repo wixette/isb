@@ -14,8 +14,8 @@ namespace ISB.Runtime
 
         public override string ToDisplayString() => this.Value ? "True" : "False";
 
-        internal override bool ToBoolean() => this.Value;
+        public override bool ToBoolean() => this.Value;
 
-        internal override decimal ToNumber() => this.Value ? 1 : 0;
+        public override decimal ToNumber() => this.Value ? 1 : 0;
     }
 }

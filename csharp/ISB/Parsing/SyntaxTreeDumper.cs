@@ -5,7 +5,7 @@ using System.Text;
 
 namespace ISB.Parsing
 {
-    internal sealed class SyntaxTreeDumper
+    public sealed class SyntaxTreeDumper
     {
         public static string Dump(SyntaxNode treeRoot, bool cleanOutput = true)
         {

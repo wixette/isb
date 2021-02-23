@@ -9,7 +9,7 @@ namespace ISB.Scanning
     [DebuggerDisplay("{ToDisplayString()}")]
     public readonly struct TextPosition : IEquatable<TextPosition>
     {
-        internal TextPosition(int line, int column)
+        public TextPosition(int line, int column)
         {
             this.Line = line;
             this.Column = column;

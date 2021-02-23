@@ -5,7 +5,7 @@ using ISB.Utilities;
 
 namespace ISB.Parsing
 {
-    internal enum SyntaxNodeKind
+    public enum SyntaxNodeKind
     {
         // Non-terminal syntax node kinds.
         ArgumentGroupSyntax,
@@ -41,7 +41,7 @@ namespace ISB.Parsing
         UnrecognizedStatementSyntax,
     }
 
-    internal static partial class SyntaxNodeKindExtensions
+    public static partial class SyntaxNodeKindExtensions
     {
         public static string ToDisplayString(this SyntaxNodeKind kind)
         {

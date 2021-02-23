@@ -81,8 +81,8 @@ namespace ISB.Runtime
 
         IEnumerator IEnumerable.GetEnumerator() => this.contents.GetEnumerator();
 
-        internal override bool ToBoolean() => false;
+        public override bool ToBoolean() => false;
 
-        internal override decimal ToNumber() => 0;
+        public override decimal ToNumber() => 0;
     }
 }

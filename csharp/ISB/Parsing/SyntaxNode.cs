@@ -17,7 +17,7 @@ using ISB.Scanning;
 
 namespace ISB.Parsing
 {
-    internal class SyntaxNode
+    public class SyntaxNode
     {
         private SyntaxNode()
         {

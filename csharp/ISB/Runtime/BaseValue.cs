@@ -12,8 +12,8 @@ namespace ISB.Runtime
 
         public sealed override string ToString() => this.ToDisplayString();
 
-        internal abstract bool ToBoolean();
+        public abstract bool ToBoolean();
 
-        internal abstract decimal ToNumber();
+        public abstract decimal ToNumber();
     }
 }

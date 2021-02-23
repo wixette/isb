@@ -16,8 +16,8 @@ namespace ISB.Runtime
 
         public override string ToDisplayString() => this.Value.ToString(CultureInfo.CurrentCulture);
 
-        internal override bool ToBoolean() => this.Value == 0 ? false : true;
+        public override bool ToBoolean() => this.Value == 0 ? false : true;
 
-        internal override decimal ToNumber() => this.Value;
+        public override decimal ToNumber() => this.Value;
     }
 }

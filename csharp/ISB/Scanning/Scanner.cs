@@ -3,14 +3,11 @@
 
 using System.Collections.Generic;
 using System.Globalization;
-using System.Runtime.CompilerServices;
 using ISB.Utilities;
-
-[assembly:InternalsVisibleTo("ISB.Tests")]
 
 namespace ISB.Scanning
 {
-    internal sealed class Scanner
+    public sealed class Scanner
     {
         private readonly string text;
         private readonly DiagnosticBag diagnostics;

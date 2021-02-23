@@ -9,7 +9,7 @@ namespace ISB.Scanning
     [DebuggerDisplay("{ToDisplayString()}")]
     public readonly struct TextRange : IEquatable<TextRange>
     {
-        internal TextRange(TextPosition start, TextPosition end)
+        public TextRange(TextPosition start, TextPosition end)
         {
             this.Start = start;
             this.End = end;

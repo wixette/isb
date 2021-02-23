@@ -5,7 +5,7 @@ using ISB.Utilities;
 
 namespace ISB.Scanning
 {
-    internal enum TokenKind
+    public enum TokenKind
     {
         If,
         Then,
@@ -47,7 +47,7 @@ namespace ISB.Scanning
         Unrecognized,
     }
 
-    internal static partial class TokenKindExtensions
+    public static partial class TokenKindExtensions
     {
         public static string ToDisplayString(this TokenKind kind)
         {

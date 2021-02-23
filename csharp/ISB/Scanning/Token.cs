@@ -2,14 +2,11 @@
 // The original code is licensed under the MIT License.
 
 using System.Diagnostics;
-using System.Runtime.CompilerServices;
-
-[assembly:InternalsVisibleTo("ISB.Tests")]
 
 namespace ISB.Scanning
 {
     [DebuggerDisplay("{ToDisplayString()}")]
-    internal sealed class Token
+    public sealed class Token
     {
         public Token(TokenKind kind, string text, TextRange range)
         {

@@ -6,7 +6,7 @@ using ISB.Scanning;
 
 namespace ISB.Utilities
 {
-    internal sealed class DiagnosticBag
+    public sealed class DiagnosticBag
     {
         private readonly List<Diagnostic> builder = new List<Diagnostic>();
 
