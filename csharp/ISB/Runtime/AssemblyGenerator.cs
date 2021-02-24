@@ -13,7 +13,8 @@ namespace ISB.Runtime
     {
         private readonly DiagnosticBag diagnostics;
         private readonly string moduleName;
-        private int instructionIndex;
+        private readonly int sequenceBase;
+        private int sequenceIndex;
 
         public Assembly AssemblyBlock { get; private set; }
 
@@ -23,8 +24,26 @@ namespace ISB.Runtime
             int startInstructionNo = 0)
         {
             this.moduleName = moduleName;
-            this.instructionIndex = Math.Max(0, startInstructionNo);
+            this.sequenceBase = Math.Max(0, startInstructionNo);
+            this.sequenceIndex = this.sequenceBase;
             this.AssemblyBlock = new Assembly();
+
+            this.Generate(treeRoot, diagnostics);
+        }
+
+        private void Generate(SyntaxNode node, DiagnosticBag diagnostic)
+        {
+            switch (node.Kind)
+            {
+                case SyntaxNodeKind.EmptySyntax:
+                    this.GenerateEmptySyntax(node, diagnostic);
+                    break;
+            }
+        }
+
+        private void GenerateEmptySyntax(SyntaxNode node, DiagnosticBag diagnostic)
+        {
+            AssemblyBlock.AddInstruction(new Instruction(null, "nop", null, null));
         }
     }
 }
