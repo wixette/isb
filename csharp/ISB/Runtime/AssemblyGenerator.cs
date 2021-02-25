@@ -15,40 +15,42 @@ namespace ISB.Runtime
         private Environment environment;
         private readonly string moduleName;
         private readonly int sequenceBase;
+        private readonly DiagnosticBag diagnostics;
 
         public Assembly AssemblyBlock { get; private set; }
 
         public AssemblyGenerator(Environment environment,
             SyntaxNode treeRoot,
             string moduleName,
-            int startInstructionNo = 0)
+            int sequenceBase,
+            DiagnosticBag diagnostics)
         {
             this.environment = environment;
             this.moduleName = moduleName;
-            this.sequenceBase = Math.Max(0, startInstructionNo);
+            this.sequenceBase = Math.Max(0, sequenceBase);
+            this.diagnostics = diagnostics;
             this.AssemblyBlock = new Assembly();
 
-            DiagnosticBag diagnostics = new DiagnosticBag();
-            this.Generate(treeRoot, diagnostics);
+            this.Generate(treeRoot);
         }
 
         private int CurrentIndex { get => this.sequenceBase + this.AssemblyBlock.InstructionSequence.Count; }
 
-        private void Generate(SyntaxNode node, DiagnosticBag diagnostic)
+        private void Generate(SyntaxNode node)
         {
             switch (node.Kind)
             {
                 case SyntaxNodeKind.StatementBlockSyntax:
                     foreach (var child in node.Children)
                     {
-                        this.Generate(child, diagnostic);
+                        this.Generate(child);
                     }
                     break;
                 case SyntaxNodeKind.EmptySyntax:
                     this.GenerateEmptySyntax();
                     break;
                 case SyntaxNodeKind.LabelStatementSyntax:
-                    this.GenerateLabelSyntax(node.Children[0].Terminator, diagnostic);
+                    this.GenerateLabelSyntax(node.Children[0].Terminator);
                     break;
             }
         }
@@ -58,11 +60,11 @@ namespace ISB.Runtime
             AssemblyBlock.AddInstruction(new Instruction(null, "nop", null, null));
         }
 
-        private void GenerateLabelSyntax(Token labelToken, DiagnosticBag diagnostic)
+        private void GenerateLabelSyntax(Token labelToken)
         {
             if (this.environment.LabelDictionary.ContainsKey(labelToken.Text))
             {
-                diagnostic.ReportTwoLabelsWithTheSameName(labelToken.Range, labelToken.Text);
+                this.diagnostics.ReportTwoLabelsWithTheSameName(labelToken.Range, labelToken.Text);
             }
             else
             {

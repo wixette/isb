@@ -37,10 +37,33 @@ c:
             System.Console.WriteLine(SyntaxTreeDumper.Dump(parser.SyntaxTree));
 
             Environment environment = new Environment();
-            AssemblyGenerator generator = new AssemblyGenerator(environment, parser.SyntaxTree, "Program");
+            AssemblyGenerator generator =
+                new AssemblyGenerator(environment, parser.SyntaxTree, "Program", 0, diagnostics);
             Assert.Empty(diagnostics.Contents);
             System.Console.WriteLine(generator.AssemblyBlock.ToTextFormat());
             Assert.Equal(assembly, generator.AssemblyBlock.ToTextFormat());
+        }
+
+        const string errInput1 = @"a:
+a:";
+
+        [Theory]
+        [InlineData(errInput1, new DiagnosticCode[] {DiagnosticCode.TwoLabelsWithTheSameName})]
+        public void TestErrorCases(string errInput, DiagnosticCode[] errDiagnostics)
+        {
+            DiagnosticBag diagnostics = new DiagnosticBag();
+            Scanner scanner = new Scanner(errInput, diagnostics);
+            Assert.Empty(diagnostics.Contents);
+            Parser parser = new Parser(scanner.Tokens, diagnostics);
+            Assert.Empty(diagnostics.Contents);
+            Environment environment = new Environment();
+            AssemblyGenerator generator =
+                new AssemblyGenerator(environment, parser.SyntaxTree, "Program", 0, diagnostics);
+            Assert.Equal(errDiagnostics.Length, diagnostics.Contents.Count);
+            for (int i = 0; i < errDiagnostics.Length; i++)
+            {
+                Assert.Equal(errDiagnostics[i], diagnostics.Contents[i].Code);
+            }
         }
     }
 }
