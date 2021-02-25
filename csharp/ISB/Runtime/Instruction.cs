@@ -111,6 +111,8 @@ namespace ISB.Runtime
             sb.Append(new String(' ', 4));
             sb.Append(this.Name);
             var (oprand1Kind, oprand2Kind) = InstructionSet[this.Name];
+
+            // TODO: Support quoted string literials like "Hello, World!" and escape strings.
             if (oprand1Kind != OprandKind.None)
             {
                 sb.Append(' ');

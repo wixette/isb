@@ -52,6 +52,7 @@ namespace ISB.Runtime
                 }
                 else
                 {
+                    // TODO: Support quoted string literials like "Hello, World!" and escape strings.
                     string[] tokens = s.Split(new char[] { ' ', '\t' });
                     string name = tokens.Length > 0 ? tokens[0] : null;
                     string oprand1Token = tokens.Length > 1 ? tokens[1] : null;

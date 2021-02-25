@@ -2,6 +2,7 @@
 // The original code is licensed under the MIT License.
 
 using System;
+using System.Diagnostics;
 
 using ISB.Parsing;
 using ISB.Scanning;
@@ -68,24 +69,15 @@ namespace ISB.Runtime
                     break;
 
                 case SyntaxNodeKind.UnaryOperatorExpressionSyntax:
-                    break;
                 case SyntaxNodeKind.BinaryOperatorExpressionSyntax:
-                    break;
                 case SyntaxNodeKind.ParenthesisExpressionSyntax:
-                    break;
-
                 case SyntaxNodeKind.IdentifierExpressionSyntax:
-                    break;
                 case SyntaxNodeKind.NumberLiteralExpressionSyntax:
-                    break;
                 case SyntaxNodeKind.StringLiteralExpressionSyntax:
-                    break;
-
                 case SyntaxNodeKind.InvocationExpressionSyntax:
-                    break;
                 case SyntaxNodeKind.ObjectAccessExpressionSyntax:
-                    break;
                 case SyntaxNodeKind.ArrayAccessExpressionSyntax:
+                    this.GenerateExpressionSyntax(node);
                     break;
             }
         }
@@ -145,6 +137,116 @@ namespace ISB.Runtime
             {
                 this.AssemblyBlock.AddInstruction(new Instruction(null, "br", new StringValue(label.Text), null));
             }
+        }
+
+        private void GenerateExpressionSyntax(SyntaxNode node)
+        {
+            switch (node.Kind)
+            {
+                case SyntaxNodeKind.UnaryOperatorExpressionSyntax:
+                    this.GenerateUnaryOperatorExpressionSyntax(
+                        node.Children[0].Terminator, node.Children[1]);
+                    break;
+                case SyntaxNodeKind.BinaryOperatorExpressionSyntax:
+                    this.GenerateBinaryOperatorExpressionSyntax(
+                        node.Children[1].Terminator, node.Children[0], node.Children[2]);
+                    break;
+                case SyntaxNodeKind.ParenthesisExpressionSyntax:
+                    break;
+                case SyntaxNodeKind.IdentifierExpressionSyntax:
+                    GenerateIdentifierExpressionSyntax(node.Terminator);
+                    break;
+                case SyntaxNodeKind.NumberLiteralExpressionSyntax:
+                    GeneranteNumberLiteralExpressionSyntax(node.Terminator);
+                    break;
+                case SyntaxNodeKind.StringLiteralExpressionSyntax:
+                    GeneranteStringLiteralExpressionSyntax(node.Terminator);
+                    break;
+                case SyntaxNodeKind.InvocationExpressionSyntax:
+                    break;
+                case SyntaxNodeKind.ObjectAccessExpressionSyntax:
+                    break;
+                case SyntaxNodeKind.ArrayAccessExpressionSyntax:
+                    break;
+            }
+        }
+
+        private void GenerateIdentifierExpressionSyntax(Token identifier)
+        {
+            this.AssemblyBlock.AddInstruction(new Instruction(null, "load", new StringValue(identifier.Text), null));
+        }
+
+        private void GeneranteNumberLiteralExpressionSyntax(Token number)
+        {
+            BaseValue value = StringValue.Parse(number.Text);
+            Debug.Assert(value is NumberValue);
+            this.AssemblyBlock.AddInstruction(new Instruction(null, "push", value, null));
+        }
+
+        private void GeneranteStringLiteralExpressionSyntax(Token str)
+        {
+            BaseValue value = StringValue.Parse(str.Text);
+            Debug.Assert(value is StringValue);
+            this.AssemblyBlock.AddInstruction(new Instruction(null, "push", value, null));
+        }
+
+        private void GenerateUnaryOperatorExpressionSyntax(Token op, SyntaxNode expression)
+        {
+            switch (op.Kind)
+            {
+                case TokenKind.Minus:
+                    this.AssemblyBlock.AddInstruction(new Instruction(null, "push", new NumberValue(0), null));
+                    this.GenerateExpressionSyntax(expression);
+                    this.AssemblyBlock.AddInstruction(new Instruction(null, "sub", null, null));
+                    break;
+                default:
+                    Debug.Fail("Unkonwn unary operator.");
+                    break;
+            }
+        }
+
+        private void GenerateBinaryOperatorExpressionSyntax(Token op, SyntaxNode left, SyntaxNode right)
+        {
+            this.GenerateExpressionSyntax(left);
+            this.GenerateExpressionSyntax(right);
+            string instructionName = null;
+            switch (op.Kind)
+            {
+                case TokenKind.Plus:
+                    instructionName = "add";
+                    break;
+                case TokenKind.Minus:
+                    instructionName = "sub";
+                    break;
+                case TokenKind.Multiply:
+                    instructionName = "mul";
+                    break;
+                case TokenKind.Divide:
+                    instructionName = "div";
+                    break;
+                case TokenKind.Equal:
+                    instructionName = "eq"; // TODO: Distinguish equal and assignment.
+                    break;
+                case TokenKind.NotEqual:
+                    instructionName = "ne";
+                    break;
+                case TokenKind.LessThan:
+                    instructionName = "lt";
+                    break;
+                case TokenKind.GreaterThan:
+                    instructionName = "gt";
+                    break;
+                case TokenKind.LessThanOrEqual:
+                    instructionName = "le";
+                    break;
+                case TokenKind.GreaterThanOrEqual:
+                    instructionName = "ge";
+                    break;
+                default:
+                    Debug.Fail("Unkonwn binary operator.");
+                    break;
+            }
+            this.AssemblyBlock.AddInstruction(new Instruction(null, instructionName, null, null));
         }
     }
 }

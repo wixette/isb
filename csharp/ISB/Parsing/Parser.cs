@@ -190,6 +190,7 @@ namespace ISB.Parsing
                 // An interactive scripting language environemnt need support
                 // standalone expression statements to make itself a quick
                 // "calculator".
+                case TokenKind.Minus:
                 case TokenKind.NumberLiteral:
                 case TokenKind.StringLiteral:
                 case TokenKind.LeftParen:

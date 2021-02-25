@@ -26,11 +26,13 @@ namespace ISB.Tests
   StringLiteralExpressionSyntax: ""Hello""
 ";
 
-        const string code4 = @"3.14 * r * r";
+        const string code4 = @"- 3.14 * r * r";
         const string tree4 = @"StatementBlockSyntax
   BinaryOperatorExpressionSyntax
     BinaryOperatorExpressionSyntax
-      NumberLiteralExpressionSyntax: 3.14
+      UnaryOperatorExpressionSyntax
+        PunctuationSyntax: -
+        NumberLiteralExpressionSyntax: 3.14
       PunctuationSyntax: *
       IdentifierExpressionSyntax: r
     PunctuationSyntax: *

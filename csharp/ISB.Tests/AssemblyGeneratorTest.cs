@@ -41,12 +41,37 @@ __Program_endsub_a__:
     nop
 ";
 
+        private const string code6 = @"-1";
+        private const string assembly6 = @"    push 0
+    push 1
+    sub
+";
+
+        private const string code7 = @"1-1";
+        private const string assembly7 = @"    push 1
+    push 1
+    sub
+";
+
+        private const string code8 = @"a * b + -2";
+        private const string assembly8 = @"    load a
+    load b
+    mul
+    push 0
+    push 2
+    sub
+    add
+";
+
         [Theory]
         [InlineData (code1, assembly1)]
         [InlineData (code2, assembly2)]
         [InlineData (code3, assembly3)]
         [InlineData (code4, assembly4)]
         [InlineData (code5, assembly5)]
+        [InlineData (code6, assembly6)]
+        [InlineData (code7, assembly7)]
+        [InlineData (code8, assembly8)]
         public void TestFormatAndParse(string code, string assembly)
         {
             DiagnosticBag diagnostics = new DiagnosticBag();
