@@ -32,10 +32,21 @@ goto a";
     br a
 ";
 
+        private const string code5 = @"sub a
+endsub";
+        private const string assembly5 = @"    br __Program_endsub_a__
+__Program_sub_a__:
+    nop
+__Program_endsub_a__:
+    nop
+";
+
         [Theory]
         [InlineData (code1, assembly1)]
         [InlineData (code2, assembly2)]
         [InlineData (code3, assembly3)]
+        [InlineData (code4, assembly4)]
+        [InlineData (code5, assembly5)]
         public void TestFormatAndParse(string code, string assembly)
         {
             DiagnosticBag diagnostics = new DiagnosticBag();
@@ -58,9 +69,15 @@ goto a";
 a:";
         const string errInput2 = @"goto a";
 
+        const string errInput3 = @"sub a
+endsub
+sub a
+endsub";
+
         [Theory]
         [InlineData(errInput1, new DiagnosticCode[] {DiagnosticCode.TwoLabelsWithTheSameName})]
         [InlineData(errInput2, new DiagnosticCode[] {DiagnosticCode.GoToUndefinedLabel})]
+        [InlineData(errInput3, new DiagnosticCode[] {DiagnosticCode.TwoSubModulesWithTheSameName})]
         public void TestErrorCases(string errInput, DiagnosticCode[] errDiagnostics)
         {
             DiagnosticBag diagnostics = new DiagnosticBag();

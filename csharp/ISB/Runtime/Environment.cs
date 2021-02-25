@@ -9,9 +9,12 @@ namespace ISB.Runtime
     {
         public Dictionary<string, int> LabelDictionary { get; private set; }
 
+        public Dictionary<string, int> SubModuleNameDictionary { get; private set; }
+
         public Environment()
         {
             this.LabelDictionary = new Dictionary<string, int>();
+            this.SubModuleNameDictionary = new Dictionary<string, int>();
         }
     }
 }

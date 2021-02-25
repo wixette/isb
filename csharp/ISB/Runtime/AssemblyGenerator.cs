@@ -2,7 +2,6 @@
 // The original code is licensed under the MIT License.
 
 using System;
-using System.Collections.Generic;
 
 using ISB.Parsing;
 using ISB.Scanning;
@@ -47,13 +46,11 @@ namespace ISB.Runtime
                     break;
 
                 case SyntaxNodeKind.StatementBlockSyntax:
-                    foreach (var child in node.Children)
-                    {
-                        this.Generate(child);
-                    }
+                    this.GenerateStatementBlockSyntax(node);
                     break;
 
                 case SyntaxNodeKind.SubModuleStatementSyntax:
+                    this.GenerateSubModuleStatementSyntax(node.Children[1].Terminator, node.Children[2]);
                     break;
 
                 case SyntaxNodeKind.LabelStatementSyntax:
@@ -93,6 +90,38 @@ namespace ISB.Runtime
             }
         }
 
+        private void GenerateStatementBlockSyntax(SyntaxNode node)
+        {
+            foreach (var child in node.Children)
+            {
+                this.Generate(child);
+            }
+        }
+
+        private string GetSubLabel(string name)
+            => String.Format("__{0}_sub_{1}__", this.moduleName, name);
+
+        private string GetEndSubLabel(string name)
+            => String.Format("__{0}_endsub_{1}__", this.moduleName, name);
+
+        private void GenerateSubModuleStatementSyntax(Token name, SyntaxNode body)
+        {
+            if (this.environment.SubModuleNameDictionary.ContainsKey(name.Text))
+            {
+                this.diagnostics.ReportTwoSubModulesWithTheSameName(name.Range, name.Text);
+            }
+            else
+            {
+                string endSubLabel = this.GetEndSubLabel(name.Text);
+                this.AssemblyBlock.AddInstruction(new Instruction(null, "br", new StringValue(endSubLabel), null));
+                string subLabel = this.GetSubLabel(name.Text);
+                this.AssemblyBlock.AddInstruction(new Instruction(subLabel, "nop", null, null));
+                this.environment.SubModuleNameDictionary.Add(name.Text, this.CurrentIndex);
+                this.Generate(body);
+                this.AssemblyBlock.AddInstruction(new Instruction(endSubLabel, "nop", null, null));
+            }
+        }
+
         private void GenerateLabelSyntax(Token label)
         {
             if (this.environment.LabelDictionary.ContainsKey(label.Text))
@@ -101,8 +130,8 @@ namespace ISB.Runtime
             }
             else
             {
-                AssemblyBlock.AddInstruction(new Instruction(label.Text, "nop", null, null));
-                this.environment.LabelDictionary.Add(label.Text, CurrentIndex);
+                this.AssemblyBlock.AddInstruction(new Instruction(label.Text, "nop", null, null));
+                this.environment.LabelDictionary.Add(label.Text, this.CurrentIndex);
             }
         }
 
@@ -114,7 +143,7 @@ namespace ISB.Runtime
             }
             else
             {
-                AssemblyBlock.AddInstruction(new Instruction(null, "br", new StringValue(label.Text), null));
+                this.AssemblyBlock.AddInstruction(new Instruction(null, "br", new StringValue(label.Text), null));
             }
         }
     }
