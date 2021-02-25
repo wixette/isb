@@ -46,21 +46,17 @@ namespace ISB.Runtime
                         this.Generate(child);
                     }
                     break;
-                case SyntaxNodeKind.EmptySyntax:
-                    this.GenerateEmptySyntax();
-                    break;
                 case SyntaxNodeKind.LabelStatementSyntax:
                     this.GenerateLabelSyntax(node.Children[0].Terminator);
                     break;
                 case SyntaxNodeKind.GoToStatementSyntax:
                     this.GenerateGotoSyntax(node.Children[1].Terminator);
                     break;
+                case SyntaxNodeKind.EmptySyntax:
+                case SyntaxNodeKind.CommentStatementSyntax:
+                case SyntaxNodeKind.UnrecognizedStatementSyntax:
+                    break;
             }
-        }
-
-        private void GenerateEmptySyntax()
-        {
-            AssemblyBlock.AddInstruction(new Instruction(null, "nop", null, null));
         }
 
         private void GenerateLabelSyntax(Token label)

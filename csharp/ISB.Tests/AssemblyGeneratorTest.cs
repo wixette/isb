@@ -9,13 +9,15 @@ namespace ISB.Tests
     public class AssemblyGeneratorTest
     {
         private const string code1 = @"";
-        private const string assembly1 = @"    nop
-";
+        private const string assembly1 = @"";
 
-        private const string code2 = @"a:
+        private const string code2 = @"' comments";
+        private const string assembly2 = @"";
+
+        private const string code3 = @"a:
  b:
   c:";
-        private const string assembly2 = @"a:
+        private const string assembly3 = @"a:
     nop
 b:
     nop
@@ -23,9 +25,9 @@ c:
     nop
 ";
 
-        private const string code3 = @"a:
+        private const string code4 = @"a:
 goto a";
-        private const string assembly3 = @"a:
+        private const string assembly4 = @"a:
     nop
     br a
 ";
