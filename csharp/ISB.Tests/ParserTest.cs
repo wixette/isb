@@ -365,7 +365,6 @@ EndSub";
             Parser parser = new Parser(scanner.Tokens, diagnostics);
             Assert.Empty(diagnostics.Contents);
             string treeDump = SyntaxTreeDumper.Dump(parser.SyntaxTree);
-            Console.WriteLine("] {0}\n{1}", input, treeDump);
             Assert.Equal(expected, treeDump);
         }
 
@@ -419,6 +418,12 @@ EndFor";
         const string errInput21 = @"x = a[1";
         const string errInput22 = @"x = Math.Power(1 4)";
         const string errInput23 = @"x = Math.Sin(, )";
+        const string errInput24 = @"Sub abc
+  Sub def
+  EndSub
+EndSub
+abc()
+";
 
         [Theory]
         [InlineData(errInput1, new DiagnosticCode[] {DiagnosticCode.UnexpectedEndOfStream})]
@@ -451,6 +456,8 @@ EndFor";
         [InlineData(errInput21, new DiagnosticCode[] {DiagnosticCode.UnexpectedEndOfStream})]
         [InlineData(errInput22, new DiagnosticCode[] {DiagnosticCode.UnexpectedTokenFound})]
         [InlineData(errInput23, new DiagnosticCode[] {DiagnosticCode.UnexpectedTokenFound})]
+        [InlineData(errInput24, new DiagnosticCode[] {DiagnosticCode.UnexpectedTokenFound,
+            DiagnosticCode.UnexpectedTokenInsteadOfStatement})]
         public void TestErrorCases(string errInput, DiagnosticCode[] errDiagnostics)
         {
             DiagnosticBag diagnostics = new DiagnosticBag();

@@ -18,7 +18,6 @@ namespace ISB.Tests
             assembly1.AddInstruction(new Instruction(null, "store_arr", new StringValue("a"), new NumberValue(2)));
 
             string asm = assembly1.ToTextFormat();
-            Console.WriteLine(asm);
             Assert.Equal(@"    nop
 label1:
     add

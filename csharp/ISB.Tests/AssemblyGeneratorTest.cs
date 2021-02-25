@@ -26,7 +26,6 @@ namespace ISB.Tests
             Dictionary<string, int> labelDictionary = new Dictionary<string, int>();
             AssemblyGenerator generator = new AssemblyGenerator("main", parser.SyntaxTree, labelDictionary);
             Assert.Empty(diagnostics.Contents);
-            Console.WriteLine(generator.AssemblyBlock.ToTextFormat());
             Assert.Equal(assembly, generator.AssemblyBlock.ToTextFormat());
         }
     }
