@@ -40,21 +40,55 @@ namespace ISB.Runtime
         {
             switch (node.Kind)
             {
+                case SyntaxNodeKind.EmptySyntax:
+                case SyntaxNodeKind.CommentStatementSyntax:
+                case SyntaxNodeKind.UnrecognizedStatementSyntax:
+                case SyntaxNodeKind.UnrecognizedExpressionSyntax:
+                    break;
+
                 case SyntaxNodeKind.StatementBlockSyntax:
                     foreach (var child in node.Children)
                     {
                         this.Generate(child);
                     }
                     break;
+
+                case SyntaxNodeKind.SubModuleStatementSyntax:
+                    break;
+
                 case SyntaxNodeKind.LabelStatementSyntax:
                     this.GenerateLabelSyntax(node.Children[0].Terminator);
                     break;
                 case SyntaxNodeKind.GoToStatementSyntax:
                     this.GenerateGotoSyntax(node.Children[1].Terminator);
                     break;
-                case SyntaxNodeKind.EmptySyntax:
-                case SyntaxNodeKind.CommentStatementSyntax:
-                case SyntaxNodeKind.UnrecognizedStatementSyntax:
+
+                case SyntaxNodeKind.IfStatementSyntax:
+                    break;
+                case SyntaxNodeKind.WhileStatementSyntax:
+                    break;
+                case SyntaxNodeKind.ForStatementSyntax:
+                    break;
+
+                case SyntaxNodeKind.UnaryOperatorExpressionSyntax:
+                    break;
+                case SyntaxNodeKind.BinaryOperatorExpressionSyntax:
+                    break;
+                case SyntaxNodeKind.ParenthesisExpressionSyntax:
+                    break;
+
+                case SyntaxNodeKind.IdentifierExpressionSyntax:
+                    break;
+                case SyntaxNodeKind.NumberLiteralExpressionSyntax:
+                    break;
+                case SyntaxNodeKind.StringLiteralExpressionSyntax:
+                    break;
+
+                case SyntaxNodeKind.InvocationExpressionSyntax:
+                    break;
+                case SyntaxNodeKind.ObjectAccessExpressionSyntax:
+                    break;
+                case SyntaxNodeKind.ArrayAccessExpressionSyntax:
                     break;
             }
         }
