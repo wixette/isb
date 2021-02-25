@@ -23,9 +23,17 @@ c:
     nop
 ";
 
+        private const string code3 = @"a:
+goto a";
+        private const string assembly3 = @"a:
+    nop
+    br a
+";
+
         [Theory]
         [InlineData (code1, assembly1)]
         [InlineData (code2, assembly2)]
+        [InlineData (code3, assembly3)]
         public void TestFormatAndParse(string code, string assembly)
         {
             DiagnosticBag diagnostics = new DiagnosticBag();
@@ -46,9 +54,11 @@ c:
 
         const string errInput1 = @"a:
 a:";
+        const string errInput2 = @"goto a";
 
         [Theory]
         [InlineData(errInput1, new DiagnosticCode[] {DiagnosticCode.TwoLabelsWithTheSameName})]
+        [InlineData(errInput2, new DiagnosticCode[] {DiagnosticCode.GoToUndefinedLabel})]
         public void TestErrorCases(string errInput, DiagnosticCode[] errDiagnostics)
         {
             DiagnosticBag diagnostics = new DiagnosticBag();

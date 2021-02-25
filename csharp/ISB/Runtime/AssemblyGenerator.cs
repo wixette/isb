@@ -52,6 +52,9 @@ namespace ISB.Runtime
                 case SyntaxNodeKind.LabelStatementSyntax:
                     this.GenerateLabelSyntax(node.Children[0].Terminator);
                     break;
+                case SyntaxNodeKind.GoToStatementSyntax:
+                    this.GenerateGotoSyntax(node.Children[1].Terminator);
+                    break;
             }
         }
 
@@ -60,16 +63,28 @@ namespace ISB.Runtime
             AssemblyBlock.AddInstruction(new Instruction(null, "nop", null, null));
         }
 
-        private void GenerateLabelSyntax(Token labelToken)
+        private void GenerateLabelSyntax(Token label)
         {
-            if (this.environment.LabelDictionary.ContainsKey(labelToken.Text))
+            if (this.environment.LabelDictionary.ContainsKey(label.Text))
             {
-                this.diagnostics.ReportTwoLabelsWithTheSameName(labelToken.Range, labelToken.Text);
+                this.diagnostics.ReportTwoLabelsWithTheSameName(label.Range, label.Text);
             }
             else
             {
-                AssemblyBlock.AddInstruction(new Instruction(labelToken.Text, "nop", null, null));
-                this.environment.LabelDictionary.Add(labelToken.Text, CurrentIndex);
+                AssemblyBlock.AddInstruction(new Instruction(label.Text, "nop", null, null));
+                this.environment.LabelDictionary.Add(label.Text, CurrentIndex);
+            }
+        }
+
+        private void GenerateGotoSyntax(Token label)
+        {
+            if (!this.environment.LabelDictionary.ContainsKey(label.Text))
+            {
+                this.diagnostics.ReportGoToUndefinedLabel(label.Range, label.Text);
+            }
+            else
+            {
+                AssemblyBlock.AddInstruction(new Instruction(null, "br", new StringValue(label.Text), null));
             }
         }
     }
