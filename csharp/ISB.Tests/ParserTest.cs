@@ -1,4 +1,3 @@
-using System;
 using Xunit;
 using ISB.Parsing;
 using ISB.Scanning;
