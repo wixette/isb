@@ -13,117 +13,126 @@ namespace ISB.Tests
 
         const string code1 = @"a";
         const string tree1 = @"StatementBlockSyntax
-  IdentifierExpressionSyntax: a
+  ExpressionStatementSyntax
+    IdentifierExpressionSyntax: a
 ";
 
         const string code2 = @"3.14";
         const string tree2 = @"StatementBlockSyntax
-  NumberLiteralExpressionSyntax: 3.14
+  ExpressionStatementSyntax
+    NumberLiteralExpressionSyntax: 3.14
 ";
 
         const string code3 = @"""Hello""";
         const string tree3 = @"StatementBlockSyntax
-  StringLiteralExpressionSyntax: ""Hello""
+  ExpressionStatementSyntax
+    StringLiteralExpressionSyntax: ""Hello""
 ";
 
         const string code4 = @"- 3.14 * r * r";
         const string tree4 = @"StatementBlockSyntax
-  BinaryOperatorExpressionSyntax
+  ExpressionStatementSyntax
     BinaryOperatorExpressionSyntax
-      UnaryOperatorExpressionSyntax
-        PunctuationSyntax: -
-        NumberLiteralExpressionSyntax: 3.14
+      BinaryOperatorExpressionSyntax
+        UnaryOperatorExpressionSyntax
+          PunctuationSyntax: -
+          NumberLiteralExpressionSyntax: 3.14
+        PunctuationSyntax: *
+        IdentifierExpressionSyntax: r
       PunctuationSyntax: *
       IdentifierExpressionSyntax: r
-    PunctuationSyntax: *
-    IdentifierExpressionSyntax: r
 ";
 
         const string code5 = @"a = ""Hello""";
         const string tree5 = @"StatementBlockSyntax
-  BinaryOperatorExpressionSyntax
-    IdentifierExpressionSyntax: a
-    PunctuationSyntax: =
-    StringLiteralExpressionSyntax: ""Hello""
+  ExpressionStatementSyntax
+    BinaryOperatorExpressionSyntax
+      IdentifierExpressionSyntax: a
+      PunctuationSyntax: =
+      StringLiteralExpressionSyntax: ""Hello""
 ";
 
         const string code6 = @"a = (6 + -3 * 2 - (7 - (x + (y))))";
         const string tree6 = @"StatementBlockSyntax
-  BinaryOperatorExpressionSyntax
-    IdentifierExpressionSyntax: a
-    PunctuationSyntax: =
-    ParenthesisExpressionSyntax
-      PunctuationSyntax: (
-      BinaryOperatorExpressionSyntax
-        NumberLiteralExpressionSyntax: 6
-        PunctuationSyntax: +
+  ExpressionStatementSyntax
+    BinaryOperatorExpressionSyntax
+      IdentifierExpressionSyntax: a
+      PunctuationSyntax: =
+      ParenthesisExpressionSyntax
+        PunctuationSyntax: (
         BinaryOperatorExpressionSyntax
+          NumberLiteralExpressionSyntax: 6
+          PunctuationSyntax: +
           BinaryOperatorExpressionSyntax
-            UnaryOperatorExpressionSyntax
-              PunctuationSyntax: -
-              NumberLiteralExpressionSyntax: 3
-            PunctuationSyntax: *
-            NumberLiteralExpressionSyntax: 2
-          PunctuationSyntax: -
-          ParenthesisExpressionSyntax
-            PunctuationSyntax: (
             BinaryOperatorExpressionSyntax
-              NumberLiteralExpressionSyntax: 7
-              PunctuationSyntax: -
-              ParenthesisExpressionSyntax
-                PunctuationSyntax: (
-                BinaryOperatorExpressionSyntax
-                  IdentifierExpressionSyntax: x
-                  PunctuationSyntax: +
-                  ParenthesisExpressionSyntax
-                    PunctuationSyntax: (
-                    IdentifierExpressionSyntax: y
-                    PunctuationSyntax: )
-                PunctuationSyntax: )
-            PunctuationSyntax: )
-      PunctuationSyntax: )
+              UnaryOperatorExpressionSyntax
+                PunctuationSyntax: -
+                NumberLiteralExpressionSyntax: 3
+              PunctuationSyntax: *
+              NumberLiteralExpressionSyntax: 2
+            PunctuationSyntax: -
+            ParenthesisExpressionSyntax
+              PunctuationSyntax: (
+              BinaryOperatorExpressionSyntax
+                NumberLiteralExpressionSyntax: 7
+                PunctuationSyntax: -
+                ParenthesisExpressionSyntax
+                  PunctuationSyntax: (
+                  BinaryOperatorExpressionSyntax
+                    IdentifierExpressionSyntax: x
+                    PunctuationSyntax: +
+                    ParenthesisExpressionSyntax
+                      PunctuationSyntax: (
+                      IdentifierExpressionSyntax: y
+                      PunctuationSyntax: )
+                  PunctuationSyntax: )
+              PunctuationSyntax: )
+        PunctuationSyntax: )
 ";
 
         const string code7 = @"Cos()";
         const string tree7 = @"StatementBlockSyntax
-  InvocationExpressionSyntax
-    IdentifierExpressionSyntax: Cos
-    PunctuationSyntax: (
-    EmptySyntax
-    PunctuationSyntax: )
+  ExpressionStatementSyntax
+    InvocationExpressionSyntax
+      IdentifierExpressionSyntax: Cos
+      PunctuationSyntax: (
+      EmptySyntax
+      PunctuationSyntax: )
 ";
 
         const string code8 = @"Math.Pow(x, y + 0.5)";
         const string tree8 = @"StatementBlockSyntax
-  InvocationExpressionSyntax
-    ObjectAccessExpressionSyntax
-      IdentifierExpressionSyntax: Math
-      PunctuationSyntax: .
-      IdentifierExpressionSyntax: Pow
-    PunctuationSyntax: (
-    ArgumentGroupSyntax
-      ArgumentSyntax
-        IdentifierExpressionSyntax: x
-        PunctuationSyntax: ,
-      ArgumentSyntax
-        BinaryOperatorExpressionSyntax
-          IdentifierExpressionSyntax: y
-          PunctuationSyntax: +
-          NumberLiteralExpressionSyntax: 0.5
-        EmptySyntax
-    PunctuationSyntax: )
+  ExpressionStatementSyntax
+    InvocationExpressionSyntax
+      ObjectAccessExpressionSyntax
+        IdentifierExpressionSyntax: Math
+        PunctuationSyntax: .
+        IdentifierExpressionSyntax: Pow
+      PunctuationSyntax: (
+      ArgumentGroupSyntax
+        ArgumentSyntax
+          IdentifierExpressionSyntax: x
+          PunctuationSyntax: ,
+        ArgumentSyntax
+          BinaryOperatorExpressionSyntax
+            IdentifierExpressionSyntax: y
+            PunctuationSyntax: +
+            NumberLiteralExpressionSyntax: 0.5
+          EmptySyntax
+      PunctuationSyntax: )
 ";
 
         const string code9 = @"a[0] = 3";
         const string tree9 = @"StatementBlockSyntax
-  BinaryOperatorExpressionSyntax
-    ArrayAccessExpressionSyntax
-      IdentifierExpressionSyntax: a
-      PunctuationSyntax: [
-      NumberLiteralExpressionSyntax: 0
-      PunctuationSyntax: ]
-    PunctuationSyntax: =
-    NumberLiteralExpressionSyntax: 3
+  ExpressionStatementSyntax
+    BinaryOperatorExpressionSyntax
+      ArrayAccessExpressionSyntax
+        IdentifierExpressionSyntax: a
+        PunctuationSyntax: [
+        NumberLiteralExpressionSyntax: 0
+        PunctuationSyntax: ]
+      PunctuationSyntax: =
+      NumberLiteralExpressionSyntax: 3
 ";
 
         const string code10 = @"If a = 3 Then
@@ -139,10 +148,11 @@ EndIf";
         NumberLiteralExpressionSyntax: 3
       KeywordSyntax: Then
       StatementBlockSyntax
-        BinaryOperatorExpressionSyntax
-          IdentifierExpressionSyntax: b
-          PunctuationSyntax: =
-          NumberLiteralExpressionSyntax: 4
+        ExpressionStatementSyntax
+          BinaryOperatorExpressionSyntax
+            IdentifierExpressionSyntax: b
+            PunctuationSyntax: =
+            NumberLiteralExpressionSyntax: 4
     EmptySyntax
     EmptySyntax
     KeywordSyntax: EndIf
@@ -165,10 +175,11 @@ EndIf";
         NumberLiteralExpressionSyntax: 3
       KeywordSyntax: Then
       StatementBlockSyntax
-        BinaryOperatorExpressionSyntax
-          IdentifierExpressionSyntax: b
-          PunctuationSyntax: =
-          NumberLiteralExpressionSyntax: 4
+        ExpressionStatementSyntax
+          BinaryOperatorExpressionSyntax
+            IdentifierExpressionSyntax: b
+            PunctuationSyntax: =
+            NumberLiteralExpressionSyntax: 4
     ElseIfPartGroupSyntax
       ElseIfPartSyntax
         KeywordSyntax: ElseIf
@@ -178,17 +189,19 @@ EndIf";
           NumberLiteralExpressionSyntax: 4
         KeywordSyntax: Then
         StatementBlockSyntax
-          BinaryOperatorExpressionSyntax
-            IdentifierExpressionSyntax: b
-            PunctuationSyntax: =
-            NumberLiteralExpressionSyntax: 5
+          ExpressionStatementSyntax
+            BinaryOperatorExpressionSyntax
+              IdentifierExpressionSyntax: b
+              PunctuationSyntax: =
+              NumberLiteralExpressionSyntax: 5
     ElsePartSyntax
       KeywordSyntax: Else
       StatementBlockSyntax
-        BinaryOperatorExpressionSyntax
-          IdentifierExpressionSyntax: b
-          PunctuationSyntax: =
-          NumberLiteralExpressionSyntax: 6
+        ExpressionStatementSyntax
+          BinaryOperatorExpressionSyntax
+            IdentifierExpressionSyntax: b
+            PunctuationSyntax: =
+            NumberLiteralExpressionSyntax: 6
     KeywordSyntax: EndIf
 ";
 
@@ -241,13 +254,14 @@ EndFor";
         PunctuationSyntax: -
         NumberLiteralExpressionSyntax: 1
     StatementBlockSyntax
-      BinaryOperatorExpressionSyntax
-        IdentifierExpressionSyntax: j
-        PunctuationSyntax: =
+      ExpressionStatementSyntax
         BinaryOperatorExpressionSyntax
-          IdentifierExpressionSyntax: i
-          PunctuationSyntax: *
-          NumberLiteralExpressionSyntax: 2
+          IdentifierExpressionSyntax: j
+          PunctuationSyntax: =
+          BinaryOperatorExpressionSyntax
+            IdentifierExpressionSyntax: i
+            PunctuationSyntax: *
+            NumberLiteralExpressionSyntax: 2
     KeywordSyntax: EndFor
 ";
 
@@ -262,13 +276,14 @@ EndWhile";
       PunctuationSyntax: <
       NumberLiteralExpressionSyntax: 10
     StatementBlockSyntax
-      BinaryOperatorExpressionSyntax
-        IdentifierExpressionSyntax: i
-        PunctuationSyntax: =
+      ExpressionStatementSyntax
         BinaryOperatorExpressionSyntax
           IdentifierExpressionSyntax: i
-          PunctuationSyntax: +
-          NumberLiteralExpressionSyntax: 1
+          PunctuationSyntax: =
+          BinaryOperatorExpressionSyntax
+            IdentifierExpressionSyntax: i
+            PunctuationSyntax: +
+            NumberLiteralExpressionSyntax: 1
     KeywordSyntax: EndWhile
 ";
 
@@ -291,27 +306,26 @@ EndSub";
     KeywordSyntax: Sub
     IdentifierExpressionSyntax: Foo
     StatementBlockSyntax
-      BinaryOperatorExpressionSyntax
-        ArrayAccessExpressionSyntax
-          IdentifierExpressionSyntax: array
-          PunctuationSyntax: [
-          StringLiteralExpressionSyntax: ""key""
-          PunctuationSyntax: ]
-        PunctuationSyntax: =
+      ExpressionStatementSyntax
         BinaryOperatorExpressionSyntax
-          ParenthesisExpressionSyntax
-            PunctuationSyntax: (
-            BinaryOperatorExpressionSyntax
-              ObjectAccessExpressionSyntax
-                IdentifierExpressionSyntax: Math
-                PunctuationSyntax: .
-                IdentifierExpressionSyntax: Pi
-              PunctuationSyntax: *
-              ParenthesisExpressionSyntax
-                PunctuationSyntax: (
-                BinaryOperatorExpressionSyntax
-                  ParenthesisExpressionSyntax
-                    PunctuationSyntax: (
+          ArrayAccessExpressionSyntax
+            IdentifierExpressionSyntax: array
+            PunctuationSyntax: [
+            StringLiteralExpressionSyntax: ""key""
+            PunctuationSyntax: ]
+          PunctuationSyntax: =
+          BinaryOperatorExpressionSyntax
+            ParenthesisExpressionSyntax
+              PunctuationSyntax: (
+              BinaryOperatorExpressionSyntax
+                ObjectAccessExpressionSyntax
+                  IdentifierExpressionSyntax: Math
+                  PunctuationSyntax: .
+                  IdentifierExpressionSyntax: Pi
+                PunctuationSyntax: *
+                ParenthesisExpressionSyntax
+                  PunctuationSyntax: (
+                  BinaryOperatorExpressionSyntax
                     ParenthesisExpressionSyntax
                       PunctuationSyntax: (
                       ParenthesisExpressionSyntax
@@ -320,22 +334,24 @@ EndSub";
                           PunctuationSyntax: (
                           ParenthesisExpressionSyntax
                             PunctuationSyntax: (
-                            IdentifierExpressionSyntax: x
+                            ParenthesisExpressionSyntax
+                              PunctuationSyntax: (
+                              IdentifierExpressionSyntax: x
+                              PunctuationSyntax: )
                             PunctuationSyntax: )
                           PunctuationSyntax: )
                         PunctuationSyntax: )
                       PunctuationSyntax: )
-                    PunctuationSyntax: )
-                  PunctuationSyntax: -
-                  IdentifierExpressionSyntax: y
-                PunctuationSyntax: )
-            PunctuationSyntax: )
-          PunctuationSyntax: +
-          ArrayAccessExpressionSyntax
-            IdentifierExpressionSyntax: b
-            PunctuationSyntax: [
-            IdentifierExpressionSyntax: j
-            PunctuationSyntax: ]
+                    PunctuationSyntax: -
+                    IdentifierExpressionSyntax: y
+                  PunctuationSyntax: )
+              PunctuationSyntax: )
+            PunctuationSyntax: +
+            ArrayAccessExpressionSyntax
+              IdentifierExpressionSyntax: b
+              PunctuationSyntax: [
+              IdentifierExpressionSyntax: j
+              PunctuationSyntax: ]
     KeywordSyntax: EndSub
 ";
 

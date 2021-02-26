@@ -76,16 +76,8 @@ namespace ISB.Runtime
                 case SyntaxNodeKind.ForStatementSyntax:
                     break;
 
-                case SyntaxNodeKind.UnaryOperatorExpressionSyntax:
-                case SyntaxNodeKind.BinaryOperatorExpressionSyntax:
-                case SyntaxNodeKind.ParenthesisExpressionSyntax:
-                case SyntaxNodeKind.IdentifierExpressionSyntax:
-                case SyntaxNodeKind.NumberLiteralExpressionSyntax:
-                case SyntaxNodeKind.StringLiteralExpressionSyntax:
-                case SyntaxNodeKind.InvocationExpressionSyntax:
-                case SyntaxNodeKind.ObjectAccessExpressionSyntax:
-                case SyntaxNodeKind.ArrayAccessExpressionSyntax:
-                    this.GenerateExpressionSyntax(node);
+                case SyntaxNodeKind.ExpressionStatementSyntax:
+                    this.GenerateExpressionStatementSyntax(node);
                     break;
             }
         }
@@ -142,17 +134,22 @@ namespace ISB.Runtime
             }
         }
 
-        private void GenerateExpressionSyntax(SyntaxNode node)
+        private void GenerateExpressionStatementSyntax(SyntaxNode node)
+        {
+            this.GenerateExpressionSyntax(node.Children[0], true);
+        }
+
+        private void GenerateExpressionSyntax(SyntaxNode node, bool inExpressionStatement)
         {
             switch (node.Kind)
             {
                 case SyntaxNodeKind.UnaryOperatorExpressionSyntax:
                     this.GenerateUnaryOperatorExpressionSyntax(
-                        node.Children[0].Terminator, node.Children[1]);
+                        node.Children[0].Terminator, node.Children[1], inExpressionStatement);
                     break;
                 case SyntaxNodeKind.BinaryOperatorExpressionSyntax:
                     this.GenerateBinaryOperatorExpressionSyntax(
-                        node.Children[1].Terminator, node.Children[0], node.Children[2]);
+                        node.Children[1].Terminator, node.Children[0], node.Children[2], inExpressionStatement);
                     break;
                 case SyntaxNodeKind.ParenthesisExpressionSyntax:
                     break;
@@ -189,14 +186,15 @@ namespace ISB.Runtime
             this.Instructions.Add(null, Instruction.PUSH, str.Text, null);
         }
 
-        private void GenerateUnaryOperatorExpressionSyntax(Token op, SyntaxNode expression)
+        private void GenerateUnaryOperatorExpressionSyntax(
+            Token op, SyntaxNode expression, bool inExpressionStatement)
         {
             switch (op.Kind)
             {
                 case TokenKind.Minus:
                     // Same as (0 - exp).
                     this.Instructions.Add(null, Instruction.PUSH, Instruction.ZeroLiteral, null);
-                    this.GenerateExpressionSyntax(expression);
+                    this.GenerateExpressionSyntax(expression, inExpressionStatement);
                     this.Instructions.Add(null, Instruction.SUB, null, null);
                     break;
                 default:
@@ -205,7 +203,8 @@ namespace ISB.Runtime
             }
         }
 
-        private void GenerateBinaryOperatorExpressionSyntax(Token op, SyntaxNode left, SyntaxNode right)
+        private void GenerateBinaryOperatorExpressionSyntax(
+            Token op, SyntaxNode left, SyntaxNode right, bool inExpressionStatement)
         {
             if (op.Kind == TokenKind.And)
             {
@@ -214,10 +213,10 @@ namespace ISB.Runtime
                 string labelResultIsFalse = this.NewLabel();
                 string labelDone = this.NewLabel();
 
-                this.GenerateExpressionSyntax(left);
+                this.GenerateExpressionSyntax(left, inExpressionStatement);
                 this.Instructions.Add(null, Instruction.BR_IF, labelLeftIsTrue, labelResultIsFalse);
                 this.Instructions.Add(labelLeftIsTrue, Instruction.NOP, null, null);
-                this.GenerateExpressionSyntax(right);
+                this.GenerateExpressionSyntax(right, inExpressionStatement);
                 this.Instructions.Add(null, Instruction.BR_IF, labelResultIsTrue, labelResultIsFalse);
                 this.Instructions.Add(labelResultIsTrue, Instruction.NOP, null, null);
                 this.Instructions.Add(null, Instruction.PUSH, Instruction.TrueLiteral, null);
@@ -233,10 +232,10 @@ namespace ISB.Runtime
                 string labelResultIsFalse = this.NewLabel();
                 string labelDone = this.NewLabel();
 
-                this.GenerateExpressionSyntax(left);
+                this.GenerateExpressionSyntax(left, inExpressionStatement);
                 this.Instructions.Add(null, Instruction.BR_IF, labelResultIsTrue, labelLeftIsFalse);
                 this.Instructions.Add(labelLeftIsFalse, Instruction.NOP, null, null);
-                this.GenerateExpressionSyntax(right);
+                this.GenerateExpressionSyntax(right, inExpressionStatement);
                 this.Instructions.Add(null, Instruction.BR_IF, labelResultIsTrue, labelResultIsFalse);
                 this.Instructions.Add(labelResultIsTrue, Instruction.NOP, null, null);
                 this.Instructions.Add(null, Instruction.PUSH, Instruction.TrueLiteral, null);
@@ -245,11 +244,15 @@ namespace ISB.Runtime
                 this.Instructions.Add(null, Instruction.PUSH, Instruction.FalseLiteral, null);
                 this.Instructions.Add(labelDone, Instruction.NOP, null, null);
             }
+            else if (op.Kind == TokenKind.Equal)
+            {
+                // TODO: Assignment instructions.
+            }
             else
             {
                 // Evaluates and pushes left oprand first.
-                this.GenerateExpressionSyntax(left);
-                this.GenerateExpressionSyntax(right);
+                this.GenerateExpressionSyntax(left, inExpressionStatement);
+                this.GenerateExpressionSyntax(right, inExpressionStatement);
                 string instructionName = null;
                 switch (op.Kind)
                 {
@@ -266,7 +269,7 @@ namespace ISB.Runtime
                         instructionName = Instruction.DIV;
                         break;
                     case TokenKind.Equal:
-                        instructionName = Instruction.EQ; // TODO: Distinguish equal and assignment.
+                        instructionName = Instruction.EQ;
                         break;
                     case TokenKind.NotEqual:
                         instructionName = Instruction.NE;

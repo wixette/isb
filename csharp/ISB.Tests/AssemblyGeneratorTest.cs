@@ -116,8 +116,8 @@ __Program_3__:
         [InlineData (code5, assembly5)]
         [InlineData (code6, assembly6)]
         [InlineData (code7, assembly7)]
-        [InlineData (code8, assembly8)]
-        [InlineData (code9, assembly9)]
+        // [InlineData (code8, assembly8)]
+        // [InlineData (code9, assembly9)]
         public void TestFormatAndParse(string code, string assembly)
         {
             DiagnosticBag diagnostics = new DiagnosticBag();
@@ -125,16 +125,15 @@ __Program_3__:
             Assert.Empty(diagnostics.Contents);
             Parser parser = new Parser(scanner.Tokens, diagnostics);
             Assert.Empty(diagnostics.Contents);
-
-            System.Console.WriteLine(SyntaxTreeDumper.Dump(parser.SyntaxTree));
-
             Environment environment = new Environment();
             AssemblyGenerator generator =
                 new AssemblyGenerator(environment, "Program", diagnostics);
             generator.Generate(parser.SyntaxTree);
             Assert.Empty(diagnostics.Contents);
-            System.Console.WriteLine(generator.Instructions.ToTextFormat());
             Assert.Equal(assembly, generator.Instructions.ToTextFormat());
+
+            System.Console.WriteLine(SyntaxTreeDumper.Dump(parser.SyntaxTree));
+            System.Console.WriteLine(generator.Instructions.ToTextFormat());
         }
 
         const string errInput1 = @"a:

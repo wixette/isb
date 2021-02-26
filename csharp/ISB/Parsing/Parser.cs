@@ -175,9 +175,7 @@ namespace ISB.Parsing
                     }
                     else
                     {
-                        var expression = this.ParseExpression();
-                        this.RunToEndOfLine();
-                        return expression;
+                        return this.ParseExpressionStatement();
                     }
 
                 // The original MSB Parser does not accept standalone expression
@@ -194,9 +192,7 @@ namespace ISB.Parsing
                 case TokenKind.NumberLiteral:
                 case TokenKind.StringLiteral:
                 case TokenKind.LeftParen:
-                    var standaloneExpression = this.ParseExpression();
-                    this.RunToEndOfLine();
-                    return standaloneExpression;
+                    return this.ParseExpressionStatement();
 
                 case TokenKind.GoTo:
                     var goToToken = this.Eat(TokenKind.GoTo);
@@ -349,6 +345,13 @@ namespace ISB.Parsing
                 statements,
                 SyntaxNode.CreateTerminal(SyntaxNodeKind.KeywordSyntax, endWhileToken)
             );
+        }
+
+        private SyntaxNode ParseExpressionStatement()
+        {
+            var expression = this.ParseExpression();
+            this.RunToEndOfLine();
+            return SyntaxNode.CreateNonTerminal(SyntaxNodeKind.ExpressionStatementSyntax, expression);
         }
 
         private SyntaxNode ParseExpression()
