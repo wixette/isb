@@ -239,34 +239,34 @@ namespace ISB.Runtime
                 switch (op.Kind)
                 {
                     case TokenKind.Plus:
-                        instructionName = "add";
+                        instructionName = Instruction.ADD;
                         break;
                     case TokenKind.Minus:
-                        instructionName = "sub";
+                        instructionName = Instruction.SUB;
                         break;
                     case TokenKind.Multiply:
-                        instructionName = "mul";
+                        instructionName = Instruction.MUL;
                         break;
                     case TokenKind.Divide:
-                        instructionName = "div";
+                        instructionName = Instruction.DIV;
                         break;
                     case TokenKind.Equal:
-                        instructionName = "eq"; // TODO: Distinguish equal and assignment.
+                        instructionName = Instruction.EQ; // TODO: Distinguish equal and assignment.
                         break;
                     case TokenKind.NotEqual:
-                        instructionName = "ne";
+                        instructionName = Instruction.NE;
                         break;
                     case TokenKind.LessThan:
-                        instructionName = "lt";
+                        instructionName = Instruction.LT;
                         break;
                     case TokenKind.GreaterThan:
-                        instructionName = "gt";
+                        instructionName = Instruction.GT;
                         break;
                     case TokenKind.LessThanOrEqual:
-                        instructionName = "le";
+                        instructionName = Instruction.LE;
                         break;
                     case TokenKind.GreaterThanOrEqual:
-                        instructionName = "ge";
+                        instructionName = Instruction.GE;
                         break;
                     default:
                         Debug.Fail("Unkonwn binary operator.");
