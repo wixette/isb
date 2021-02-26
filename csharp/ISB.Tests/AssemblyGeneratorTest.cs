@@ -34,10 +34,11 @@ goto a";
 
         private const string code5 = @"sub a
 endsub";
-        private const string assembly5 = @"    br __Program_endsub_a__
-__Program_sub_a__:
+        private const string assembly5 = @"    br __Program_1__
+__Program_0__:
     nop
-__Program_endsub_a__:
+    ret
+__Program_1__:
     nop
 ";
 
@@ -63,6 +64,28 @@ __Program_endsub_a__:
     add
 ";
 
+        private const string code9 = @"a = 1 and b = 2";
+        private const string assembly9 = @"    load a
+    push 1
+    eq
+    br_if __Program_0__ __Program_2__
+__Program_0__:
+    nop
+    load b
+    push 2
+    eq
+    br_if __Program_1__ __Program_2__
+__Program_1__:
+    nop
+    push True
+    br __Program_3__
+__Program_2__:
+    nop
+    push False
+__Program_3__:
+    nop
+";
+
         [Theory]
         [InlineData (code1, assembly1)]
         [InlineData (code2, assembly2)]
@@ -72,6 +95,7 @@ __Program_endsub_a__:
         [InlineData (code6, assembly6)]
         [InlineData (code7, assembly7)]
         [InlineData (code8, assembly8)]
+        [InlineData (code9, assembly9)]
         public void TestFormatAndParse(string code, string assembly)
         {
             DiagnosticBag diagnostics = new DiagnosticBag();

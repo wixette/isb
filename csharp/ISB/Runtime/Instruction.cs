@@ -33,7 +33,7 @@ namespace ISB.Runtime
             { "load_arr", (OprandKind.Identifier, OprandKind.Integer) },
             { "push", (OprandKind.Value, OprandKind.None) },
             { "call", (OprandKind.Label, OprandKind.None) },
-            { "ret", (OprandKind.Label, OprandKind.None) },
+            { "ret", (OprandKind.None, OprandKind.None) },
             { "call_lib", (OprandKind.Label, OprandKind.Label) },
             { "store_lib", (OprandKind.Label, OprandKind.Label) },
             { "load_lib", (OprandKind.Label, OprandKind.Label) },

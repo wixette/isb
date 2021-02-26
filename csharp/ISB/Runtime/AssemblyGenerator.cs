@@ -16,6 +16,7 @@ namespace ISB.Runtime
         private readonly string moduleName;
         private readonly int sequenceBase;
         private readonly DiagnosticBag diagnostics;
+        private int labelCounter = 0; // No need to be thread-safe.
 
         public Assembly AssemblyBlock { get; private set; }
 
@@ -35,6 +36,11 @@ namespace ISB.Runtime
         }
 
         private int CurrentIndex { get => this.sequenceBase + this.AssemblyBlock.InstructionSequence.Count; }
+
+        private string NewLabel()
+        {
+            return String.Format("__{0}_{1}__", this.moduleName, this.labelCounter++);
+        }
 
         private void Generate(SyntaxNode node)
         {
@@ -90,12 +96,6 @@ namespace ISB.Runtime
             }
         }
 
-        private string GetSubLabel(string name)
-            => String.Format("__{0}_sub_{1}__", this.moduleName, name);
-
-        private string GetEndSubLabel(string name)
-            => String.Format("__{0}_endsub_{1}__", this.moduleName, name);
-
         private void GenerateSubModuleStatementSyntax(Token name, SyntaxNode body)
         {
             if (this.environment.SubModuleNameDictionary.ContainsKey(name.Text))
@@ -104,12 +104,13 @@ namespace ISB.Runtime
             }
             else
             {
-                string endSubLabel = this.GetEndSubLabel(name.Text);
+                string subLabel = this.NewLabel();
+                string endSubLabel = this.NewLabel();
                 this.AssemblyBlock.AddInstruction(new Instruction(null, "br", new StringValue(endSubLabel), null));
-                string subLabel = this.GetSubLabel(name.Text);
                 this.AssemblyBlock.AddInstruction(new Instruction(subLabel, "nop", null, null));
                 this.environment.SubModuleNameDictionary.Add(name.Text, this.CurrentIndex);
                 this.Generate(body);
+                this.AssemblyBlock.AddInstruction(new Instruction(null, "ret", null, null));
                 this.AssemblyBlock.AddInstruction(new Instruction(endSubLabel, "nop", null, null));
             }
         }
@@ -195,6 +196,7 @@ namespace ISB.Runtime
             switch (op.Kind)
             {
                 case TokenKind.Minus:
+                    // Same as (0 - exp).
                     this.AssemblyBlock.AddInstruction(new Instruction(null, "push", new NumberValue(0), null));
                     this.GenerateExpressionSyntax(expression);
                     this.AssemblyBlock.AddInstruction(new Instruction(null, "sub", null, null));
@@ -207,46 +209,75 @@ namespace ISB.Runtime
 
         private void GenerateBinaryOperatorExpressionSyntax(Token op, SyntaxNode left, SyntaxNode right)
         {
-            this.GenerateExpressionSyntax(left);
-            this.GenerateExpressionSyntax(right);
-            string instructionName = null;
-            switch (op.Kind)
+            if (op.Kind == TokenKind.And)
             {
-                case TokenKind.Plus:
-                    instructionName = "add";
-                    break;
-                case TokenKind.Minus:
-                    instructionName = "sub";
-                    break;
-                case TokenKind.Multiply:
-                    instructionName = "mul";
-                    break;
-                case TokenKind.Divide:
-                    instructionName = "div";
-                    break;
-                case TokenKind.Equal:
-                    instructionName = "eq"; // TODO: Distinguish equal and assignment.
-                    break;
-                case TokenKind.NotEqual:
-                    instructionName = "ne";
-                    break;
-                case TokenKind.LessThan:
-                    instructionName = "lt";
-                    break;
-                case TokenKind.GreaterThan:
-                    instructionName = "gt";
-                    break;
-                case TokenKind.LessThanOrEqual:
-                    instructionName = "le";
-                    break;
-                case TokenKind.GreaterThanOrEqual:
-                    instructionName = "ge";
-                    break;
-                default:
-                    Debug.Fail("Unkonwn binary operator.");
-                    break;
+                string labelLeftIsTrue = this.NewLabel();
+                string labelResultIsTrue = this.NewLabel();
+                string labelResultIsFalse = this.NewLabel();
+                string labelDone = this.NewLabel();
+
+                this.GenerateExpressionSyntax(left);
+                this.AssemblyBlock.AddInstruction(
+                    new Instruction(null, "br_if", new StringValue(labelLeftIsTrue), new StringValue(labelResultIsFalse)));
+                this.AssemblyBlock.AddInstruction(new Instruction(labelLeftIsTrue, "nop", null, null));
+                this.GenerateExpressionSyntax(right);
+                this.AssemblyBlock.AddInstruction(
+                    new Instruction(null, "br_if", new StringValue(labelResultIsTrue), new StringValue(labelResultIsFalse)));
+                this.AssemblyBlock.AddInstruction(new Instruction(labelResultIsTrue, "nop", null, null));
+                this.AssemblyBlock.AddInstruction(new Instruction(null, "push", new BooleanValue(true), null));
+                this.AssemblyBlock.AddInstruction(new Instruction(null, "br", new StringValue(labelDone), null));
+                this.AssemblyBlock.AddInstruction(new Instruction(labelResultIsFalse, "nop", null, null));
+                this.AssemblyBlock.AddInstruction(new Instruction(null, "push", new BooleanValue(false), null));
+                this.AssemblyBlock.AddInstruction(new Instruction(labelDone, "nop", null, null));
             }
-            this.AssemblyBlock.AddInstruction(new Instruction(null, instructionName, null, null));
+            else if (op.Kind == TokenKind.Or)
+            {
+
+            }
+            else
+            {
+                // Evaluates and pushes left oprand first.
+                this.GenerateExpressionSyntax(left);
+                this.GenerateExpressionSyntax(right);
+                string instructionName = null;
+                switch (op.Kind)
+                {
+                    case TokenKind.Plus:
+                        instructionName = "add";
+                        break;
+                    case TokenKind.Minus:
+                        instructionName = "sub";
+                        break;
+                    case TokenKind.Multiply:
+                        instructionName = "mul";
+                        break;
+                    case TokenKind.Divide:
+                        instructionName = "div";
+                        break;
+                    case TokenKind.Equal:
+                        instructionName = "eq"; // TODO: Distinguish equal and assignment.
+                        break;
+                    case TokenKind.NotEqual:
+                        instructionName = "ne";
+                        break;
+                    case TokenKind.LessThan:
+                        instructionName = "lt";
+                        break;
+                    case TokenKind.GreaterThan:
+                        instructionName = "gt";
+                        break;
+                    case TokenKind.LessThanOrEqual:
+                        instructionName = "le";
+                        break;
+                    case TokenKind.GreaterThanOrEqual:
+                        instructionName = "ge";
+                        break;
+                    default:
+                        Debug.Fail("Unkonwn binary operator.");
+                        break;
+                }
+                this.AssemblyBlock.AddInstruction(new Instruction(null, instructionName, null, null));
+            }
         }
     }
 }
