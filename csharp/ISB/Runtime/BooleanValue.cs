@@ -17,5 +17,17 @@ namespace ISB.Runtime
         public override bool ToBoolean() => this.Value;
 
         public override decimal ToNumber() => this.Value ? 1 : 0;
+
+        public static BooleanValue Parse(string s)
+        {
+            switch (s.Trim().ToLower())
+            {
+                case "true":
+                    return new BooleanValue(true);
+                case "false":
+                default:
+                    return new BooleanValue(false);
+            }
+        }
     }
 }

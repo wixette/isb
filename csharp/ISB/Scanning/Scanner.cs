@@ -115,6 +115,7 @@ namespace ISB.Scanning
 
         private void ScanStringToken()
         {
+            // Currently there is no support to escaped string literals.
             var lookAhead = this.index + 1;
             while (lookAhead < this.text.Length)
             {

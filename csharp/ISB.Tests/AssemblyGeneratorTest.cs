@@ -77,11 +77,11 @@ __Program_0__:
     br_if __Program_1__ __Program_2__
 __Program_1__:
     nop
-    push True
+    push 1
     br __Program_3__
 __Program_2__:
     nop
-    push False
+    push 0
 __Program_3__:
     nop
 ";

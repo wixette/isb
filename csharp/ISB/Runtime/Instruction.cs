@@ -17,36 +17,68 @@ namespace ISB.Runtime
             Label,
             Identifier,
             Integer,
-            Value
+            Number,
+            String
         }
+
+        public static readonly string NOP = "nop";
+        public static readonly string PAUSE = "pause";
+        public static readonly string BR = "br";
+        public static readonly string BR_IF = "br_if";
+        public static readonly string STORE = "store";
+        public static readonly string LOAD = "load";
+        public static readonly string STORE_ARR = "store_arr";
+        public static readonly string LOAD_ARR = "load_arr";
+        public static readonly string PUSH = "push";
+        public static readonly string PUSHS = "pushs";
+        public static readonly string CALL = "call";
+        public static readonly string RET = "ret";
+        public static readonly string CALL_LIB = "call_lib";
+        public static readonly string STORE_LIB = "store_lib";
+        public static readonly string LOAD_LIB = "load_lib";
+        public static readonly string ADD = "add";
+        public static readonly string SUB = "sub";
+        public static readonly string MUL = "mul";
+        public static readonly string DIV = "div";
+        public static readonly string EQ = "eq";
+        public static readonly string NE = "ne";
+        public static readonly string LT = "lt";
+        public static readonly string GT = "gt";
+        public static readonly string LE = "le";
+        public static readonly string GE = "ge";
+
+        public static readonly string ZeroLiteral = "0";
+        public static readonly string TrueLiteral = "1";
+        public static readonly string FalseLiteral = "0";
 
         private static readonly Dictionary<string, (OprandKind, OprandKind)> instructionSet =
             new Dictionary<string, (OprandKind, OprandKind)>()
         {
-            { "nop", (OprandKind.None, OprandKind.None) },
-            { "pause", (OprandKind.None, OprandKind.None) },
-            { "br", (OprandKind.Label, OprandKind.None) },
-            { "br_if", (OprandKind.Label, OprandKind.Label) },
-            { "store", (OprandKind.Identifier, OprandKind.None) },
-            { "load", (OprandKind.Identifier, OprandKind.None) },
-            { "store_arr", (OprandKind.Identifier, OprandKind.Integer) },
-            { "load_arr", (OprandKind.Identifier, OprandKind.Integer) },
-            { "push", (OprandKind.Value, OprandKind.None) },
-            { "call", (OprandKind.Label, OprandKind.None) },
-            { "ret", (OprandKind.None, OprandKind.None) },
-            { "call_lib", (OprandKind.Label, OprandKind.Label) },
-            { "store_lib", (OprandKind.Label, OprandKind.Label) },
-            { "load_lib", (OprandKind.Label, OprandKind.Label) },
-            { "add", (OprandKind.None, OprandKind.None) },
-            { "sub", (OprandKind.None, OprandKind.None) },
-            { "mul", (OprandKind.None, OprandKind.None) },
-            { "div", (OprandKind.None, OprandKind.None) },
-            { "eq", (OprandKind.None, OprandKind.None) },
-            { "ne", (OprandKind.None, OprandKind.None) },
-            { "lt", (OprandKind.None, OprandKind.None) },
-            { "gt", (OprandKind.None, OprandKind.None) },
-            { "le", (OprandKind.None, OprandKind.None) },
-            { "ge", (OprandKind.None, OprandKind.None) },
+            { NOP, (OprandKind.None, OprandKind.None) },
+            { PAUSE, (OprandKind.None, OprandKind.None) },
+            { BR, (OprandKind.Label, OprandKind.None) },
+            { BR_IF, (OprandKind.Label, OprandKind.Label) },
+            { STORE, (OprandKind.Identifier, OprandKind.None) },
+            { LOAD, (OprandKind.Identifier, OprandKind.None) },
+            { STORE_ARR, (OprandKind.Identifier, OprandKind.Integer) },
+            { LOAD_ARR, (OprandKind.Identifier, OprandKind.Integer) },
+            { PUSH, (OprandKind.Number, OprandKind.None) },
+            { PUSHS, (OprandKind.String, OprandKind.None) },
+            { CALL, (OprandKind.Label, OprandKind.None) },
+            { RET, (OprandKind.None, OprandKind.None) },
+            { CALL_LIB, (OprandKind.Label, OprandKind.Label) },
+            { STORE_LIB, (OprandKind.Label, OprandKind.Label) },
+            { LOAD_LIB, (OprandKind.Label, OprandKind.Label) },
+            { ADD, (OprandKind.None, OprandKind.None) },
+            { SUB, (OprandKind.None, OprandKind.None) },
+            { MUL, (OprandKind.None, OprandKind.None) },
+            { DIV, (OprandKind.None, OprandKind.None) },
+            { EQ, (OprandKind.None, OprandKind.None) },
+            { NE, (OprandKind.None, OprandKind.None) },
+            { LT, (OprandKind.None, OprandKind.None) },
+            { GT, (OprandKind.None, OprandKind.None) },
+            { LE, (OprandKind.None, OprandKind.None) },
+            { GE, (OprandKind.None, OprandKind.None) },
         };
 
         public static Dictionary<string, (OprandKind, OprandKind)> InstructionSet { get => instructionSet; }
@@ -56,26 +88,41 @@ namespace ISB.Runtime
         public BaseValue Oprand1 { get; }
         public BaseValue Oprand2 { get; }
 
-        public Instruction(string label, string name, BaseValue oprand1, BaseValue oprand2)
+        private Instruction(string label, string name, BaseValue oprand1, BaseValue oprand2)
         {
-            Debug.Assert(Instruction.IsValid(name, oprand1, oprand2));
             this.Label = label;
             this.Name = name;
             this.Oprand1 = oprand1;
             this.Oprand2 = oprand2;
         }
 
-        public static bool IsValid(string name, BaseValue oprand1, BaseValue oprand2)
+        public static Instruction Create(string label, string name, string oprand1, string oprand2)
         {
+            if (IsValid(name, oprand1, oprand2, out BaseValue oprand1Value, out BaseValue oprand2Value))
+            {
+                return new Instruction(label, name, oprand1Value, oprand2Value);
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        private static bool IsValid(string name, string oprand1, string oprand2, out BaseValue oprand1Value, out BaseValue oprand2Value)
+        {
+            oprand1Value = null;
+            oprand2Value = null;
             if (name == null || !Instruction.InstructionSet.ContainsKey(name))
                 return false;
             var (oprand1Kind, oprand2Kind) = InstructionSet[name];
-            bool ret = IsValidOprandKind(oprand1Kind, oprand1) && IsValidOprandKind(oprand2Kind, oprand2);
+            bool ret = IsValidOprandKind(oprand1Kind, oprand1, out oprand1Value)
+                && IsValidOprandKind(oprand2Kind, oprand2, out oprand2Value);
             return ret;
         }
 
-        private static bool IsValidOprandKind(OprandKind kind, BaseValue oprand)
+        private static bool IsValidOprandKind(OprandKind kind, string oprand, out BaseValue oprandValue)
         {
+            oprandValue = null;
             switch (kind)
             {
                 case OprandKind.None:
@@ -84,17 +131,27 @@ namespace ISB.Runtime
                     break;
                 case OprandKind.Identifier:
                 case OprandKind.Label:
-                    if (oprand == null || !(oprand is StringValue))
+                    if (oprand == null || oprand.Length <= 0)
                         return false;
+                    oprandValue = new StringValue(oprand);
                     break;
                 case OprandKind.Integer:
-                    if (oprand == null || !(oprand is NumberValue))
+                    if (oprand == null || oprand.Length <= 0)
                         return false;
+                    var n = NumberValue.Parse(oprand);
+                    oprandValue = new NumberValue(Math.Floor(n.Value));
                     break;
-                case OprandKind.Value:
-                    if (oprand == null)
+                case OprandKind.Number:
+                    if (oprand == null || oprand.Length <= 0)
                         return false;
+                    oprandValue = NumberValue.Parse(oprand);
                     break;
+                case OprandKind.String:
+                    if (oprand == null || oprand.Length <= 0)
+                        return false;
+                    oprandValue = new StringValue(oprand);
+                    break;
+
             }
             return true;
         }
@@ -112,7 +169,6 @@ namespace ISB.Runtime
             sb.Append(this.Name);
             var (oprand1Kind, oprand2Kind) = InstructionSet[this.Name];
 
-            // TODO: Support quoted string literials like "Hello, World!" and escape strings.
             if (oprand1Kind != OprandKind.None)
             {
                 sb.Append(' ');
@@ -132,8 +188,10 @@ namespace ISB.Runtime
             {
                 case OprandKind.Identifier:
                 case OprandKind.Label:
-                case OprandKind.Value:
+                case OprandKind.Number:
                     return oprand.ToDisplayString();
+                case OprandKind.String:
+                    return "\"" + StringValue.Escape(oprand.ToString()) + "\"";
                 case OprandKind.Integer:
                     return ((int)oprand.ToNumber()).ToString();
                 default:

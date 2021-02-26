@@ -9,12 +9,14 @@ namespace ISB.Tests
         public void TestFormatAndParse()
         {
             Assembly assembly1 = new Assembly();
-            assembly1.Add(null, "nop", null, null);
-            assembly1.Add("label1", "add", null, null);
-            assembly1.Add("label2", "sub", null, null);
-            assembly1.Add("label3", "br", new StringValue("label1"), null);
-            assembly1.Add(null, "br_if", new StringValue("label2"), new StringValue("label3"));
-            assembly1.Add(null, "store_arr", new StringValue("a"), new NumberValue(2));
+            assembly1.Add(null, Instruction.NOP, null, null);
+            assembly1.Add("label1", Instruction.ADD, null, null);
+            assembly1.Add("label2", Instruction.SUB, null, null);
+            assembly1.Add("label3", Instruction.BR, "label1", null);
+            assembly1.Add(null, Instruction.BR_IF, "label2", "label3");
+            assembly1.Add(null, Instruction.STORE_ARR, "a", "2");
+            assembly1.Add(null, Instruction.PUSH, Instruction.TrueLiteral, null);
+            assembly1.Add(null, Instruction.PUSHS, "Say \"Hello, World!\"", null);
 
             string asm = assembly1.ToTextFormat();
             Assert.Equal(@"    nop
@@ -26,14 +28,17 @@ label3:
     br label1
     br_if label2 label3
     store_arr a 2
+    push 1
+    pushs ""Say \""Hello, World!\""""
 ", asm);
 
             Assembly assembly2 = Assembly.Parse(asm);
-            Assert.Equal(6, assembly2.Instructions.Count);
-            Assert.Equal("nop", assembly2.Instructions[0].Name);
+            Assert.Equal(8, assembly2.Instructions.Count);
+            Assert.Equal(Instruction.NOP, assembly2.Instructions[0].Name);
             Assert.Equal("label1", assembly2.Instructions[1].Label);
             Assert.Equal("label3", assembly2.Instructions[4].Oprand2.ToString());
             Assert.Equal("2", assembly2.Instructions[5].Oprand2.ToString());
+            Assert.Equal("Say \"Hello, World!\"", assembly2.Instructions[7].Oprand1.ToString());
         }
     }
 }

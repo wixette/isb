@@ -108,12 +108,12 @@ namespace ISB.Runtime
             {
                 string subLabel = this.NewLabel();
                 string endSubLabel = this.NewLabel();
-                this.Instructions.Add(null, "br", new StringValue(endSubLabel), null);
-                this.Instructions.Add(subLabel, "nop", null, null);
+                this.Instructions.Add(null, Instruction.BR, endSubLabel, null);
+                this.Instructions.Add(subLabel, Instruction.NOP, null, null);
                 this.environment.SubModuleNameDictionary.Add(name.Text, this.Instructions.Count);
                 this.GenerateSyntax(body);
-                this.Instructions.Add(null, "ret", null, null);
-                this.Instructions.Add(endSubLabel, "nop", null, null);
+                this.Instructions.Add(null, Instruction.RET, null, null);
+                this.Instructions.Add(endSubLabel, Instruction.NOP, null, null);
             }
         }
 
@@ -125,7 +125,7 @@ namespace ISB.Runtime
             }
             else
             {
-                this.Instructions.Add(label.Text, "nop", null, null);
+                this.Instructions.Add(label.Text, Instruction.NOP, null, null);
                 this.environment.LabelDictionary.Add(label.Text, this.Instructions.Count);
             }
         }
@@ -138,7 +138,7 @@ namespace ISB.Runtime
             }
             else
             {
-                this.Instructions.Add(null, "br", new StringValue(label.Text), null);
+                this.Instructions.Add(null, Instruction.BR, label.Text, null);
             }
         }
 
@@ -176,21 +176,17 @@ namespace ISB.Runtime
 
         private void GenerateIdentifierExpressionSyntax(Token identifier)
         {
-            this.Instructions.Add(null, "load", new StringValue(identifier.Text), null);
+            this.Instructions.Add(null, Instruction.LOAD, identifier.Text, null);
         }
 
         private void GeneranteNumberLiteralExpressionSyntax(Token number)
         {
-            BaseValue value = StringValue.Parse(number.Text);
-            Debug.Assert(value is NumberValue);
-            this.Instructions.Add(null, "push", value, null);
+            this.Instructions.Add(null, Instruction.PUSH, number.Text, null);
         }
 
         private void GeneranteStringLiteralExpressionSyntax(Token str)
         {
-            BaseValue value = StringValue.Parse(str.Text);
-            Debug.Assert(value is StringValue);
-            this.Instructions.Add(null, "push", value, null);
+            this.Instructions.Add(null, Instruction.PUSH, str.Text, null);
         }
 
         private void GenerateUnaryOperatorExpressionSyntax(Token op, SyntaxNode expression)
@@ -199,9 +195,9 @@ namespace ISB.Runtime
             {
                 case TokenKind.Minus:
                     // Same as (0 - exp).
-                    this.Instructions.Add(null, "push", new NumberValue(0), null);
+                    this.Instructions.Add(null, Instruction.PUSH, Instruction.ZeroLiteral, null);
                     this.GenerateExpressionSyntax(expression);
-                    this.Instructions.Add(null, "sub", null, null);
+                    this.Instructions.Add(null, Instruction.SUB, null, null);
                     break;
                 default:
                     Debug.Fail("Unkonwn unary operator.");
@@ -219,16 +215,16 @@ namespace ISB.Runtime
                 string labelDone = this.NewLabel();
 
                 this.GenerateExpressionSyntax(left);
-                this.Instructions.Add(null, "br_if", new StringValue(labelLeftIsTrue), new StringValue(labelResultIsFalse));
-                this.Instructions.Add(labelLeftIsTrue, "nop", null, null);
+                this.Instructions.Add(null, Instruction.BR_IF, labelLeftIsTrue, labelResultIsFalse);
+                this.Instructions.Add(labelLeftIsTrue, Instruction.NOP, null, null);
                 this.GenerateExpressionSyntax(right);
-                this.Instructions.Add(null, "br_if", new StringValue(labelResultIsTrue), new StringValue(labelResultIsFalse));
-                this.Instructions.Add(labelResultIsTrue, "nop", null, null);
-                this.Instructions.Add(null, "push", new BooleanValue(true), null);
-                this.Instructions.Add(null, "br", new StringValue(labelDone), null);
-                this.Instructions.Add(labelResultIsFalse, "nop", null, null);
-                this.Instructions.Add(null, "push", new BooleanValue(false), null);
-                this.Instructions.Add(labelDone, "nop", null, null);
+                this.Instructions.Add(null, Instruction.BR_IF, labelResultIsTrue, labelResultIsFalse);
+                this.Instructions.Add(labelResultIsTrue, Instruction.NOP, null, null);
+                this.Instructions.Add(null, Instruction.PUSH, Instruction.TrueLiteral, null);
+                this.Instructions.Add(null, Instruction.BR, labelDone, null);
+                this.Instructions.Add(labelResultIsFalse, Instruction.NOP, null, null);
+                this.Instructions.Add(null, Instruction.PUSH, Instruction.FalseLiteral, null);
+                this.Instructions.Add(labelDone, Instruction.NOP, null, null);
             }
             else if (op.Kind == TokenKind.Or)
             {

@@ -39,12 +39,22 @@ namespace ISB.Tests
             Assert.Equal(number, value.ToNumber());
         }
 
-        [Theory]
-        [InlineData("1", "1")]
-        [InlineData("TRUE", "True")]
-        public void TestStringParse(string initial, string displayString)
+        [Fact]
+        public void TestParse()
         {
-            Assert.Equal(displayString, StringValue.Parse(initial).ToDisplayString());
+            Assert.Equal((decimal)1, NumberValue.Parse(" 1 ").Value);
+            Assert.Equal((decimal)0.3, NumberValue.Parse("0.3").Value);
+            Assert.Equal((decimal)0, NumberValue.Parse("abc").Value);
+
+            Assert.True(BooleanValue.Parse("true").Value);
+            Assert.True(BooleanValue.Parse("True").Value);
+            Assert.False(BooleanValue.Parse("false").Value);
+            Assert.False(BooleanValue.Parse("").Value);
+            Assert.False(BooleanValue.Parse("x").Value);
+
+            Assert.Equal("abc", StringValue.ParseEscaped("abc").Value);
+            Assert.Equal(@"abc""", StringValue.ParseEscaped(@"abc\""").Value);
+            Assert.Equal(@"abc\", StringValue.ParseEscaped(@"abc\\").Value);
         }
 
         [Fact]
@@ -54,9 +64,9 @@ namespace ISB.Tests
             Assert.Empty(array.Keys);
             Assert.Empty(array.Values);
             Assert.False(array.ContainsKey("1"));
-            array.SetIndex("1", StringValue.Parse("a"));
-            array.SetIndex("2", StringValue.Parse("b"));
-            array.SetIndex("x", StringValue.Parse("y"));
+            array.SetIndex("1", new StringValue("a"));
+            array.SetIndex("2", new StringValue("b"));
+            array.SetIndex("x", new StringValue("y"));
             array.RemoveIndex("2");
             Assert.Equal(2, array.Count);
             Assert.Equal("y", array["x"].ToDisplayString());

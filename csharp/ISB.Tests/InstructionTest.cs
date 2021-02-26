@@ -8,25 +8,28 @@ namespace ISB.Tests
         [Fact]
         public void TestValidInstructions()
         {
-            Instruction i = new Instruction(null, "nop", null, null);
+            Instruction i = Instruction.Create(null, Instruction.NOP, null, null);
             Assert.Equal("    nop", i.ToDisplayString());
-            i = new Instruction("init", "nop", null, null);
+            i = Instruction.Create("init", Instruction.NOP, null, null);
             Assert.Equal("init:\n    nop", i.ToDisplayString());
-            i = new Instruction(null, "br", new StringValue("init"), null);
+            i = Instruction.Create(null, Instruction.BR, "init", null);
             Assert.Equal("    br init", i.ToDisplayString());
-            i = new Instruction(null, "store_arr", new StringValue("a"), new NumberValue(2));
+            i = Instruction.Create(null, Instruction.STORE_ARR, "a", "2");
             Assert.Equal("    store_arr a 2", i.ToDisplayString());
+            i = Instruction.Create(null, Instruction.PUSHS, "\"abc\"", null);
+            Assert.Equal("    pushs \"\\\"abc\\\"\"", i.ToDisplayString());
         }
 
         [Fact]
         public void TestInvalidInstructions()
         {
-            Assert.False(Instruction.IsValid("invalid", null, null));
-            Assert.False(Instruction.IsValid(null, null, null));
-            Assert.False(Instruction.IsValid("nop", new NumberValue(0), null));
-            Assert.False(Instruction.IsValid("br", new NumberValue(0), null));
-            Assert.False(Instruction.IsValid("br_if", null, new StringValue("x")));
-            Assert.False(Instruction.IsValid("load_arr", new StringValue("a"), new BooleanValue(false)));
+            Assert.Null(Instruction.Create(null, "invalid", null, null));
+            Assert.Null(Instruction.Create(null, null, null, null));
+            Assert.Null(Instruction.Create(null, Instruction.NOP, "0", null));
+            Assert.Null(Instruction.Create(null, Instruction.BR, null, null));
+            Assert.Null(Instruction.Create(null, Instruction.BR_IF, null, "x"));
+            Assert.Null(Instruction.Create(null, Instruction.LOAD_ARR, "a", ""));
+            Assert.Null(Instruction.Create(null, Instruction.PUSHS, "", null));
         }
     }
 }
