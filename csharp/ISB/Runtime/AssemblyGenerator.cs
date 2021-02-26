@@ -228,7 +228,22 @@ namespace ISB.Runtime
             }
             else if (op.Kind == TokenKind.Or)
             {
+                string labelLeftIsFalse = this.NewLabel();
+                string labelResultIsTrue = this.NewLabel();
+                string labelResultIsFalse = this.NewLabel();
+                string labelDone = this.NewLabel();
 
+                this.GenerateExpressionSyntax(left);
+                this.Instructions.Add(null, Instruction.BR_IF, labelResultIsTrue, labelLeftIsFalse);
+                this.Instructions.Add(labelLeftIsFalse, Instruction.NOP, null, null);
+                this.GenerateExpressionSyntax(right);
+                this.Instructions.Add(null, Instruction.BR_IF, labelResultIsTrue, labelResultIsFalse);
+                this.Instructions.Add(labelResultIsTrue, Instruction.NOP, null, null);
+                this.Instructions.Add(null, Instruction.PUSH, Instruction.TrueLiteral, null);
+                this.Instructions.Add(null, Instruction.BR, labelDone, null);
+                this.Instructions.Add(labelResultIsFalse, Instruction.NOP, null, null);
+                this.Instructions.Add(null, Instruction.PUSH, Instruction.FalseLiteral, null);
+                this.Instructions.Add(labelDone, Instruction.NOP, null, null);
             }
             else
             {

@@ -86,6 +86,28 @@ __Program_3__:
     nop
 ";
 
+        private const string code10 = @"a = 1 or b = 2";
+        private const string assembly10 = @"    load a
+    push 1
+    eq
+    br_if __Program_1__ __Program_0__
+__Program_0__:
+    nop
+    load b
+    push 2
+    eq
+    br_if __Program_1__ __Program_2__
+__Program_1__:
+    nop
+    push 1
+    br __Program_3__
+__Program_2__:
+    nop
+    push 0
+__Program_3__:
+    nop
+";
+
         [Theory]
         [InlineData (code1, assembly1)]
         [InlineData (code2, assembly2)]
