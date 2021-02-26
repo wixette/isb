@@ -13,6 +13,11 @@ namespace ISB.Runtime
 
         public Environment()
         {
+            this.Reset();
+        }
+
+        public void Reset()
+        {
             this.LabelDictionary = new Dictionary<string, int>();
             this.SubModuleNameDictionary = new Dictionary<string, int>();
         }

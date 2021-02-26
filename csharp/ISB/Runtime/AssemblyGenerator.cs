@@ -12,37 +12,39 @@ namespace ISB.Runtime
 {
     public sealed class AssemblyGenerator
     {
-        private Environment environment;
+        private readonly Environment environment;
         private readonly string moduleName;
-        private readonly int sequenceBase;
         private readonly DiagnosticBag diagnostics;
         private int labelCounter = 0; // No need to be thread-safe.
 
-        public Assembly AssemblyBlock { get; private set; }
+        public Assembly Instructions { get; private set; }
 
-        public AssemblyGenerator(Environment environment,
-            SyntaxNode treeRoot,
-            string moduleName,
-            int sequenceBase,
-            DiagnosticBag diagnostics)
+        public AssemblyGenerator(Environment environment, string moduleName, DiagnosticBag diagnostics)
         {
             this.environment = environment;
             this.moduleName = moduleName;
-            this.sequenceBase = Math.Max(0, sequenceBase);
             this.diagnostics = diagnostics;
-            this.AssemblyBlock = new Assembly();
-
-            this.Generate(treeRoot);
+            this.Instructions = new Assembly();
+            this.Reset();
         }
 
-        private int CurrentIndex { get => this.sequenceBase + this.AssemblyBlock.InstructionSequence.Count; }
+        public void Reset()
+        {
+            this.environment.Reset();
+            this.Instructions.Clear();
+        }
+
+        public void Generate(SyntaxNode syntaxTree)
+        {
+            this.GenerateSyntax(syntaxTree);
+        }
 
         private string NewLabel()
         {
             return String.Format("__{0}_{1}__", this.moduleName, this.labelCounter++);
         }
 
-        private void Generate(SyntaxNode node)
+        private void GenerateSyntax(SyntaxNode node)
         {
             switch (node.Kind)
             {
@@ -92,7 +94,7 @@ namespace ISB.Runtime
         {
             foreach (var child in node.Children)
             {
-                this.Generate(child);
+                this.GenerateSyntax(child);
             }
         }
 
@@ -106,12 +108,12 @@ namespace ISB.Runtime
             {
                 string subLabel = this.NewLabel();
                 string endSubLabel = this.NewLabel();
-                this.AssemblyBlock.AddInstruction(new Instruction(null, "br", new StringValue(endSubLabel), null));
-                this.AssemblyBlock.AddInstruction(new Instruction(subLabel, "nop", null, null));
-                this.environment.SubModuleNameDictionary.Add(name.Text, this.CurrentIndex);
-                this.Generate(body);
-                this.AssemblyBlock.AddInstruction(new Instruction(null, "ret", null, null));
-                this.AssemblyBlock.AddInstruction(new Instruction(endSubLabel, "nop", null, null));
+                this.Instructions.Add(null, "br", new StringValue(endSubLabel), null);
+                this.Instructions.Add(subLabel, "nop", null, null);
+                this.environment.SubModuleNameDictionary.Add(name.Text, this.Instructions.Count);
+                this.GenerateSyntax(body);
+                this.Instructions.Add(null, "ret", null, null);
+                this.Instructions.Add(endSubLabel, "nop", null, null);
             }
         }
 
@@ -123,8 +125,8 @@ namespace ISB.Runtime
             }
             else
             {
-                this.AssemblyBlock.AddInstruction(new Instruction(label.Text, "nop", null, null));
-                this.environment.LabelDictionary.Add(label.Text, this.CurrentIndex);
+                this.Instructions.Add(label.Text, "nop", null, null);
+                this.environment.LabelDictionary.Add(label.Text, this.Instructions.Count);
             }
         }
 
@@ -136,7 +138,7 @@ namespace ISB.Runtime
             }
             else
             {
-                this.AssemblyBlock.AddInstruction(new Instruction(null, "br", new StringValue(label.Text), null));
+                this.Instructions.Add(null, "br", new StringValue(label.Text), null);
             }
         }
 
@@ -174,21 +176,21 @@ namespace ISB.Runtime
 
         private void GenerateIdentifierExpressionSyntax(Token identifier)
         {
-            this.AssemblyBlock.AddInstruction(new Instruction(null, "load", new StringValue(identifier.Text), null));
+            this.Instructions.Add(null, "load", new StringValue(identifier.Text), null);
         }
 
         private void GeneranteNumberLiteralExpressionSyntax(Token number)
         {
             BaseValue value = StringValue.Parse(number.Text);
             Debug.Assert(value is NumberValue);
-            this.AssemblyBlock.AddInstruction(new Instruction(null, "push", value, null));
+            this.Instructions.Add(null, "push", value, null);
         }
 
         private void GeneranteStringLiteralExpressionSyntax(Token str)
         {
             BaseValue value = StringValue.Parse(str.Text);
             Debug.Assert(value is StringValue);
-            this.AssemblyBlock.AddInstruction(new Instruction(null, "push", value, null));
+            this.Instructions.Add(null, "push", value, null);
         }
 
         private void GenerateUnaryOperatorExpressionSyntax(Token op, SyntaxNode expression)
@@ -197,9 +199,9 @@ namespace ISB.Runtime
             {
                 case TokenKind.Minus:
                     // Same as (0 - exp).
-                    this.AssemblyBlock.AddInstruction(new Instruction(null, "push", new NumberValue(0), null));
+                    this.Instructions.Add(null, "push", new NumberValue(0), null);
                     this.GenerateExpressionSyntax(expression);
-                    this.AssemblyBlock.AddInstruction(new Instruction(null, "sub", null, null));
+                    this.Instructions.Add(null, "sub", null, null);
                     break;
                 default:
                     Debug.Fail("Unkonwn unary operator.");
@@ -217,18 +219,16 @@ namespace ISB.Runtime
                 string labelDone = this.NewLabel();
 
                 this.GenerateExpressionSyntax(left);
-                this.AssemblyBlock.AddInstruction(
-                    new Instruction(null, "br_if", new StringValue(labelLeftIsTrue), new StringValue(labelResultIsFalse)));
-                this.AssemblyBlock.AddInstruction(new Instruction(labelLeftIsTrue, "nop", null, null));
+                this.Instructions.Add(null, "br_if", new StringValue(labelLeftIsTrue), new StringValue(labelResultIsFalse));
+                this.Instructions.Add(labelLeftIsTrue, "nop", null, null);
                 this.GenerateExpressionSyntax(right);
-                this.AssemblyBlock.AddInstruction(
-                    new Instruction(null, "br_if", new StringValue(labelResultIsTrue), new StringValue(labelResultIsFalse)));
-                this.AssemblyBlock.AddInstruction(new Instruction(labelResultIsTrue, "nop", null, null));
-                this.AssemblyBlock.AddInstruction(new Instruction(null, "push", new BooleanValue(true), null));
-                this.AssemblyBlock.AddInstruction(new Instruction(null, "br", new StringValue(labelDone), null));
-                this.AssemblyBlock.AddInstruction(new Instruction(labelResultIsFalse, "nop", null, null));
-                this.AssemblyBlock.AddInstruction(new Instruction(null, "push", new BooleanValue(false), null));
-                this.AssemblyBlock.AddInstruction(new Instruction(labelDone, "nop", null, null));
+                this.Instructions.Add(null, "br_if", new StringValue(labelResultIsTrue), new StringValue(labelResultIsFalse));
+                this.Instructions.Add(labelResultIsTrue, "nop", null, null);
+                this.Instructions.Add(null, "push", new BooleanValue(true), null);
+                this.Instructions.Add(null, "br", new StringValue(labelDone), null);
+                this.Instructions.Add(labelResultIsFalse, "nop", null, null);
+                this.Instructions.Add(null, "push", new BooleanValue(false), null);
+                this.Instructions.Add(labelDone, "nop", null, null);
             }
             else if (op.Kind == TokenKind.Or)
             {
@@ -276,7 +276,7 @@ namespace ISB.Runtime
                         Debug.Fail("Unkonwn binary operator.");
                         break;
                 }
-                this.AssemblyBlock.AddInstruction(new Instruction(null, instructionName, null, null));
+                this.Instructions.Add(null, instructionName, null, null);
             }
         }
     }

@@ -1,29 +1,52 @@
 ﻿// This is a derived work of Microsoft Small Basic (https://github.com/sb).
 // The original code is licensed under the MIT License.
 
+using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 
 namespace ISB.Runtime
 {
-    public sealed class Assembly
+    public sealed class Assembly : IEnumerable<Instruction>
     {
-        public List<Instruction> InstructionSequence { get; }
+        public List<Instruction> Instructions { get; private set; }
 
         public Assembly()
         {
-            this.InstructionSequence = new List<Instruction>();
+            this.Instructions = new List<Instruction>();
         }
 
-        public void AddInstruction(Instruction instruction)
+        public int Count { get=> Instructions.Count; }
+
+        IEnumerator IEnumerable.GetEnumerator()
         {
-            this.InstructionSequence.Add(instruction);
+            return this.GetEnumerator();
+        }
+
+        public IEnumerator<Instruction> GetEnumerator()
+        {
+            return this.Instructions.GetEnumerator();
+        }
+
+        public void Clear()
+        {
+            this.Instructions.Clear();
+        }
+
+        public void Add(Instruction instruction)
+        {
+            this.Instructions.Add(instruction);
+        }
+
+        public void Add(string label, string name, BaseValue oprand1, BaseValue oprand2)
+        {
+            this.Instructions.Add(new Instruction(label, name, oprand1, oprand2));
         }
 
         public string ToDisplayString()
         {
             StringBuilder sb = new StringBuilder();
-            foreach (var instruction in this.InstructionSequence)
+            foreach (var instruction in this.Instructions)
             {
                 sb.AppendLine(instruction.ToDisplayString());
             }
@@ -61,7 +84,7 @@ namespace ISB.Runtime
                     BaseValue oprand2 = oprand2Token != null ? StringValue.Parse(oprand2Token) : null;
                     if (Instruction.IsValid(name, oprand1, oprand2))
                     {
-                        assembly.AddInstruction(new Instruction(label, name, oprand1, oprand2));
+                        assembly.Add(label, name, oprand1, oprand2);
                         label = null;
                     }
                 }

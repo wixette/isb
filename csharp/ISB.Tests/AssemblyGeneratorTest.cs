@@ -108,10 +108,11 @@ __Program_3__:
 
             Environment environment = new Environment();
             AssemblyGenerator generator =
-                new AssemblyGenerator(environment, parser.SyntaxTree, "Program", 0, diagnostics);
+                new AssemblyGenerator(environment, "Program", diagnostics);
+            generator.Generate(parser.SyntaxTree);
             Assert.Empty(diagnostics.Contents);
-            System.Console.WriteLine(generator.AssemblyBlock.ToTextFormat());
-            Assert.Equal(assembly, generator.AssemblyBlock.ToTextFormat());
+            System.Console.WriteLine(generator.Instructions.ToTextFormat());
+            Assert.Equal(assembly, generator.Instructions.ToTextFormat());
         }
 
         const string errInput1 = @"a:
@@ -136,7 +137,8 @@ endsub";
             Assert.Empty(diagnostics.Contents);
             Environment environment = new Environment();
             AssemblyGenerator generator =
-                new AssemblyGenerator(environment, parser.SyntaxTree, "Program", 0, diagnostics);
+                new AssemblyGenerator(environment, "Program", diagnostics);
+            generator.Generate(parser.SyntaxTree);
             Assert.Equal(errDiagnostics.Length, diagnostics.Contents.Count);
             for (int i = 0; i < errDiagnostics.Length; i++)
             {
