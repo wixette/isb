@@ -175,7 +175,7 @@ namespace ISB.Parsing
                     }
                     else
                     {
-                        var expression = this.ParseBaseExpression();
+                        var expression = this.ParseExpression();
                         this.RunToEndOfLine();
                         return expression;
                     }
@@ -194,7 +194,7 @@ namespace ISB.Parsing
                 case TokenKind.NumberLiteral:
                 case TokenKind.StringLiteral:
                 case TokenKind.LeftParen:
-                    var standaloneExpression = this.ParseBaseExpression();
+                    var standaloneExpression = this.ParseExpression();
                     this.RunToEndOfLine();
                     return standaloneExpression;
 
@@ -228,7 +228,7 @@ namespace ISB.Parsing
         private SyntaxNode ParseIfStatement()
         {
             var ifToken = this.Eat(TokenKind.If);
-            var expression = this.ParseBaseExpression();
+            var expression = this.ParseExpression();
             var thenToken = this.Eat(TokenKind.Then);
             this.RunToEndOfLine();
             var statements = this.ParseStatementsExcept(TokenKind.ElseIf, TokenKind.Else, TokenKind.EndIf);
@@ -244,7 +244,7 @@ namespace ISB.Parsing
             while (this.index < this.tokens.Count && this.Peek() == TokenKind.ElseIf)
             {
                 var elseIfToken = this.Eat(TokenKind.ElseIf);
-                expression = this.ParseBaseExpression();
+                expression = this.ParseExpression();
                 thenToken = this.Eat(TokenKind.Then);
                 this.RunToEndOfLine();
                 statements = this.ParseStatementsExcept(TokenKind.ElseIf, TokenKind.Else, TokenKind.EndIf);
@@ -294,15 +294,15 @@ namespace ISB.Parsing
             var forToken = this.Eat(TokenKind.For);
             var identifierToken = this.Eat(TokenKind.Identifier);
             var equalToken = this.Eat(TokenKind.Equal);
-            var fromExpression = this.ParseBaseExpression();
+            var fromExpression = this.ParseExpression();
             var toToken = this.Eat(TokenKind.To);
-            var toExpression = this.ParseBaseExpression();
+            var toExpression = this.ParseExpression();
 
             SyntaxNode stepClause = null;
             if (this.index < this.tokens.Count && this.Peek() == TokenKind.Step)
             {
                 var stepToken = this.Eat(TokenKind.Step);
-                var expression = this.ParseBaseExpression();
+                var expression = this.ParseExpression();
 
                 stepClause = SyntaxNode.CreateNonTerminal(SyntaxNodeKind.ForStepClauseSyntax,
                     SyntaxNode.CreateTerminal(SyntaxNodeKind.KeywordSyntax, stepToken),
@@ -335,7 +335,7 @@ namespace ISB.Parsing
         private SyntaxNode ParseWhileStatement()
         {
             var whileToken = this.Eat(TokenKind.While);
-            var expression = this.ParseBaseExpression();
+            var expression = this.ParseExpression();
             this.RunToEndOfLine();
 
             var statements = this.ParseStatementsExcept(TokenKind.EndWhile);
@@ -351,7 +351,7 @@ namespace ISB.Parsing
             );
         }
 
-        private SyntaxNode ParseBaseExpression()
+        private SyntaxNode ParseExpression()
         {
             return this.ParseBinaryOperator(precedence: 0);
         }
@@ -417,7 +417,7 @@ namespace ISB.Parsing
 
                     case TokenKind.LeftBracket:
                         var leftBracketToken = this.Eat(TokenKind.LeftBracket);
-                        var indexExpression = this.ParseBaseExpression();
+                        var indexExpression = this.ParseExpression();
                         var rightBracketToken = this.Eat(TokenKind.RightBracket);
                         expression = SyntaxNode.CreateNonTerminal(SyntaxNodeKind.ArrayAccessExpressionSyntax,
                             expression,
@@ -492,7 +492,7 @@ namespace ISB.Parsing
                 }
                 else
                 {
-                    currentArgument = this.ParseBaseExpression();
+                    currentArgument = this.ParseExpression();
                 }
             }
 
@@ -536,7 +536,7 @@ namespace ISB.Parsing
 
                 case TokenKind.LeftParen:
                     var leftParenToken = this.Eat(TokenKind.LeftParen);
-                    var expression = this.ParseBaseExpression();
+                    var expression = this.ParseExpression();
                     var rightParenToken = this.Eat(TokenKind.RightParen);
                     return SyntaxNode.CreateNonTerminal(SyntaxNodeKind.ParenthesisExpressionSyntax,
                         SyntaxNode.CreateTerminal(SyntaxNodeKind.PunctuationSyntax, leftParenToken),
