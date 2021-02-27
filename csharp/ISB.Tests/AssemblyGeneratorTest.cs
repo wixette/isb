@@ -64,16 +64,16 @@ __Program_1__:
     add
 ";
 
-        private const string code9 = @"a = 1 and b = 2";
+        private const string code9 = @"a > 1 and a < 3";
         private const string assembly9 = @"    load a
     push 1
-    eq
+    gt
     br_if __Program_0__ __Program_2__
 __Program_0__:
     nop
-    load b
-    push 2
-    eq
+    load a
+    push 3
+    lt
     br_if __Program_1__ __Program_2__
 __Program_1__:
     nop
@@ -86,16 +86,16 @@ __Program_3__:
     nop
 ";
 
-        private const string code10 = @"a = 1 or b = 2";
+        private const string code10 = @"a >= 3 or b <= 3";
         private const string assembly10 = @"    load a
-    push 1
-    eq
+    push 3
+    ge
     br_if __Program_1__ __Program_0__
 __Program_0__:
     nop
     load b
-    push 2
-    eq
+    push 3
+    le
     br_if __Program_1__ __Program_2__
 __Program_1__:
     nop
@@ -116,8 +116,8 @@ __Program_3__:
         [InlineData (code5, assembly5)]
         [InlineData (code6, assembly6)]
         [InlineData (code7, assembly7)]
-        // [InlineData (code8, assembly8)]
-        // [InlineData (code9, assembly9)]
+        [InlineData (code8, assembly8)]
+        [InlineData (code9, assembly9)]
         public void TestFormatAndParse(string code, string assembly)
         {
             DiagnosticBag diagnostics = new DiagnosticBag();

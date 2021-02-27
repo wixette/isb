@@ -244,7 +244,7 @@ namespace ISB.Runtime
                 this.Instructions.Add(null, Instruction.PUSH, Instruction.FalseLiteral, null);
                 this.Instructions.Add(labelDone, Instruction.NOP, null, null);
             }
-            else if (op.Kind == TokenKind.Equal)
+            else if (op.Kind == TokenKind.Equal && inExpressionStatement)
             {
                 // TODO: Assignment instructions.
             }
