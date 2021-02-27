@@ -7,28 +7,29 @@ namespace ISB.Utilities
 {
     public enum DiagnosticCode
     {
-        UnrecognizedCharacter,
-        UnterminatedStringLiteral,
-        UnexpectedTokenFound,
-        UnexpectedEndOfStream,
-        UnexpectedStatementInsteadOfNewLine,
-        UnexpectedTokenInsteadOfStatement,
-        TwoSubModulesWithTheSameName,
-        TwoLabelsWithTheSameName,
-        GoToUndefinedLabel,
-        PropertyHasNoSetter,
         AssigningNonSubModuleToEvent,
-        UnassignedExpressionStatement,
-        InvalidExpressionStatement,
-        UnsupportedArrayBaseExpression,
-        ValueIsNotANumber,
-        UnsupportedDotBaseExpression,
+        ExpectedALeftValue,
         ExpectedExpressionWithAValue,
-        LibraryMemberNotFound,
-        UnexpectedArgumentsCount,
-        UnsupportedInvocationBaseExpression,
+        GoToUndefinedLabel,
+        InvalidExpressionStatement,
         LibraryMemberDeprecatedFromOlderVersion,
         LibraryMemberNeedsDesktop,
+        LibraryMemberNotFound,
+        PropertyHasNoSetter,
+        TwoLabelsWithTheSameName,
+        TwoSubModulesWithTheSameName,
+        UnassignedExpressionStatement,
+        UnexpectedArgumentsCount,
+        UnexpectedEndOfStream,
+        UnexpectedStatementInsteadOfNewLine,
+        UnexpectedTokenFound,
+        UnexpectedTokenInsteadOfStatement,
+        UnrecognizedCharacter,
+        UnsupportedArrayBaseExpression,
+        UnsupportedDotBaseExpression,
+        UnsupportedInvocationBaseExpression,
+        UnterminatedStringLiteral,
+        ValueIsNotANumber,
     }
 
     internal static partial class DiagnosticCodeExtensions
@@ -37,28 +38,29 @@ namespace ISB.Utilities
         {
             switch (kind)
             {
-                case DiagnosticCode.UnrecognizedCharacter: return Resources.UnrecognizedCharacter;
-                case DiagnosticCode.UnterminatedStringLiteral: return Resources.UnterminatedStringLiteral;
-                case DiagnosticCode.UnexpectedTokenFound: return Resources.UnexpectedTokenFound;
-                case DiagnosticCode.UnexpectedEndOfStream: return Resources.UnexpectedEndOfStream;
-                case DiagnosticCode.UnexpectedStatementInsteadOfNewLine: return Resources.UnexpectedStatementInsteadOfNewLine;
-                case DiagnosticCode.UnexpectedTokenInsteadOfStatement: return Resources.UnexpectedTokenInsteadOfStatement;
-                case DiagnosticCode.TwoSubModulesWithTheSameName: return Resources.TwoSubModulesWithTheSameName;
-                case DiagnosticCode.TwoLabelsWithTheSameName: return Resources.TwoLabelsWithTheSameName;
-                case DiagnosticCode.GoToUndefinedLabel: return Resources.GoToUndefinedLabel;
-                case DiagnosticCode.PropertyHasNoSetter: return Resources.PropertyHasNoSetter;
                 case DiagnosticCode.AssigningNonSubModuleToEvent: return Resources.AssigningNonSubModuleToEvent;
-                case DiagnosticCode.UnassignedExpressionStatement: return Resources.UnassignedExpressionStatement;
-                case DiagnosticCode.InvalidExpressionStatement: return Resources.InvalidExpressionStatement;
-                case DiagnosticCode.UnsupportedArrayBaseExpression: return Resources.UnsupportedArrayBaseExpression;
-                case DiagnosticCode.ValueIsNotANumber: return Resources.ValueIsNotANumber;
-                case DiagnosticCode.UnsupportedDotBaseExpression: return Resources.UnsupportedDotBaseExpression;
+                case DiagnosticCode.ExpectedALeftValue: return Resources.ExpectedALeftValue;
                 case DiagnosticCode.ExpectedExpressionWithAValue: return Resources.ExpectedExpressionWithAValue;
-                case DiagnosticCode.LibraryMemberNotFound: return Resources.LibraryMemberNotFound;
-                case DiagnosticCode.UnexpectedArgumentsCount: return Resources.UnexpectedArgumentsCount;
-                case DiagnosticCode.UnsupportedInvocationBaseExpression: return Resources.UnsupportedInvocationBaseExpression;
+                case DiagnosticCode.GoToUndefinedLabel: return Resources.GoToUndefinedLabel;
+                case DiagnosticCode.InvalidExpressionStatement: return Resources.InvalidExpressionStatement;
                 case DiagnosticCode.LibraryMemberDeprecatedFromOlderVersion: return Resources.LibraryMemberDeprecatedFromOlderVersion;
                 case DiagnosticCode.LibraryMemberNeedsDesktop: return Resources.LibraryMemberNeedsDesktop;
+                case DiagnosticCode.LibraryMemberNotFound: return Resources.LibraryMemberNotFound;
+                case DiagnosticCode.PropertyHasNoSetter: return Resources.PropertyHasNoSetter;
+                case DiagnosticCode.TwoLabelsWithTheSameName: return Resources.TwoLabelsWithTheSameName;
+                case DiagnosticCode.TwoSubModulesWithTheSameName: return Resources.TwoSubModulesWithTheSameName;
+                case DiagnosticCode.UnassignedExpressionStatement: return Resources.UnassignedExpressionStatement;
+                case DiagnosticCode.UnexpectedArgumentsCount: return Resources.UnexpectedArgumentsCount;
+                case DiagnosticCode.UnexpectedEndOfStream: return Resources.UnexpectedEndOfStream;
+                case DiagnosticCode.UnexpectedStatementInsteadOfNewLine: return Resources.UnexpectedStatementInsteadOfNewLine;
+                case DiagnosticCode.UnexpectedTokenFound: return Resources.UnexpectedTokenFound;
+                case DiagnosticCode.UnexpectedTokenInsteadOfStatement: return Resources.UnexpectedTokenInsteadOfStatement;
+                case DiagnosticCode.UnrecognizedCharacter: return Resources.UnrecognizedCharacter;
+                case DiagnosticCode.UnsupportedArrayBaseExpression: return Resources.UnsupportedArrayBaseExpression;
+                case DiagnosticCode.UnsupportedDotBaseExpression: return Resources.UnsupportedDotBaseExpression;
+                case DiagnosticCode.UnsupportedInvocationBaseExpression: return Resources.UnsupportedInvocationBaseExpression;
+                case DiagnosticCode.UnterminatedStringLiteral: return Resources.UnterminatedStringLiteral;
+                case DiagnosticCode.ValueIsNotANumber: return Resources.ValueIsNotANumber;
                 default: throw ExceptionUtilities.UnexpectedValue(kind);
             }
         }

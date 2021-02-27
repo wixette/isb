@@ -108,6 +108,11 @@ __Program_3__:
     nop
 ";
 
+        private const string code11 = @"a = 3";
+        private const string assembly11 = @"    push 3
+    store a
+";
+
         [Theory]
         [InlineData (code1, assembly1)]
         [InlineData (code2, assembly2)]
@@ -118,6 +123,8 @@ __Program_3__:
         [InlineData (code7, assembly7)]
         [InlineData (code8, assembly8)]
         [InlineData (code9, assembly9)]
+        [InlineData (code10, assembly10)]
+        [InlineData (code11, assembly11)]
         public void TestFormatAndParse(string code, string assembly)
         {
             DiagnosticBag diagnostics = new DiagnosticBag();

@@ -184,5 +184,11 @@ namespace ISB.Properties {
                 return ResourceManager.GetString("LibraryMemberNeedsDesktop", resourceCulture);
             }
         }
+        
+        internal static string ExpectedALeftValue {
+            get {
+                return ResourceManager.GetString("ExpectedALeftValue", resourceCulture);
+            }
+        }
     }
 }

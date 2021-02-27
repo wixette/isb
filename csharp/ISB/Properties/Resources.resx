@@ -186,4 +186,7 @@
   <data name="LibraryMemberNeedsDesktop" xml:space="preserve">
     <value>The library member '{0}.{1}' cannot be used in the online editor. Please download the desktop editor to use it.</value>
   </data>
+  <data name="ExpectedALeftValue" xml:space="preserve">
+    <value>You can only assign a value to a variable, an array item or a library property.</value>
+  </data>
 </root>

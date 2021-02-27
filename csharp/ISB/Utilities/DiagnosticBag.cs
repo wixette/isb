@@ -122,6 +122,11 @@ namespace ISB.Utilities
         {
             this.builder.Add(new Diagnostic(DiagnosticCode.LibraryMemberNeedsDesktop, range, library, member));
         }
+
+        public void ReportExpectedALeftValue(TextRange range)
+        {
+            this.builder.Add(new Diagnostic(DiagnosticCode.ExpectedALeftValue, range));
+        }
     }
 
 }

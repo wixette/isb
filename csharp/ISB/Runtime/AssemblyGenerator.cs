@@ -183,7 +183,7 @@ namespace ISB.Runtime
 
         private void GeneranteStringLiteralExpressionSyntax(Token str)
         {
-            this.Instructions.Add(null, Instruction.PUSH, str.Text, null);
+            this.Instructions.Add(null, Instruction.PUSHS, str.Text, null);
         }
 
         private void GenerateUnaryOperatorExpressionSyntax(
@@ -246,7 +246,36 @@ namespace ISB.Runtime
             }
             else if (op.Kind == TokenKind.Equal && inExpressionStatement)
             {
-                // TODO: Assignment instructions.
+                // The "=" token is always treated as the assignment operator in expression statements.
+                // On the other side, it is always treated as the logical equal operator in expressions.
+                //
+                // Mixed cases are not supported. E.g.,
+                //
+                //   a = (a = 3)
+                //
+                // as a standalone statement is not supported. while
+                //
+                //   while a = 3 and b = 4
+                //   endwhile
+                //
+                // is supported.
+                if (left.Kind == SyntaxNodeKind.IdentifierExpressionSyntax)
+                {
+                    string variableName = left.Terminator.Text;
+                    this.GenerateExpressionSyntax(right, inExpressionStatement);
+                    this.Instructions.Add(null, Instruction.STORE, variableName, null);
+                }
+                else if (left.Kind != SyntaxNodeKind.ArrayAccessExpressionSyntax)
+                {
+                }
+                else if (left.Kind != SyntaxNodeKind.ObjectAccessExpressionSyntax)
+                {
+                }
+                else
+                {
+                    // The left expression cannot result in a valid left value.
+                    this.diagnostics.ReportExpectedALeftValue(left.Range);
+                }
             }
             else
             {
