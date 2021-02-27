@@ -408,6 +408,20 @@ const string code20 = @"a.b.c = 0";
       NumberLiteralExpressionSyntax: 0
 ";
 
+const string code21 = @"a()()";
+        const string tree21 = @"StatementBlockSyntax
+  ExpressionStatementSyntax
+    InvocationExpressionSyntax
+      InvocationExpressionSyntax
+        IdentifierExpressionSyntax: a
+        PunctuationSyntax: (
+        EmptySyntax
+        PunctuationSyntax: )
+      PunctuationSyntax: (
+      EmptySyntax
+      PunctuationSyntax: )
+";
+
         [Theory]
         [InlineData(code0, tree0)]
         [InlineData(code1, tree1)]
@@ -430,6 +444,7 @@ const string code20 = @"a.b.c = 0";
         [InlineData(code18, tree18)]
         [InlineData(code19, tree19)]
         [InlineData(code20, tree20)]
+        [InlineData(code21, tree21)]
         public void TestExpectedParsing(string input, string expected)
         {
             DiagnosticBag diagnostics = new DiagnosticBag();
