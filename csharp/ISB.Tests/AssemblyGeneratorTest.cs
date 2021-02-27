@@ -183,6 +183,59 @@ __Program_1__:
     call_lib Math Pow
 ";
 
+        private const string code21 = @"If a = 3 Then
+  b = 4
+EndIf";
+        private const string assembly21 = @"    load a
+    push 3
+    eq
+    br_if __Program_1__ __Program_2__
+__Program_1__:
+    nop
+    push 4
+    store b
+    br __Program_0__
+__Program_2__:
+    nop
+__Program_0__:
+    nop
+";
+
+        private const string code22 = @"If a = 3 Then
+  b = 4
+ElseIf a = 4 Then
+  b = 5
+Else
+  b = 6
+EndIf";
+        private const string assembly22 = @"    load a
+    push 3
+    eq
+    br_if __Program_1__ __Program_2__
+__Program_1__:
+    nop
+    push 4
+    store b
+    br __Program_0__
+__Program_2__:
+    nop
+    load a
+    push 4
+    eq
+    br_if __Program_3__ __Program_4__
+__Program_3__:
+    nop
+    push 5
+    store b
+    br __Program_0__
+__Program_4__:
+    nop
+    push 6
+    store b
+__Program_0__:
+    nop
+";
+
         [Theory]
         [InlineData (code1, assembly1)]
         [InlineData (code2, assembly2)]
@@ -204,6 +257,8 @@ __Program_1__:
         [InlineData (code18, assembly18)]
         [InlineData (code19, assembly19)]
         [InlineData (code20, assembly20)]
+        [InlineData (code21, assembly21)]
+        [InlineData (code22, assembly22)]
         public void TestFormatAndParse(string code, string assembly)
         {
             DiagnosticBag diagnostics = new DiagnosticBag();

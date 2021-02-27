@@ -70,7 +70,7 @@ namespace ISB.Runtime
                     break;
 
                 case SyntaxNodeKind.IfStatementSyntax:
-                    // TODO
+                    this.GenerateIfStatementSyntax(node);
                     break;
                 case SyntaxNodeKind.WhileStatementSyntax:
                     // TODO
@@ -501,6 +501,48 @@ namespace ISB.Runtime
                 //    objectAccessNode.Range, argumentNumber, expectedArgumentNumber);
             }
             this.Instructions.Add(null, Instruction.CALL_LIB, libName, funcName);
+        }
+
+        private void GenerateIfStatementSyntax(SyntaxNode node)
+        {
+            SyntaxNode ifPartNode = node.Children[0];
+            SyntaxNode ifConditionNode = ifPartNode.Children[1];
+            SyntaxNode ifBodyNode = ifPartNode.Children[3];
+            string endLabel = this.NewLabel();
+
+            GenerateIfConditionalBlock(ifConditionNode, ifBodyNode, endLabel);
+
+            SyntaxNode elseIfPartGroupNode = node.Children[1];
+            if (!elseIfPartGroupNode.IsEmpty)
+            {
+                foreach (var elseIfPartNode in elseIfPartGroupNode.Children)
+                {
+                    var conditionNode = elseIfPartNode.Children[1];
+                    var bodyNode = elseIfPartNode.Children[3];
+                    GenerateIfConditionalBlock(conditionNode, bodyNode, endLabel);
+                }
+            }
+
+            SyntaxNode elsePartNode = node.Children[2];
+            if (!elsePartNode.IsEmpty)
+            {
+                SyntaxNode elseBodyNode = elsePartNode.Children[1];
+                GenerateStatementBlockSyntax(elseBodyNode);
+            }
+
+            this.Instructions.Add(endLabel, Instruction.NOP, null, null);
+        }
+
+        private void GenerateIfConditionalBlock(SyntaxNode conditionNode, SyntaxNode bodyNode, string endLabel)
+        {
+            string trueLabel = this.NewLabel();
+            string falseEndLabel = this.NewLabel();
+            GenerateExpressionSyntax(conditionNode, false);
+            this.Instructions.Add(null, Instruction.BR_IF, trueLabel, falseEndLabel);
+            this.Instructions.Add(trueLabel, Instruction.NOP, null, null);
+            GenerateStatementBlockSyntax(bodyNode);
+            this.Instructions.Add(null, Instruction.BR, endLabel, null);
+            this.Instructions.Add(falseEndLabel, Instruction.NOP, null, null);
         }
     }
 }

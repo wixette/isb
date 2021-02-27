@@ -454,8 +454,8 @@ const string code21 = @"a()()";
             Assert.Empty(diagnostics.Contents);
             string treeDump = SyntaxTreeDumper.Dump(parser.SyntaxTree);
 
-            System.Console.WriteLine(input);
-            System.Console.WriteLine(treeDump);
+            // System.Console.WriteLine(input);
+            // System.Console.WriteLine(treeDump);
 
             Assert.Equal(expected, treeDump);
         }
