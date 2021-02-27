@@ -236,6 +236,26 @@ __Program_0__:
     nop
 ";
 
+        private const string code23 = @"While i < 10
+  i = i + 1
+EndWhile";
+        private const string assembly23 = @"__Program_0__:
+    nop
+    load i
+    push 10
+    lt
+    br_if __Program_1__ __Program_2__
+__Program_1__:
+    nop
+    load i
+    push 1
+    add
+    store i
+    br __Program_0__
+__Program_2__:
+    nop
+";
+
         [Theory]
         [InlineData (code1, assembly1)]
         [InlineData (code2, assembly2)]
@@ -259,6 +279,7 @@ __Program_0__:
         [InlineData (code20, assembly20)]
         [InlineData (code21, assembly21)]
         [InlineData (code22, assembly22)]
+        [InlineData (code23, assembly23)]
         public void TestFormatAndParse(string code, string assembly)
         {
             DiagnosticBag diagnostics = new DiagnosticBag();

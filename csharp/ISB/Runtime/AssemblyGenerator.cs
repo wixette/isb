@@ -73,7 +73,7 @@ namespace ISB.Runtime
                     this.GenerateIfStatementSyntax(node);
                     break;
                 case SyntaxNodeKind.WhileStatementSyntax:
-                    // TODO
+                    this.GenerateWhileStatementSyntax(node);
                     break;
                 case SyntaxNodeKind.ForStatementSyntax:
                     // TODO
@@ -536,13 +536,32 @@ namespace ISB.Runtime
         private void GenerateIfConditionalBlock(SyntaxNode conditionNode, SyntaxNode bodyNode, string endLabel)
         {
             string trueLabel = this.NewLabel();
-            string falseEndLabel = this.NewLabel();
+            string falseLabel = this.NewLabel();
             GenerateExpressionSyntax(conditionNode, false);
-            this.Instructions.Add(null, Instruction.BR_IF, trueLabel, falseEndLabel);
+            this.Instructions.Add(null, Instruction.BR_IF, trueLabel, falseLabel);
             this.Instructions.Add(trueLabel, Instruction.NOP, null, null);
             GenerateStatementBlockSyntax(bodyNode);
             this.Instructions.Add(null, Instruction.BR, endLabel, null);
-            this.Instructions.Add(falseEndLabel, Instruction.NOP, null, null);
+            this.Instructions.Add(falseLabel, Instruction.NOP, null, null);
+        }
+
+        private void GenerateWhileStatementSyntax(SyntaxNode node)
+        {
+            string startLabel = this.NewLabel();
+            string bodyLabel = this.NewLabel();
+            string endLabel = this.NewLabel();
+            this.Instructions.Add(startLabel, Instruction.NOP, null, null);
+
+            SyntaxNode conditionNode = node.Children[1];
+            GenerateExpressionSyntax(conditionNode, false);
+            this.Instructions.Add(null, Instruction.BR_IF, bodyLabel, endLabel);
+            this.Instructions.Add(bodyLabel, Instruction.NOP, null, null);
+
+            SyntaxNode bodyNode = node.Children[2];
+            GenerateStatementBlockSyntax(bodyNode);
+            this.Instructions.Add(null, Instruction.BR, startLabel, null);
+
+            this.Instructions.Add(endLabel, Instruction.NOP, null, null);
         }
     }
 }
