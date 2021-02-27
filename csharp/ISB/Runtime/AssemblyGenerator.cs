@@ -100,13 +100,14 @@ namespace ISB.Runtime
                 this.diagnostics.ReportTwoSubModulesWithTheSameName(name.Range, name.Text);
                 return;
             }
+            // Sub modules are implemented as 0-argument 0-return functions.
             string subLabel = this.NewLabel();
             string endSubLabel = this.NewLabel();
             this.Instructions.Add(null, Instruction.BR, endSubLabel, null);
             this.Instructions.Add(subLabel, Instruction.NOP, null, null);
             this.environment.SubModuleNameDictionary.Add(name.Text, this.Instructions.Count);
             this.GenerateSyntax(body);
-            this.Instructions.Add(null, Instruction.RET, null, null);
+            this.Instructions.Add(null, Instruction.RET, "0", null);
             this.Instructions.Add(endSubLabel, Instruction.NOP, null, null);
         }
 

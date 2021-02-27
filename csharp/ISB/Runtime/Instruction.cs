@@ -21,30 +21,218 @@ namespace ISB.Runtime
             String
         }
 
+        // Does nothing.
         public static readonly string NOP = "nop";
+
+        // Pauses the execution for debugging.
         public static readonly string PAUSE = "pause";
+
+        // Unconditional jump.
+        //   br <label>
         public static readonly string BR = "br";
+
+        // Conditional jump.
+        //   br_if <label1> <label2>
+        //
+        //   (1) value := Stack.Pop()
+        //   (2) if value JumpTo(label1) else JumpTo(label2)
         public static readonly string BR_IF = "br_if";
+
+        // Stores a value to a variable.
+        //   store <variable>
+        //
+        //   (1) value := Stack.Pop()
+        //   (2) variable := value
         public static readonly string STORE = "store";
+
+        // Pushes the value of a variable into the stack.
+        //   load <variable>
+        //
+        //   (1) Stack.Push(variable)
         public static readonly string LOAD = "load";
+
+        // Stores a value to an indexable location of an array.
+        //   store_arr <array> <dimension>
+        //
+        //   (1) arrayItemRef := array
+        //   (2) for i in [0, dimension):
+        //   (3)   index := Stack.Pop()
+        //   (4)   arrayItemRef := arrayItemRef[index]
+        //   (5) value := Stack.Pop()
+        //   (6) *arrayItemRef := value
         public static readonly string STORE_ARR = "store_arr";
+
+        // Loads a value from an indexable location of an array.
+        //   load_arr <array> <dimension>
+        //
+        //   (1) arrayItemRef := array
+        //   (2) for i in [0, dimension):
+        //   (3)   index := Stack.Pop()
+        //   (4)   arrayItemRef := arrayItemRef[index]
+        //   (5) Stack.Push(*arrayItemRef)
         public static readonly string LOAD_ARR = "load_arr";
+
+        // Pushes a number value into the stack.
+        //   push <number>
+        //
+        //   (1) Stack.Push(number)
         public static readonly string PUSH = "push";
+
+        // Pushes a string value into the stack.
+        //   push <str>
+        //
+        //   (1) Stack.Push(str)
         public static readonly string PUSHS = "pushs";
+
+        // Calls a function.
+        // It's the caller's duty to push arguments into the stack.
+        // It's the callee's duty to use ret <n> to clean the stack frame.
+        // It's the callee's duty to push the return value into the stack.
+        //     push | pushs <argument(n-1)>
+        //     push | pushs <argument(n-2)>
+        //     ...
+        //     push | pushs <argument(0)>
+        //     call <sub>
+        //
+        //   (1) Stack.Push(IP)
+        //   (2) IP := <sub.Entry>  ; JumpTo(sub.Entry)
         public static readonly string CALL = "call";
+
+        // Returns from a function.
+        // It's the caller's duty to push arguments into the stack.
+        // It's the callee's duty to use ret <n> to clean the stack frame.
+        // It's the callee's duty to push the return value into the stack.
+        //   ret <n>
+        //
+        //   (1) return_add := Stack.Pop()
+        //   (2) for i in [0, n):
+        //   (3)   argument(i) := Stack.Pop()
+        //   (4) Run(sub.Body)
+        //   (5) Stack.Push(return_value)
+        //   (6) IP := <return_add>  ; JumpTo(return_add)
         public static readonly string RET = "ret";
+
+        // Calls a function in an external lib.
+        // It's the caller's duty to push arguments into the stack.
+        // It's the callee's duty to use ret <n> to clean the stack frame.
+        // It's the callee's duty to push the return value into the stack.
+        //     push | pushs <argument(n-1)>
+        //     push | pushs <argument(n-2)>
+        //     ...
+        //     push | pushs <argument(0)>
+        //     call_lib <lib> <sub>
+        //
+        //   (1) Stack.Push(IP)
+        //   (2) Call(lib.sub)
+        //   (3)   return_add := Stack.Pop()  ; Inside lib.sub
+        //   (2)   for i in [0, n):
+        //   (3)     argument(i) := Stack.Pop()
+        //   (4)   Run(sub.Body)
+        //   (5)   Stack.Push(return_value)
+        //   (6) IP := <return_add>  ; JumpTo(return_add)
         public static readonly string CALL_LIB = "call_lib";
+
+        // Stores a value to a lib's writable property.
+        //   store_lib <lib> <property>
+        //
+        //   (1) value := Stack.Pop()
+        //   (2) lib.property := value
         public static readonly string STORE_LIB = "store_lib";
+
+        // Loads a value from a lib's property.
+        //   load_lib <lib> <property>
+        //
+        //   (1) Stack.Push(lib.property)
         public static readonly string LOAD_LIB = "load_lib";
+
+        // Adds two oprands.
+        //   add
+        //
+        //   (1) value2 := Stack.Pop()
+        //   (2) value1 := Stack.Pop()
+        //   (3) result = value1 + value2
+        //   (4) Stack.Push(result)
         public static readonly string ADD = "add";
+
+        // Subs two oprands.
+        //   sub
+        //
+        //   (1) value2 := Stack.Pop()
+        //   (2) value1 := Stack.Pop()
+        //   (3) result = value1 - value2
+        //   (4) Stack.Push(result)
         public static readonly string SUB = "sub";
+
+        // Times two oprands.
+        //   mul
+        //
+        //   (1) value2 := Stack.Pop()
+        //   (2) value1 := Stack.Pop()
+        //   (3) result = value1 * value2
+        //   (4) Stack.Push(result)
         public static readonly string MUL = "mul";
+
+        // Divides an oprand by another.
+        //   div
+        //
+        //   (1) value2 := Stack.Pop()
+        //   (2) value1 := Stack.Pop()
+        //   (3) result = value1 / value2
+        //   (4) Stack.Push(result)
         public static readonly string DIV = "div";
+
+        // Determinates if two values are equal.
+        //   eq
+        //
+        //   (1) value2 := Stack.Pop()
+        //   (2) value1 := Stack.Pop()
+        //   (3) result = value1 == value2
+        //   (4) Stack.Push(result)
         public static readonly string EQ = "eq";
+
+        // Determinates if two values are not equal.
+        //   ne
+        //
+        //   (1) value2 := Stack.Pop()
+        //   (2) value1 := Stack.Pop()
+        //   (3) result = value1 != value2
+        //   (4) Stack.Push(result)
         public static readonly string NE = "ne";
+
+        // Compares two values.
+        //   lt
+        //
+        //   (1) value2 := Stack.Pop()
+        //   (2) value1 := Stack.Pop()
+        //   (3) result = value1 < value2
+        //   (4) Stack.Push(result)
         public static readonly string LT = "lt";
+
+        // Compares two values.
+        //   gt
+        //
+        //   (1) value2 := Stack.Pop()
+        //   (2) value1 := Stack.Pop()
+        //   (3) result = value1 > value2
+        //   (4) Stack.Push(result)
         public static readonly string GT = "gt";
+
+        // Compares two values.
+        //   le
+        //
+        //   (1) value2 := Stack.Pop()
+        //   (2) value1 := Stack.Pop()
+        //   (3) result = value1 <= value2
+        //   (4) Stack.Push(result)
         public static readonly string LE = "le";
+
+        // Compares two values.
+        //   ge
+        //
+        //   (1) value2 := Stack.Pop()
+        //   (2) value1 := Stack.Pop()
+        //   (3) result = value1 >= value2
+        //   (4) Stack.Push(result)
         public static readonly string GE = "ge";
 
         public static readonly string ZeroLiteral = "0";
@@ -65,7 +253,7 @@ namespace ISB.Runtime
             { PUSH, (OprandKind.Number, OprandKind.None) },
             { PUSHS, (OprandKind.String, OprandKind.None) },
             { CALL, (OprandKind.Label, OprandKind.None) },
-            { RET, (OprandKind.None, OprandKind.None) },
+            { RET, (OprandKind.Integer, OprandKind.None) },
             { CALL_LIB, (OprandKind.Label, OprandKind.Label) },
             { STORE_LIB, (OprandKind.Label, OprandKind.Label) },
             { LOAD_LIB, (OprandKind.Label, OprandKind.Label) },

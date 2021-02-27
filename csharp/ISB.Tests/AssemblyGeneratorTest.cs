@@ -37,7 +37,7 @@ endsub";
         private const string assembly5 = @"    br __Program_1__
 __Program_0__:
     nop
-    ret
+    ret 0
 __Program_1__:
     nop
 ";
