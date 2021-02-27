@@ -175,6 +175,14 @@ __Program_1__:
     call foo
 ";
 
+        private const string code20 = @"Math.Pow(x, y + 0.5)";
+        private const string assembly20 = @"    load y
+    push 0.5
+    add
+    load x
+    call_lib Math Pow
+";
+
         [Theory]
         [InlineData (code1, assembly1)]
         [InlineData (code2, assembly2)]
@@ -195,6 +203,7 @@ __Program_1__:
         [InlineData (code17, assembly17)]
         [InlineData (code18, assembly18)]
         [InlineData (code19, assembly19)]
+        [InlineData (code20, assembly20)]
         public void TestFormatAndParse(string code, string assembly)
         {
             DiagnosticBag diagnostics = new DiagnosticBag();

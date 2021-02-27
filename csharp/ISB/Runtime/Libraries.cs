@@ -20,5 +20,17 @@ namespace ISB.Runtime
             // TODO
             return true;
         }
+
+        public bool IsFuncExist(string libName, string funcName)
+        {
+            // TODO
+            return true;
+        }
+
+        public int GetFuncArgumentNumber(string libName, string funcName)
+        {
+            // TODO
+            return 0;
+        }
     }
 }

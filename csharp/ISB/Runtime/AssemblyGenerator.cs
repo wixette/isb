@@ -391,6 +391,13 @@ namespace ISB.Runtime
             }
         }
 
+        private (string, string) GetLibNameAndMemberName(SyntaxNode objectAccessNode)
+        {
+            string libName = objectAccessNode.Children[0].Terminator.Text;
+            string memberName = objectAccessNode.Children[2].Terminator.Text;
+            return (libName, memberName);
+        }
+
         private void GenerateObjectAccessExpressionSyntax(
             SyntaxNode node, bool inExpressionStatement, bool forLeftValue)
         {
@@ -400,8 +407,7 @@ namespace ISB.Runtime
                 this.diagnostics.ReportUnsupportedDotBaseExpression(node.Range);
                 return;
             }
-            string libName = node.Children[0].Terminator.Text;
-            string propertyName = node.Children[2].Terminator.Text;
+            var (libName, propertyName) = this.GetLibNameAndMemberName(node);
             if (forLeftValue)
             {
                 if (!this.environment.Libs.IsPropertyWritable(libName, propertyName))
@@ -427,9 +433,19 @@ namespace ISB.Runtime
             switch (node.Children[0].Kind)
             {
                 case SyntaxNodeKind.IdentifierExpressionSyntax:
-                    GenerateCallSub(node, inExpressionStatement);
+                    string subName = node.Children[0].Terminator.Text;
+                    if (!this.environment.SubModuleNameDictionary.ContainsKey(subName))
+                    {
+                        // TODO:
+                        //  (1) forwardly check if the sub name is defined?
+                        //  (2) a separate diagnostic code for NoSubModuleDefined?
+                        this.diagnostics.ReportUnsupportedInvocationBaseExpression(node.Range);
+                        return;
+                    }
+                    GenerateCallSub(subName, node.Children[2]);
                     break;
                 case SyntaxNodeKind.ObjectAccessExpressionSyntax:
+                    GenerateCallLib(node.Children[0], node.Children[2], inExpressionStatement);
                     break;
                 default:
                     // Embedded InvocationExpressionSyntax like "a()()" is not supported.
@@ -438,24 +454,53 @@ namespace ISB.Runtime
             }
         }
 
-        private void GenerateCallSub(SyntaxNode node, bool inExpressionStatement)
+        private void GenerateCallSub(string subName, SyntaxNode argumentGroupNode)
         {
-            if (!node.Children[2].IsEmpty)
+            if (!argumentGroupNode.IsEmpty)
             {
+                // No argument for sub module is supported.
                 this.diagnostics.ReportUnexpectedArgumentsCount(
-                    node.Children[2].Range, node.Children[2].Children.Count, 0);
-                return;
-            }
-            string subName = node.Children[0].Terminator.Text;
-            if (!this.environment.SubModuleNameDictionary.ContainsKey(subName))
-            {
-                // TODO:
-                //  (1) forwardly check if the sub name is defined?
-                //  (2) a separate diagnostic code for NoSubModuleDefined?
-                this.diagnostics.ReportUnsupportedInvocationBaseExpression(node.Range);
+                    argumentGroupNode.Range, argumentGroupNode.Children.Count, 0);
                 return;
             }
             this.Instructions.Add(null, Instruction.CALL, subName, null);
+        }
+
+        private void GenerateCallLib(
+            SyntaxNode objectAccessNode, SyntaxNode argumentGroupNode, bool inExpressionStatement)
+        {
+            int argumentNumber = 0;
+            if (argumentGroupNode.Kind == SyntaxNodeKind.ArgumentGroupSyntax)
+            {
+                argumentNumber = argumentGroupNode.Children.Count;
+            }
+            // Pushes arguments in reversed order.
+            for (int i = argumentGroupNode.Children.Count - 1; i >= 0; i--)
+            {
+                SyntaxNode argumentExpression = argumentGroupNode.Children[i].Children[0];
+                GenerateExpressionSyntax(argumentExpression, inExpressionStatement);
+            }
+            if (objectAccessNode.Children[0].Kind != SyntaxNodeKind.IdentifierExpressionSyntax)
+            {
+                // Embeded ObjectAccessExpressionSyntax like "a.b.c()" is not supported.
+                this.diagnostics.ReportUnsupportedDotBaseExpression(objectAccessNode.Range);
+                return;
+            }
+            var (libName, funcName) = this.GetLibNameAndMemberName(objectAccessNode);
+            if (!this.environment.Libs.IsFuncExist(libName, funcName))
+            {
+                // TODO: a separate diagnostic code for NoLibFuncDefined?
+                this.diagnostics.ReportUnsupportedInvocationBaseExpression(objectAccessNode.Range);
+                return;
+            }
+            int expectedArgumentNumber = this.environment.Libs.GetFuncArgumentNumber(libName, funcName);
+            if (argumentNumber != expectedArgumentNumber)
+            {
+                // TODO: report this error once the Libraries class is ready.
+                // this.diagnostics.ReportUnexpectedArgumentsCount(
+                //    objectAccessNode.Range, argumentNumber, expectedArgumentNumber);
+            }
+            this.Instructions.Add(null, Instruction.CALL_LIB, libName, funcName);
         }
     }
 }
