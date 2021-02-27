@@ -11,6 +11,8 @@ namespace ISB.Runtime
 
         public Dictionary<string, int> SubModuleNameDictionary { get; private set; }
 
+        public Libraries Libs { get; private set; }
+
         public Environment()
         {
             this.Reset();
@@ -20,6 +22,7 @@ namespace ISB.Runtime
         {
             this.LabelDictionary = new Dictionary<string, int>();
             this.SubModuleNameDictionary = new Dictionary<string, int>();
+            this.Libs = new Libraries();
         }
     }
 }

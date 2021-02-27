@@ -113,6 +113,11 @@ __Program_3__:
     store a
 ";
 
+        private const string code12 = @"LibA.PropertyFoo = 3";
+        private const string assembly12 = @"    push 3
+    store_lib LibA PropertyFoo
+";
+
         [Theory]
         [InlineData (code1, assembly1)]
         [InlineData (code2, assembly2)]
@@ -125,6 +130,7 @@ __Program_3__:
         [InlineData (code9, assembly9)]
         [InlineData (code10, assembly10)]
         [InlineData (code11, assembly11)]
+        [InlineData (code12, assembly12)]
         public void TestFormatAndParse(string code, string assembly)
         {
             DiagnosticBag diagnostics = new DiagnosticBag();
@@ -137,10 +143,11 @@ __Program_3__:
                 new AssemblyGenerator(environment, "Program", diagnostics);
             generator.Generate(parser.SyntaxTree);
             Assert.Empty(diagnostics.Contents);
-            Assert.Equal(assembly, generator.Instructions.ToTextFormat());
 
             System.Console.WriteLine(SyntaxTreeDumper.Dump(parser.SyntaxTree));
             System.Console.WriteLine(generator.Instructions.ToTextFormat());
+
+            Assert.Equal(assembly, generator.Instructions.ToTextFormat());
         }
 
         const string errInput1 = @"a:

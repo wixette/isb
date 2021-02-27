@@ -208,68 +208,37 @@ namespace ISB.Runtime
         {
             if (op.Kind == TokenKind.And)
             {
-                string labelLeftIsTrue = this.NewLabel();
-                string labelResultIsTrue = this.NewLabel();
-                string labelResultIsFalse = this.NewLabel();
-                string labelDone = this.NewLabel();
-
-                this.GenerateExpressionSyntax(left, inExpressionStatement);
-                this.Instructions.Add(null, Instruction.BR_IF, labelLeftIsTrue, labelResultIsFalse);
-                this.Instructions.Add(labelLeftIsTrue, Instruction.NOP, null, null);
-                this.GenerateExpressionSyntax(right, inExpressionStatement);
-                this.Instructions.Add(null, Instruction.BR_IF, labelResultIsTrue, labelResultIsFalse);
-                this.Instructions.Add(labelResultIsTrue, Instruction.NOP, null, null);
-                this.Instructions.Add(null, Instruction.PUSH, Instruction.TrueLiteral, null);
-                this.Instructions.Add(null, Instruction.BR, labelDone, null);
-                this.Instructions.Add(labelResultIsFalse, Instruction.NOP, null, null);
-                this.Instructions.Add(null, Instruction.PUSH, Instruction.FalseLiteral, null);
-                this.Instructions.Add(labelDone, Instruction.NOP, null, null);
+                this.GenerateLogicalAndOperatorExpressionSyntax(left, right, inExpressionStatement);
             }
             else if (op.Kind == TokenKind.Or)
             {
-                string labelLeftIsFalse = this.NewLabel();
-                string labelResultIsTrue = this.NewLabel();
-                string labelResultIsFalse = this.NewLabel();
-                string labelDone = this.NewLabel();
-
-                this.GenerateExpressionSyntax(left, inExpressionStatement);
-                this.Instructions.Add(null, Instruction.BR_IF, labelResultIsTrue, labelLeftIsFalse);
-                this.Instructions.Add(labelLeftIsFalse, Instruction.NOP, null, null);
-                this.GenerateExpressionSyntax(right, inExpressionStatement);
-                this.Instructions.Add(null, Instruction.BR_IF, labelResultIsTrue, labelResultIsFalse);
-                this.Instructions.Add(labelResultIsTrue, Instruction.NOP, null, null);
-                this.Instructions.Add(null, Instruction.PUSH, Instruction.TrueLiteral, null);
-                this.Instructions.Add(null, Instruction.BR, labelDone, null);
-                this.Instructions.Add(labelResultIsFalse, Instruction.NOP, null, null);
-                this.Instructions.Add(null, Instruction.PUSH, Instruction.FalseLiteral, null);
-                this.Instructions.Add(labelDone, Instruction.NOP, null, null);
+                this.GenerateLogicalOrOperatorExpressionSyntax(left, right, inExpressionStatement);
             }
             else if (op.Kind == TokenKind.Equal && inExpressionStatement)
             {
                 // The "=" token is always treated as the assignment operator in expression statements.
-                // On the other side, it is always treated as the logical equal operator in expressions.
-                //
-                // Mixed cases are not supported. E.g.,
+                // Otherwise, it is treated as the logical equal operator. Mixed cases like
                 //
                 //   a = (a = 3)
                 //
-                // as a standalone statement is not supported. while
+                // as standalone statements are not supported. while cases like
                 //
                 //   while a = 3 and b = 4
                 //   endwhile
                 //
-                // is supported.
+                // are supported.
                 if (left.Kind == SyntaxNodeKind.IdentifierExpressionSyntax)
                 {
                     string variableName = left.Terminator.Text;
-                    this.GenerateExpressionSyntax(right, inExpressionStatement);
-                    this.Instructions.Add(null, Instruction.STORE, variableName, null);
+                    this.GenerateAssgnToVariableExpressionSyntax(variableName, right, inExpressionStatement);
                 }
-                else if (left.Kind != SyntaxNodeKind.ArrayAccessExpressionSyntax)
+                else if (left.Kind == SyntaxNodeKind.ArrayAccessExpressionSyntax)
                 {
+                    this.GenerateAssignToArrayItemExpressionSyntax(left, right, inExpressionStatement);
                 }
-                else if (left.Kind != SyntaxNodeKind.ObjectAccessExpressionSyntax)
+                else if (left.Kind == SyntaxNodeKind.ObjectAccessExpressionSyntax)
                 {
+                    this.GenerateAssignToLibPropertyExpressionSyntax(left, right, inExpressionStatement);
                 }
                 else
                 {
@@ -279,7 +248,7 @@ namespace ISB.Runtime
             }
             else
             {
-                // Evaluates and pushes left oprand first.
+                // Evaluates and pushes left oprand then right oprand.
                 this.GenerateExpressionSyntax(left, inExpressionStatement);
                 this.GenerateExpressionSyntax(right, inExpressionStatement);
                 string instructionName = null;
@@ -321,6 +290,73 @@ namespace ISB.Runtime
                 }
                 this.Instructions.Add(null, instructionName, null, null);
             }
+        }
+
+        private void GenerateLogicalAndOperatorExpressionSyntax(
+            SyntaxNode left, SyntaxNode right, bool inExpressionStatement)
+        {
+            string labelLeftIsTrue = this.NewLabel();
+            string labelResultIsTrue = this.NewLabel();
+            string labelResultIsFalse = this.NewLabel();
+            string labelDone = this.NewLabel();
+
+            this.GenerateExpressionSyntax(left, inExpressionStatement);
+            this.Instructions.Add(null, Instruction.BR_IF, labelLeftIsTrue, labelResultIsFalse);
+            this.Instructions.Add(labelLeftIsTrue, Instruction.NOP, null, null);
+            this.GenerateExpressionSyntax(right, inExpressionStatement);
+            this.Instructions.Add(null, Instruction.BR_IF, labelResultIsTrue, labelResultIsFalse);
+            this.Instructions.Add(labelResultIsTrue, Instruction.NOP, null, null);
+            this.Instructions.Add(null, Instruction.PUSH, Instruction.TrueLiteral, null);
+            this.Instructions.Add(null, Instruction.BR, labelDone, null);
+            this.Instructions.Add(labelResultIsFalse, Instruction.NOP, null, null);
+            this.Instructions.Add(null, Instruction.PUSH, Instruction.FalseLiteral, null);
+            this.Instructions.Add(labelDone, Instruction.NOP, null, null);
+        }
+
+        private void GenerateLogicalOrOperatorExpressionSyntax(
+            SyntaxNode left, SyntaxNode right, bool inExpressionStatement)
+        {
+            string labelLeftIsFalse = this.NewLabel();
+            string labelResultIsTrue = this.NewLabel();
+            string labelResultIsFalse = this.NewLabel();
+            string labelDone = this.NewLabel();
+
+            this.GenerateExpressionSyntax(left, inExpressionStatement);
+            this.Instructions.Add(null, Instruction.BR_IF, labelResultIsTrue, labelLeftIsFalse);
+            this.Instructions.Add(labelLeftIsFalse, Instruction.NOP, null, null);
+            this.GenerateExpressionSyntax(right, inExpressionStatement);
+            this.Instructions.Add(null, Instruction.BR_IF, labelResultIsTrue, labelResultIsFalse);
+            this.Instructions.Add(labelResultIsTrue, Instruction.NOP, null, null);
+            this.Instructions.Add(null, Instruction.PUSH, Instruction.TrueLiteral, null);
+            this.Instructions.Add(null, Instruction.BR, labelDone, null);
+            this.Instructions.Add(labelResultIsFalse, Instruction.NOP, null, null);
+            this.Instructions.Add(null, Instruction.PUSH, Instruction.FalseLiteral, null);
+            this.Instructions.Add(labelDone, Instruction.NOP, null, null);
+        }
+
+        private void GenerateAssgnToVariableExpressionSyntax(
+            string variableName, SyntaxNode right, bool inExpressionStatement)
+        {
+            this.GenerateExpressionSyntax(right, inExpressionStatement);
+            this.Instructions.Add(null, Instruction.STORE, variableName, null);
+        }
+
+        private void GenerateAssignToArrayItemExpressionSyntax(
+            SyntaxNode left, SyntaxNode right, bool inExpressionStatement)
+        {
+        }
+
+        private void GenerateAssignToLibPropertyExpressionSyntax(
+            SyntaxNode left, SyntaxNode right, bool inExpressionStatement)
+        {
+            string libName = left.Children[0].Terminator.Text;
+            string propertyName = left.Children[2].Terminator.Text;
+            if (!this.environment.Libs.IsPropertyAssessible(libName, propertyName))
+            {
+                this.diagnostics.ReportPropertyHasNoSetter(left.Range, libName, propertyName);
+            }
+            this.GenerateExpressionSyntax(right, inExpressionStatement);
+            this.Instructions.Add(null, Instruction.STORE_LIB, libName, propertyName);
         }
     }
 }
