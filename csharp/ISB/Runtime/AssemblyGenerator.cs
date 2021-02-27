@@ -188,7 +188,9 @@ namespace ISB.Runtime
 
         private void GeneranteStringLiteralExpressionSyntax(Token str)
         {
-            this.Instructions.Add(null, Instruction.PUSHS, str.Text, null);
+            // Removes the leading and trailing quotes that the scanner has kept.
+            string s = str.Text.Trim('"');
+            this.Instructions.Add(null, Instruction.PUSHS, s, null);
         }
 
         private void GenerateUnaryOperatorExpressionSyntax(

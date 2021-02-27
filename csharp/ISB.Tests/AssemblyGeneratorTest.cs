@@ -155,6 +155,14 @@ __Program_3__:
     store_arr a 4
 ";
 
+        private const string code18 = @"a[identifier][""string""][123] = ""value""";
+        private const string assembly18 = @"    pushs ""value""
+    push 123
+    pushs ""string""
+    load identifier
+    store_arr a 3
+";
+
         [Theory]
         [InlineData (code1, assembly1)]
         [InlineData (code2, assembly2)]
@@ -173,6 +181,7 @@ __Program_3__:
         [InlineData (code15, assembly15)]
         [InlineData (code16, assembly16)]
         [InlineData (code17, assembly17)]
+        [InlineData (code18, assembly18)]
         public void TestFormatAndParse(string code, string assembly)
         {
             DiagnosticBag diagnostics = new DiagnosticBag();
