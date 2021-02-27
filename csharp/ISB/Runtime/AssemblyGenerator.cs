@@ -76,7 +76,7 @@ namespace ISB.Runtime
                     this.GenerateWhileStatementSyntax(node);
                     break;
                 case SyntaxNodeKind.ForStatementSyntax:
-                    // TODO
+                    this.GenerateForStatementSyntax(node);
                     break;
 
                 case SyntaxNodeKind.ExpressionStatementSyntax:
@@ -138,6 +138,19 @@ namespace ISB.Runtime
 
         private void GenerateExpressionStatementSyntax(SyntaxNode node)
         {
+            // There are basically two kinds of expression statements:
+            //   (1) Assignment expression statements.
+            //   (2) Standalone expression statements.
+            //
+            // For case (1), if the top most syntax of the expression statement is assignment,
+            // the final value of the expression will be consumed by the left value of the expression.
+            // Nothing is left on the stack top once the statement is done.
+            //
+            // For case (2), the final value of the expression will be left on the stack top
+            // since no one consumes it.
+            //
+            // TODO: review this logic when implementing the interactive shell. It could be the
+            // shell's duty to consume the value of standalone expressions.
             this.GenerateExpressionSyntax(node.Children[0], true);
         }
 
@@ -562,6 +575,10 @@ namespace ISB.Runtime
             this.Instructions.Add(null, Instruction.BR, startLabel, null);
 
             this.Instructions.Add(endLabel, Instruction.NOP, null, null);
+        }
+
+        private void GenerateForStatementSyntax(SyntaxNode node)
+        {
         }
     }
 }
