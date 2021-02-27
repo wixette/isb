@@ -637,7 +637,7 @@ namespace ISB.Runtime
             this.Instructions.Add(null, Instruction.LE, null, null);
             this.Instructions.Add(null, Instruction.BR_IF, startLabel, endLabel);
 
-            // (1) Checks if the loop variabel is greater than or equal to the To value.
+            // (2) Checks if the loop variabel is greater than or equal to the To value.
             // Continues the for loop if ture, breaks the for loop otherwise.
             this.Instructions.Add(geCompareLabel, Instruction.NOP, null, null);
             this.Instructions.Add(null, Instruction.LOAD, loopVariableName, null);

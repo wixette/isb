@@ -8,16 +8,16 @@ namespace ISB.Tests
 {
     public class AssemblyGeneratorTest
     {
-        private const string code1 = @"";
-        private const string assembly1 = @"";
+        const string code1 = @"";
+        const string assembly1 = @"";
 
-        private const string code2 = @"' comments";
-        private const string assembly2 = @"";
+        const string code2 = @"' comments";
+        const string assembly2 = @"";
 
-        private const string code3 = @"a:
+        const string code3 = @"a:
  b:
   c:";
-        private const string assembly3 = @"a:
+        const string assembly3 = @"a:
     nop
 b:
     nop
@@ -25,16 +25,16 @@ c:
     nop
 ";
 
-        private const string code4 = @"a:
+        const string code4 = @"a:
 goto a";
-        private const string assembly4 = @"a:
+        const string assembly4 = @"a:
     nop
     br a
 ";
 
-        private const string code5 = @"sub a
+        const string code5 = @"sub a
 endsub";
-        private const string assembly5 = @"    br __Program_1__
+        const string assembly5 = @"    br __Program_1__
 __Program_0__:
     nop
     ret 0
@@ -42,20 +42,20 @@ __Program_1__:
     nop
 ";
 
-        private const string code6 = @"-1";
-        private const string assembly6 = @"    push 0
+        const string code6 = @"-1";
+        const string assembly6 = @"    push 0
     push 1
     sub
 ";
 
-        private const string code7 = @"1-1";
-        private const string assembly7 = @"    push 1
+        const string code7 = @"1-1";
+        const string assembly7 = @"    push 1
     push 1
     sub
 ";
 
-        private const string code8 = @"a * b + -2";
-        private const string assembly8 = @"    load a
+        const string code8 = @"a * b + -2";
+        const string assembly8 = @"    load a
     load b
     mul
     push 0
@@ -64,8 +64,8 @@ __Program_1__:
     add
 ";
 
-        private const string code9 = @"a > 1 and a < 3";
-        private const string assembly9 = @"    load a
+        const string code9 = @"a > 1 and a < 3";
+        const string assembly9 = @"    load a
     push 1
     gt
     br_if __Program_0__ __Program_2__
@@ -86,8 +86,8 @@ __Program_3__:
     nop
 ";
 
-        private const string code10 = @"a >= 3 or b <= 3";
-        private const string assembly10 = @"    load a
+        const string code10 = @"a >= 3 or b <= 3";
+        const string assembly10 = @"    load a
     push 3
     ge
     br_if __Program_1__ __Program_0__
@@ -108,23 +108,23 @@ __Program_3__:
     nop
 ";
 
-        private const string code11 = @"a = 3";
-        private const string assembly11 = @"    push 3
+        const string code11 = @"a = 3";
+        const string assembly11 = @"    push 3
     store a
 ";
 
-        private const string code12 = @"LibA.PropertyFoo = 3";
-        private const string assembly12 = @"    push 3
+        const string code12 = @"LibA.PropertyFoo = 3";
+        const string assembly12 = @"    push 3
     store_lib LibA PropertyFoo
 ";
 
-        private const string code13 = @"a = LibA.PropertyFoo";
-        private const string assembly13 = @"    load_lib LibA PropertyFoo
+        const string code13 = @"a = LibA.PropertyFoo";
+        const string assembly13 = @"    load_lib LibA PropertyFoo
     store a
 ";
 
-        private const string code14 = @"3 * (4 - 5 * (2 / (2)))";
-        private const string assembly14 = @"    push 3
+        const string code14 = @"3 * (4 - 5 * (2 / (2)))";
+        const string assembly14 = @"    push 3
     push 4
     push 5
     push 2
@@ -135,19 +135,19 @@ __Program_3__:
     mul
 ";
 
-        private const string code15 = @"a[0]";
-        private const string assembly15 = @"    push 0
+        const string code15 = @"a[0]";
+        const string assembly15 = @"    push 0
     load_arr a 1
 ";
 
-        private const string code16 = @"a[0][first]";
-        private const string assembly16 = @"    load first
+        const string code16 = @"a[0][first]";
+        const string assembly16 = @"    load first
     push 0
     load_arr a 2
 ";
 
-        private const string code17 = @"a[0][1][2][3] = 4";
-        private const string assembly17 = @"    push 4
+        const string code17 = @"a[0][1][2][3] = 4";
+        const string assembly17 = @"    push 4
     push 3
     push 2
     push 1
@@ -155,18 +155,18 @@ __Program_3__:
     store_arr a 4
 ";
 
-        private const string code18 = @"a[identifier][""string""][123] = ""value""";
-        private const string assembly18 = @"    pushs ""value""
+        const string code18 = @"a[identifier][""string""][123] = ""value""";
+        const string assembly18 = @"    pushs ""value""
     push 123
     pushs ""string""
     load identifier
     store_arr a 3
 ";
 
-        private const string code19 = @"sub foo
+        const string code19 = @"sub foo
 endsub
 foo()";
-        private const string assembly19 = @"    br __Program_1__
+        const string assembly19 = @"    br __Program_1__
 __Program_0__:
     nop
     ret 0
@@ -175,18 +175,18 @@ __Program_1__:
     call foo
 ";
 
-        private const string code20 = @"Math.Pow(x, y + 0.5)";
-        private const string assembly20 = @"    load y
+        const string code20 = @"Math.Pow(x, y + 0.5)";
+        const string assembly20 = @"    load y
     push 0.5
     add
     load x
     call_lib Math Pow
 ";
 
-        private const string code21 = @"If a = 3 Then
+        const string code21 = @"If a = 3 Then
   b = 4
 EndIf";
-        private const string assembly21 = @"    load a
+        const string assembly21 = @"    load a
     push 3
     eq
     br_if __Program_1__ __Program_2__
@@ -201,14 +201,14 @@ __Program_0__:
     nop
 ";
 
-        private const string code22 = @"If a = 3 Then
+        const string code22 = @"If a = 3 Then
   b = 4
 ElseIf a = 4 Then
   b = 5
 Else
   b = 6
 EndIf";
-        private const string assembly22 = @"    load a
+        const string assembly22 = @"    load a
     push 3
     eq
     br_if __Program_1__ __Program_2__
@@ -236,10 +236,10 @@ __Program_0__:
     nop
 ";
 
-        private const string code23 = @"While i < 10
+        const string code23 = @"While i < 10
   i = i + 1
 EndWhile";
-        private const string assembly23 = @"__Program_0__:
+        const string assembly23 = @"__Program_0__:
     nop
     load i
     push 10
@@ -256,9 +256,9 @@ __Program_2__:
     nop
 ";
 
-        private const string code24 = @"For i = 1 to 5
+        const string code24 = @"For i = 1 to 5
 EndFor";
-        private const string assembly24 = @"    push 1
+        const string assembly24 = @"    push 1
     store i
 __Program_0__:
     nop
@@ -288,10 +288,10 @@ __Program_1__:
     nop
 ";
 
-        private const string code25 = @"For i = 10 To 1 Step -1
+        const string code25 = @"For i = 10 To 1 Step -1
   a = a + i
 EndFor";
-        private const string assembly25 = @"    push 10
+        const string assembly25 = @"    push 10
     store i
 __Program_0__:
     nop
