@@ -150,6 +150,7 @@ namespace ISB.Runtime
                         node.Children[1].Terminator, node.Children[0], node.Children[2], inExpressionStatement);
                     break;
                 case SyntaxNodeKind.ParenthesisExpressionSyntax:
+                    this.GenerateExpressionSyntax(node.Children[1], inExpressionStatement);
                     break;
                 case SyntaxNodeKind.IdentifierExpressionSyntax:
                     this.GenerateIdentifierExpressionSyntax(node.Terminator);
@@ -357,7 +358,7 @@ namespace ISB.Runtime
         {
             if (!node.Children[0].IsTerminator)
             {
-                // Embeded ObjectAccessExpressionSyntax is met. E.g., "a.b.c = 0" is not supported.
+                // Embeded ObjectAccessExpressionSyntax like "a.b.c = 0" is not supported.
                 this.diagnostics.ReportUnsupportedDotBaseExpression(node.Range);
                 return;
             }

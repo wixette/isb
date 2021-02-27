@@ -118,6 +118,18 @@ __Program_3__:
     store_lib LibA PropertyFoo
 ";
 
+        private const string code13 = @"3 * (4 - 5 * (2 / (2)))";
+        private const string assembly13 = @"    push 3
+    push 4
+    push 5
+    push 2
+    push 2
+    div
+    mul
+    sub
+    mul
+";
+
         [Theory]
         [InlineData (code1, assembly1)]
         [InlineData (code2, assembly2)]
@@ -131,6 +143,7 @@ __Program_3__:
         [InlineData (code10, assembly10)]
         [InlineData (code11, assembly11)]
         [InlineData (code12, assembly12)]
+        [InlineData (code13, assembly13)]
         public void TestFormatAndParse(string code, string assembly)
         {
             DiagnosticBag diagnostics = new DiagnosticBag();
@@ -144,7 +157,7 @@ __Program_3__:
             generator.Generate(parser.SyntaxTree);
             Assert.Empty(diagnostics.Contents);
 
-            System.Console.WriteLine(SyntaxTreeDumper.Dump(parser.SyntaxTree));
+            System.Console.WriteLine(code);
             System.Console.WriteLine(generator.Instructions.ToTextFormat());
 
             Assert.Equal(assembly, generator.Instructions.ToTextFormat());
