@@ -135,6 +135,26 @@ __Program_3__:
     mul
 ";
 
+        private const string code15 = @"a[0]";
+        private const string assembly15 = @"    push 0
+    load_arr a 1
+";
+
+        private const string code16 = @"a[0][first]";
+        private const string assembly16 = @"    load first
+    push 0
+    load_arr a 2
+";
+
+        private const string code17 = @"a[0][1][2][3] = 4";
+        private const string assembly17 = @"    push 4
+    push 3
+    push 2
+    push 1
+    push 0
+    store_arr a 4
+";
+
         [Theory]
         [InlineData (code1, assembly1)]
         [InlineData (code2, assembly2)]
@@ -150,6 +170,9 @@ __Program_3__:
         [InlineData (code12, assembly12)]
         [InlineData (code13, assembly13)]
         [InlineData (code14, assembly14)]
+        [InlineData (code15, assembly15)]
+        [InlineData (code16, assembly16)]
+        [InlineData (code17, assembly17)]
         public void TestFormatAndParse(string code, string assembly)
         {
             DiagnosticBag diagnostics = new DiagnosticBag();

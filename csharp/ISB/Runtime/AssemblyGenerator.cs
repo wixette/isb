@@ -171,7 +171,7 @@ namespace ISB.Runtime
                     this.GenerateObjectAccessExpressionSyntax(node, inExpressionStatement, false);
                     break;
                 case SyntaxNodeKind.ArrayAccessExpressionSyntax:
-                    // TODO
+                    this.GenerateArrayAccessExpressionSyntax(node, inExpressionStatement, false);
                     break;
             }
         }
@@ -349,6 +349,8 @@ namespace ISB.Runtime
         private void GenerateAssignToArrayItemExpressionSyntax(
             SyntaxNode left, SyntaxNode right, bool inExpressionStatement)
         {
+            this.GenerateExpressionSyntax(right, inExpressionStatement);
+            this.GenerateArrayAccessExpressionSyntax(left, inExpressionStatement, true);
         }
 
         private void GenerateAssignToLibPropertyExpressionSyntax(
@@ -356,6 +358,34 @@ namespace ISB.Runtime
         {
             this.GenerateExpressionSyntax(right, inExpressionStatement);
             this.GenerateObjectAccessExpressionSyntax(left, inExpressionStatement, true);
+        }
+
+        private void GenerateArrayAccessExpressionSyntax(
+            SyntaxNode node, bool inExpressionStatement, bool forLeftValue)
+        {
+            var (dimension, arrayName) = GenerateArrayIndex(node, inExpressionStatement);
+            if (forLeftValue)
+            {
+                this.Instructions.Add(null, Instruction.STORE_ARR, arrayName, dimension.ToString());
+            }
+            else
+            {
+                this.Instructions.Add(null, Instruction.LOAD_ARR, arrayName, dimension.ToString());
+            }
+        }
+
+        private (int, string) GenerateArrayIndex(SyntaxNode node, bool inExpressionStatement)
+        {
+            this.GenerateExpressionSyntax(node.Children[2], inExpressionStatement);
+            if (node.Children[0].IsTerminator)
+            {
+                return (1, node.Children[0].Terminator.Text);
+            }
+            else
+            {
+                var (dimension, arrayName) = GenerateArrayIndex(node.Children[0], inExpressionStatement);
+                return (1 + dimension, arrayName);
+            }
         }
 
         private void GenerateObjectAccessExpressionSyntax(
