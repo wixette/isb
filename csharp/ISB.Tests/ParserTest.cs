@@ -393,6 +393,21 @@ EndSub";
       NumberLiteralExpressionSyntax: 0
 ";
 
+const string code20 = @"a.b.c = 0";
+        const string tree20 = @"StatementBlockSyntax
+  ExpressionStatementSyntax
+    BinaryOperatorExpressionSyntax
+      ObjectAccessExpressionSyntax
+        ObjectAccessExpressionSyntax
+          IdentifierExpressionSyntax: a
+          PunctuationSyntax: .
+          IdentifierExpressionSyntax: b
+        PunctuationSyntax: .
+        IdentifierExpressionSyntax: c
+      PunctuationSyntax: =
+      NumberLiteralExpressionSyntax: 0
+";
+
         [Theory]
         [InlineData(code0, tree0)]
         [InlineData(code1, tree1)]
@@ -414,6 +429,7 @@ EndSub";
         [InlineData(code17, tree17)]
         [InlineData(code18, tree18)]
         [InlineData(code19, tree19)]
+        [InlineData(code20, tree20)]
         public void TestExpectedParsing(string input, string expected)
         {
             DiagnosticBag diagnostics = new DiagnosticBag();
