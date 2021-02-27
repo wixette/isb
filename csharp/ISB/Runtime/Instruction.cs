@@ -38,6 +38,19 @@ namespace ISB.Runtime
         //   (2) if value JumpTo(label1) else JumpTo(label2)
         public static readonly string BR_IF = "br_if";
 
+        // Sets a value to a register.
+        //   set <register_no>
+        //
+        //   (1) value := Stack.Pop()
+        //   (2) register[register_no] := value  ; <register_no> can be 0, 1, 2, 3, ...
+        public static readonly string SET = "set";
+
+        // Gets a value from a register.
+        //   get <register_no>
+        //
+        //   (1) Stack.Push(register[register_no])  ; <register_no> can be 0, 1, 2, 3, ...
+        public static readonly string GET = "get";
+
         // Stores a value to a variable.
         //   store <variable>
         //
@@ -246,6 +259,8 @@ namespace ISB.Runtime
             { PAUSE, (OprandKind.None, OprandKind.None) },
             { BR, (OprandKind.Label, OprandKind.None) },
             { BR_IF, (OprandKind.Label, OprandKind.Label) },
+            { SET, (OprandKind.Integer, OprandKind.None) },
+            { GET, (OprandKind.Integer, OprandKind.None) },
             { STORE, (OprandKind.Identifier, OprandKind.None) },
             { LOAD, (OprandKind.Identifier, OprandKind.None) },
             { STORE_ARR, (OprandKind.Identifier, OprandKind.Integer) },

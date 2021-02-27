@@ -379,7 +379,7 @@ namespace ISB.Runtime
         private void GenerateArrayAccessExpressionSyntax(
             SyntaxNode node, bool inExpressionStatement, bool forLeftValue)
         {
-            var (dimension, arrayName) = GenerateArrayIndex(node, inExpressionStatement);
+            var (dimension, arrayName) = this.GenerateArrayIndex(node, inExpressionStatement);
             if (forLeftValue)
             {
                 this.Instructions.Add(null, Instruction.STORE_ARR, arrayName, dimension.ToString());
@@ -399,7 +399,7 @@ namespace ISB.Runtime
             }
             else
             {
-                var (dimension, arrayName) = GenerateArrayIndex(node.Children[0], inExpressionStatement);
+                var (dimension, arrayName) = this.GenerateArrayIndex(node.Children[0], inExpressionStatement);
                 return (1 + dimension, arrayName);
             }
         }
@@ -455,10 +455,10 @@ namespace ISB.Runtime
                         this.diagnostics.ReportUnsupportedInvocationBaseExpression(node.Range);
                         return;
                     }
-                    GenerateCallSub(subName, node.Children[2]);
+                    this.GenerateCallSub(subName, node.Children[2]);
                     break;
                 case SyntaxNodeKind.ObjectAccessExpressionSyntax:
-                    GenerateCallLib(node.Children[0], node.Children[2], inExpressionStatement);
+                    this.GenerateCallLib(node.Children[0], node.Children[2], inExpressionStatement);
                     break;
                 default:
                     // Embedded InvocationExpressionSyntax like "a()()" is not supported.
@@ -523,7 +523,7 @@ namespace ISB.Runtime
             SyntaxNode ifBodyNode = ifPartNode.Children[3];
             string endLabel = this.NewLabel();
 
-            GenerateIfConditionalBlock(ifConditionNode, ifBodyNode, endLabel);
+            this.GenerateIfConditionalBlock(ifConditionNode, ifBodyNode, endLabel);
 
             SyntaxNode elseIfPartGroupNode = node.Children[1];
             if (!elseIfPartGroupNode.IsEmpty)
@@ -532,7 +532,7 @@ namespace ISB.Runtime
                 {
                     var conditionNode = elseIfPartNode.Children[1];
                     var bodyNode = elseIfPartNode.Children[3];
-                    GenerateIfConditionalBlock(conditionNode, bodyNode, endLabel);
+                    this.GenerateIfConditionalBlock(conditionNode, bodyNode, endLabel);
                 }
             }
 
@@ -540,7 +540,7 @@ namespace ISB.Runtime
             if (!elsePartNode.IsEmpty)
             {
                 SyntaxNode elseBodyNode = elsePartNode.Children[1];
-                GenerateStatementBlockSyntax(elseBodyNode);
+                this.GenerateStatementBlockSyntax(elseBodyNode);
             }
 
             this.Instructions.Add(endLabel, Instruction.NOP, null, null);
@@ -550,10 +550,10 @@ namespace ISB.Runtime
         {
             string trueLabel = this.NewLabel();
             string falseLabel = this.NewLabel();
-            GenerateExpressionSyntax(conditionNode, false);
+            this.GenerateExpressionSyntax(conditionNode, false);
             this.Instructions.Add(null, Instruction.BR_IF, trueLabel, falseLabel);
             this.Instructions.Add(trueLabel, Instruction.NOP, null, null);
-            GenerateStatementBlockSyntax(bodyNode);
+            this.GenerateStatementBlockSyntax(bodyNode);
             this.Instructions.Add(null, Instruction.BR, endLabel, null);
             this.Instructions.Add(falseLabel, Instruction.NOP, null, null);
         }
@@ -566,12 +566,12 @@ namespace ISB.Runtime
             this.Instructions.Add(startLabel, Instruction.NOP, null, null);
 
             SyntaxNode conditionNode = node.Children[1];
-            GenerateExpressionSyntax(conditionNode, false);
+            this.GenerateExpressionSyntax(conditionNode, false);
             this.Instructions.Add(null, Instruction.BR_IF, bodyLabel, endLabel);
             this.Instructions.Add(bodyLabel, Instruction.NOP, null, null);
 
             SyntaxNode bodyNode = node.Children[2];
-            GenerateStatementBlockSyntax(bodyNode);
+            this.GenerateStatementBlockSyntax(bodyNode);
             this.Instructions.Add(null, Instruction.BR, startLabel, null);
 
             this.Instructions.Add(endLabel, Instruction.NOP, null, null);
@@ -579,6 +579,74 @@ namespace ISB.Runtime
 
         private void GenerateForStatementSyntax(SyntaxNode node)
         {
+            string loopVariableName = node.Children[1].Terminator.Text;
+            SyntaxNode fromExpressionNode = node.Children[3];
+            SyntaxNode toExpressionNode = node.Children[5];
+            SyntaxNode stepExpressionNode = null;
+            SyntaxNode stepClauseNode = node.Children[6];
+            if (!stepClauseNode.IsEmpty)
+                stepExpressionNode = stepClauseNode.Children[1];
+            SyntaxNode bodyNode = node.Children[7];
+
+            // Initializes the loop variable.
+            this.GenerateExpressionSyntax(fromExpressionNode, false);
+            this.Instructions.Add(null, Instruction.STORE, loopVariableName, null);
+
+            string startLabel = this.NewLabel();
+            string endLabel = this.NewLabel();
+
+            // Body statements.
+            this.Instructions.Add(startLabel, Instruction.NOP, null, null);
+            if (!bodyNode.IsEmpty)
+            {
+                this.GenerateStatementBlockSyntax(bodyNode);
+            }
+
+            // Calculates the step value and stores it to register[0].
+            if (stepExpressionNode != null)
+            {
+                this.GenerateExpressionSyntax(stepExpressionNode, false);
+                this.Instructions.Add(null, Instruction.SET, "0", null);
+            }
+            else
+            {
+                // Default step value is 1.
+                this.Instructions.Add(null, Instruction.PUSH, "1", null);
+                this.Instructions.Add(null, Instruction.SET, "0", null);
+            }
+
+            // Adds the loop variable by the step value.
+            this.Instructions.Add(null, Instruction.LOAD, loopVariableName, null);
+            this.Instructions.Add(null, Instruction.GET, "0", null);
+            this.Instructions.Add(null, Instruction.ADD, null, null);
+            this.Instructions.Add(null, Instruction.STORE, loopVariableName, null);
+
+            // If the step value >=0, goto (1), else, goto (2).
+            this.Instructions.Add(null, Instruction.GET, "0", null);
+            this.Instructions.Add(null, Instruction.PUSH, "0", null);
+            this.Instructions.Add(null, Instruction.GE, null, null);
+            string leCompareLabel = this.NewLabel();
+            string geCompareLabel = this.NewLabel();
+            this.Instructions.Add(null, Instruction.BR_IF, leCompareLabel, geCompareLabel);
+
+            // (1) Checks if the loop variabel is less than or equal to the To value.
+            // Continues the for loop if ture, breaks the for loop otherwise.
+            this.Instructions.Add(leCompareLabel, Instruction.NOP, null, null);
+            this.Instructions.Add(null, Instruction.LOAD, loopVariableName, null);
+            this.GenerateExpressionSyntax(toExpressionNode, false);
+            this.Instructions.Add(null, Instruction.LE, null, null);
+            this.Instructions.Add(null, Instruction.BR_IF, startLabel, endLabel);
+
+            // (1) Checks if the loop variabel is greater than or equal to the To value.
+            // Continues the for loop if ture, breaks the for loop otherwise.
+            this.Instructions.Add(geCompareLabel, Instruction.NOP, null, null);
+            this.Instructions.Add(null, Instruction.LOAD, loopVariableName, null);
+            this.GenerateExpressionSyntax(toExpressionNode, false);
+            this.Instructions.Add(null, Instruction.GE, null, null);
+            this.Instructions.Add(null, Instruction.BR_IF, startLabel, endLabel);
+
+            // The end.
+            this.Instructions.Add(endLabel, Instruction.NOP, null, null);
         }
     }
 }

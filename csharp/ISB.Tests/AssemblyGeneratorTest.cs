@@ -256,6 +256,77 @@ __Program_2__:
     nop
 ";
 
+        private const string code24 = @"For i = 1 to 5
+EndFor";
+        private const string assembly24 = @"    push 1
+    store i
+__Program_0__:
+    nop
+    push 1
+    set 0
+    load i
+    get 0
+    add
+    store i
+    get 0
+    push 0
+    ge
+    br_if __Program_2__ __Program_3__
+__Program_2__:
+    nop
+    load i
+    push 5
+    le
+    br_if __Program_0__ __Program_1__
+__Program_3__:
+    nop
+    load i
+    push 5
+    ge
+    br_if __Program_0__ __Program_1__
+__Program_1__:
+    nop
+";
+
+        private const string code25 = @"For i = 10 To 1 Step -1
+  a = a + i
+EndFor";
+        private const string assembly25 = @"    push 10
+    store i
+__Program_0__:
+    nop
+    load a
+    load i
+    add
+    store a
+    push 0
+    push 1
+    sub
+    set 0
+    load i
+    get 0
+    add
+    store i
+    get 0
+    push 0
+    ge
+    br_if __Program_2__ __Program_3__
+__Program_2__:
+    nop
+    load i
+    push 1
+    le
+    br_if __Program_0__ __Program_1__
+__Program_3__:
+    nop
+    load i
+    push 1
+    ge
+    br_if __Program_0__ __Program_1__
+__Program_1__:
+    nop
+";
+
         [Theory]
         [InlineData (code1, assembly1)]
         [InlineData (code2, assembly2)]
@@ -280,6 +351,8 @@ __Program_2__:
         [InlineData (code21, assembly21)]
         [InlineData (code22, assembly22)]
         [InlineData (code23, assembly23)]
+        [InlineData (code24, assembly24)]
+        [InlineData (code25, assembly25)]
         public void TestFormatAndParse(string code, string assembly)
         {
             DiagnosticBag diagnostics = new DiagnosticBag();
