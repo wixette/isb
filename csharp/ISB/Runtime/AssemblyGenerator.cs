@@ -70,10 +70,13 @@ namespace ISB.Runtime
                     break;
 
                 case SyntaxNodeKind.IfStatementSyntax:
+                    // TODO
                     break;
                 case SyntaxNodeKind.WhileStatementSyntax:
+                    // TODO
                     break;
                 case SyntaxNodeKind.ForStatementSyntax:
+                    // TODO
                     break;
 
                 case SyntaxNodeKind.ExpressionStatementSyntax:
@@ -162,11 +165,13 @@ namespace ISB.Runtime
                     this.GeneranteStringLiteralExpressionSyntax(node.Terminator);
                     break;
                 case SyntaxNodeKind.InvocationExpressionSyntax:
+                    // TODO
                     break;
                 case SyntaxNodeKind.ObjectAccessExpressionSyntax:
                     this.GenerateObjectAccessExpressionSyntax(node, inExpressionStatement, false);
                     break;
                 case SyntaxNodeKind.ArrayAccessExpressionSyntax:
+                    // TODO
                     break;
             }
         }

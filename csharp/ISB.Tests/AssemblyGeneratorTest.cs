@@ -118,8 +118,13 @@ __Program_3__:
     store_lib LibA PropertyFoo
 ";
 
-        private const string code13 = @"3 * (4 - 5 * (2 / (2)))";
-        private const string assembly13 = @"    push 3
+        private const string code13 = @"a = LibA.PropertyFoo";
+        private const string assembly13 = @"    load_lib LibA PropertyFoo
+    store a
+";
+
+        private const string code14 = @"3 * (4 - 5 * (2 / (2)))";
+        private const string assembly14 = @"    push 3
     push 4
     push 5
     push 2
@@ -144,6 +149,7 @@ __Program_3__:
         [InlineData (code11, assembly11)]
         [InlineData (code12, assembly12)]
         [InlineData (code13, assembly13)]
+        [InlineData (code14, assembly14)]
         public void TestFormatAndParse(string code, string assembly)
         {
             DiagnosticBag diagnostics = new DiagnosticBag();
