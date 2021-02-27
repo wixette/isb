@@ -92,10 +92,10 @@ namespace ISB.Runtime
         //     push | pushs <argument(n-2)>
         //     ...
         //     push | pushs <argument(0)>
-        //     call <sub>
+        //     call <func>
         //
         //   (1) Stack.Push(IP)
-        //   (2) IP := <sub.Entry>  ; JumpTo(sub.Entry)
+        //   (2) IP := <func.Entry>  ; JumpTo(func.Entry)
         public static readonly string CALL = "call";
 
         // Returns from a function.
@@ -107,7 +107,7 @@ namespace ISB.Runtime
         //   (1) return_add := Stack.Pop()
         //   (2) for i in [0, n):
         //   (3)   argument(i) := Stack.Pop()
-        //   (4) Run(sub.Body)
+        //   (4) Run(func.Body)
         //   (5) Stack.Push(return_value)
         //   (6) IP := <return_add>  ; JumpTo(return_add)
         public static readonly string RET = "ret";
@@ -120,14 +120,14 @@ namespace ISB.Runtime
         //     push | pushs <argument(n-2)>
         //     ...
         //     push | pushs <argument(0)>
-        //     call_lib <lib> <sub>
+        //     call_lib <lib> <func>
         //
         //   (1) Stack.Push(IP)
-        //   (2) Call(lib.sub)
-        //   (3)   return_add := Stack.Pop()  ; Inside lib.sub
+        //   (2) Call(lib.func)
+        //   (3)   return_add := Stack.Pop()  ; Inside lib.func
         //   (2)   for i in [0, n):
         //   (3)     argument(i) := Stack.Pop()
-        //   (4)   Run(sub.Body)
+        //   (4)   Run(func.Body)
         //   (5)   Stack.Push(return_value)
         //   (6) IP := <return_add>  ; JumpTo(return_add)
         public static readonly string CALL_LIB = "call_lib";
@@ -154,7 +154,7 @@ namespace ISB.Runtime
         //   (4) Stack.Push(result)
         public static readonly string ADD = "add";
 
-        // Subs two oprands.
+        // Substracts two oprands.
         //   sub
         //
         //   (1) value2 := Stack.Pop()

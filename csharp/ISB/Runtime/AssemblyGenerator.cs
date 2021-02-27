@@ -166,7 +166,7 @@ namespace ISB.Runtime
                     this.GeneranteStringLiteralExpressionSyntax(node.Terminator);
                     break;
                 case SyntaxNodeKind.InvocationExpressionSyntax:
-                    // TODO
+                    this.GenerateInvocationExpressionSyntax(node, inExpressionStatement);
                     break;
                 case SyntaxNodeKind.ObjectAccessExpressionSyntax:
                     this.GenerateObjectAccessExpressionSyntax(node, inExpressionStatement, false);
@@ -394,7 +394,7 @@ namespace ISB.Runtime
         private void GenerateObjectAccessExpressionSyntax(
             SyntaxNode node, bool inExpressionStatement, bool forLeftValue)
         {
-            if (!node.Children[0].IsTerminator)
+            if (node.Children[0].Kind != SyntaxNodeKind.IdentifierExpressionSyntax)
             {
                 // Embeded ObjectAccessExpressionSyntax like "a.b.c = 0" is not supported.
                 this.diagnostics.ReportUnsupportedDotBaseExpression(node.Range);
@@ -420,6 +420,42 @@ namespace ISB.Runtime
                 }
                 this.Instructions.Add(null, Instruction.LOAD_LIB, libName, propertyName);
             }
+        }
+
+        private void GenerateInvocationExpressionSyntax(SyntaxNode node, bool inExpressionStatement)
+        {
+            switch (node.Children[0].Kind)
+            {
+                case SyntaxNodeKind.IdentifierExpressionSyntax:
+                    GenerateCallSub(node, inExpressionStatement);
+                    break;
+                case SyntaxNodeKind.ObjectAccessExpressionSyntax:
+                    break;
+                default:
+                    // Embedded InvocationExpressionSyntax like "a()()" is not supported.
+                    this.diagnostics.ReportUnsupportedInvocationBaseExpression(node.Range);
+                    break;
+            }
+        }
+
+        private void GenerateCallSub(SyntaxNode node, bool inExpressionStatement)
+        {
+            if (!node.Children[2].IsEmpty)
+            {
+                this.diagnostics.ReportUnexpectedArgumentsCount(
+                    node.Children[2].Range, node.Children[2].Children.Count, 0);
+                return;
+            }
+            string subName = node.Children[0].Terminator.Text;
+            if (!this.environment.SubModuleNameDictionary.ContainsKey(subName))
+            {
+                // TODO:
+                //  (1) forwardly check if the sub name is defined?
+                //  (2) a separate diagnostic code for NoSubModuleDefined?
+                this.diagnostics.ReportUnsupportedInvocationBaseExpression(node.Range);
+                return;
+            }
+            this.Instructions.Add(null, Instruction.CALL, subName, null);
         }
     }
 }

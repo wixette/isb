@@ -163,6 +163,18 @@ __Program_3__:
     store_arr a 3
 ";
 
+        private const string code19 = @"sub foo
+endsub
+foo()";
+        private const string assembly19 = @"    br __Program_1__
+__Program_0__:
+    nop
+    ret 0
+__Program_1__:
+    nop
+    call foo
+";
+
         [Theory]
         [InlineData (code1, assembly1)]
         [InlineData (code2, assembly2)]
@@ -182,6 +194,7 @@ __Program_3__:
         [InlineData (code16, assembly16)]
         [InlineData (code17, assembly17)]
         [InlineData (code18, assembly18)]
+        [InlineData (code19, assembly19)]
         public void TestFormatAndParse(string code, string assembly)
         {
             DiagnosticBag diagnostics = new DiagnosticBag();
@@ -211,11 +224,14 @@ sub a
 endsub";
         const string errInput4 = @"LibA.PropertyFoo.x = 3";
 
+        const string errInput5 = @"foo()";
+
         [Theory]
         [InlineData(errInput1, new DiagnosticCode[] {DiagnosticCode.TwoLabelsWithTheSameName})]
         [InlineData(errInput2, new DiagnosticCode[] {DiagnosticCode.GoToUndefinedLabel})]
         [InlineData(errInput3, new DiagnosticCode[] {DiagnosticCode.TwoSubModulesWithTheSameName})]
         [InlineData(errInput4, new DiagnosticCode[] {DiagnosticCode.UnsupportedDotBaseExpression})]
+        [InlineData(errInput5, new DiagnosticCode[] {DiagnosticCode.UnsupportedInvocationBaseExpression})]
         public void TestErrorCases(string errInput, DiagnosticCode[] errDiagnostics)
         {
             DiagnosticBag diagnostics = new DiagnosticBag();
