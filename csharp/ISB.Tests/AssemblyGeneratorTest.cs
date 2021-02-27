@@ -158,11 +158,13 @@ a:";
 endsub
 sub a
 endsub";
+        const string errInput4 = @"LibA.PropertyFoo.x = 3";
 
         [Theory]
         [InlineData(errInput1, new DiagnosticCode[] {DiagnosticCode.TwoLabelsWithTheSameName})]
         [InlineData(errInput2, new DiagnosticCode[] {DiagnosticCode.GoToUndefinedLabel})]
         [InlineData(errInput3, new DiagnosticCode[] {DiagnosticCode.TwoSubModulesWithTheSameName})]
+        [InlineData(errInput4, new DiagnosticCode[] {DiagnosticCode.UnsupportedDotBaseExpression})]
         public void TestErrorCases(string errInput, DiagnosticCode[] errDiagnostics)
         {
             DiagnosticBag diagnostics = new DiagnosticBag();

@@ -95,18 +95,16 @@ namespace ISB.Runtime
             if (this.environment.SubModuleNameDictionary.ContainsKey(name.Text))
             {
                 this.diagnostics.ReportTwoSubModulesWithTheSameName(name.Range, name.Text);
+                return;
             }
-            else
-            {
-                string subLabel = this.NewLabel();
-                string endSubLabel = this.NewLabel();
-                this.Instructions.Add(null, Instruction.BR, endSubLabel, null);
-                this.Instructions.Add(subLabel, Instruction.NOP, null, null);
-                this.environment.SubModuleNameDictionary.Add(name.Text, this.Instructions.Count);
-                this.GenerateSyntax(body);
-                this.Instructions.Add(null, Instruction.RET, null, null);
-                this.Instructions.Add(endSubLabel, Instruction.NOP, null, null);
-            }
+            string subLabel = this.NewLabel();
+            string endSubLabel = this.NewLabel();
+            this.Instructions.Add(null, Instruction.BR, endSubLabel, null);
+            this.Instructions.Add(subLabel, Instruction.NOP, null, null);
+            this.environment.SubModuleNameDictionary.Add(name.Text, this.Instructions.Count);
+            this.GenerateSyntax(body);
+            this.Instructions.Add(null, Instruction.RET, null, null);
+            this.Instructions.Add(endSubLabel, Instruction.NOP, null, null);
         }
 
         private void GenerateLabelSyntax(Token label)
@@ -154,17 +152,18 @@ namespace ISB.Runtime
                 case SyntaxNodeKind.ParenthesisExpressionSyntax:
                     break;
                 case SyntaxNodeKind.IdentifierExpressionSyntax:
-                    GenerateIdentifierExpressionSyntax(node.Terminator);
+                    this.GenerateIdentifierExpressionSyntax(node.Terminator);
                     break;
                 case SyntaxNodeKind.NumberLiteralExpressionSyntax:
-                    GeneranteNumberLiteralExpressionSyntax(node.Terminator);
+                    this.GeneranteNumberLiteralExpressionSyntax(node.Terminator);
                     break;
                 case SyntaxNodeKind.StringLiteralExpressionSyntax:
-                    GeneranteStringLiteralExpressionSyntax(node.Terminator);
+                    this.GeneranteStringLiteralExpressionSyntax(node.Terminator);
                     break;
                 case SyntaxNodeKind.InvocationExpressionSyntax:
                     break;
                 case SyntaxNodeKind.ObjectAccessExpressionSyntax:
+                    this.GenerateObjectAccessExpressionSyntax(node, inExpressionStatement, false);
                     break;
                 case SyntaxNodeKind.ArrayAccessExpressionSyntax:
                     break;
@@ -349,14 +348,39 @@ namespace ISB.Runtime
         private void GenerateAssignToLibPropertyExpressionSyntax(
             SyntaxNode left, SyntaxNode right, bool inExpressionStatement)
         {
-            string libName = left.Children[0].Terminator.Text;
-            string propertyName = left.Children[2].Terminator.Text;
-            if (!this.environment.Libs.IsPropertyAssessible(libName, propertyName))
-            {
-                this.diagnostics.ReportPropertyHasNoSetter(left.Range, libName, propertyName);
-            }
             this.GenerateExpressionSyntax(right, inExpressionStatement);
-            this.Instructions.Add(null, Instruction.STORE_LIB, libName, propertyName);
+            this.GenerateObjectAccessExpressionSyntax(left, inExpressionStatement, true);
+        }
+
+        private void GenerateObjectAccessExpressionSyntax(
+            SyntaxNode node, bool inExpressionStatement, bool forLeftValue)
+        {
+            if (!node.Children[0].IsTerminator)
+            {
+                // Embeded ObjectAccessExpressionSyntax is met. E.g., "a.b.c = 0" is not supported.
+                this.diagnostics.ReportUnsupportedDotBaseExpression(node.Range);
+                return;
+            }
+            string libName = node.Children[0].Terminator.Text;
+            string propertyName = node.Children[2].Terminator.Text;
+            if (forLeftValue)
+            {
+                if (!this.environment.Libs.IsPropertyWritable(libName, propertyName))
+                {
+                    this.diagnostics.ReportPropertyHasNoSetter(node.Range, libName, propertyName);
+                    return;
+                }
+                this.Instructions.Add(null, Instruction.STORE_LIB, libName, propertyName);
+            }
+            else
+            {
+                if (!this.environment.Libs.IsPropertyExist(libName, propertyName))
+                {
+                    this.diagnostics.ReportLibraryMemberNotFound(node.Range, libName, propertyName);
+                    return;
+                }
+                this.Instructions.Add(null, Instruction.LOAD_LIB, libName, propertyName);
+            }
         }
     }
 }

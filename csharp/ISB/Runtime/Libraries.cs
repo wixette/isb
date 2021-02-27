@@ -9,8 +9,15 @@ namespace ISB.Runtime
         {
         }
 
-        public bool IsPropertyAssessible(string libName, string propertyName)
+        public bool IsPropertyExist(string libName, string propertyName)
         {
+            // TODO
+            return true;
+        }
+
+        public bool IsPropertyWritable(string libName, string propertyName)
+        {
+            // TODO
             return true;
         }
     }
