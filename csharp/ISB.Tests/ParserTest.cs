@@ -355,6 +355,44 @@ EndSub";
     KeywordSyntax: EndSub
 ";
 
+        const string code18 = @"a[0][1] = 0";
+        const string tree18 = @"StatementBlockSyntax
+  ExpressionStatementSyntax
+    BinaryOperatorExpressionSyntax
+      ArrayAccessExpressionSyntax
+        ArrayAccessExpressionSyntax
+          IdentifierExpressionSyntax: a
+          PunctuationSyntax: [
+          NumberLiteralExpressionSyntax: 0
+          PunctuationSyntax: ]
+        PunctuationSyntax: [
+        NumberLiteralExpressionSyntax: 1
+        PunctuationSyntax: ]
+      PunctuationSyntax: =
+      NumberLiteralExpressionSyntax: 0
+";
+
+        const string code19 = @"a[0][1][2] = 0";
+        const string tree19 = @"StatementBlockSyntax
+  ExpressionStatementSyntax
+    BinaryOperatorExpressionSyntax
+      ArrayAccessExpressionSyntax
+        ArrayAccessExpressionSyntax
+          ArrayAccessExpressionSyntax
+            IdentifierExpressionSyntax: a
+            PunctuationSyntax: [
+            NumberLiteralExpressionSyntax: 0
+            PunctuationSyntax: ]
+          PunctuationSyntax: [
+          NumberLiteralExpressionSyntax: 1
+          PunctuationSyntax: ]
+        PunctuationSyntax: [
+        NumberLiteralExpressionSyntax: 2
+        PunctuationSyntax: ]
+      PunctuationSyntax: =
+      NumberLiteralExpressionSyntax: 0
+";
+
         [Theory]
         [InlineData(code0, tree0)]
         [InlineData(code1, tree1)]
@@ -374,6 +412,8 @@ EndSub";
         [InlineData(code15, tree15)]
         [InlineData(code16, tree16)]
         [InlineData(code17, tree17)]
+        [InlineData(code18, tree18)]
+        [InlineData(code19, tree19)]
         public void TestExpectedParsing(string input, string expected)
         {
             DiagnosticBag diagnostics = new DiagnosticBag();
@@ -382,6 +422,10 @@ EndSub";
             Parser parser = new Parser(scanner.Tokens, diagnostics);
             Assert.Empty(diagnostics.Contents);
             string treeDump = SyntaxTreeDumper.Dump(parser.SyntaxTree);
+
+            System.Console.WriteLine(input);
+            System.Console.WriteLine(treeDump);
+
             Assert.Equal(expected, treeDump);
         }
 
