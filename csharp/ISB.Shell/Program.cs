@@ -2,9 +2,9 @@
 using System.Diagnostics;
 using System.Reflection;
 
-namespace ISB
+namespace ISB.Shell
 {
-    class Shell
+    class Program
     {
         static void Main(string[] args)
         {
