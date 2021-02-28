@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.IO;
 using CommandLine;
 using CommandLine.Text;
@@ -50,6 +49,18 @@ namespace ISB.Shell
                     if (opts.Compile)
                     {
                         Console.Error.WriteLine($"Compiling {opts.InputFile} to assembly code.");
+                        string code = File.ReadAllText(opts.InputFile);
+                        if (!String.IsNullOrWhiteSpace(opts.OutputFile))
+                        {
+                            using (StreamWriter output = new StreamWriter(opts.OutputFile))
+                            {
+                                Compiler.Compile(code, output, Console.Error);
+                            }
+                        }
+                        else
+                        {
+                            Compiler.Compile(code, Console.Out, Console.Error);
+                        }
                     }
                     else
                     {
