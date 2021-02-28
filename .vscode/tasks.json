@@ -8,7 +8,7 @@
             "type": "process",
             "args": [
                 "build",
-                "${workspaceFolder}/csharp/ISB/ISB.csproj",
+                "${workspaceFolder}/csharp/ISB.Shell/ISB.Shell.csproj",
                 "/property:GenerateFullPaths=true",
                 "/consoleloggerparameters:NoSummary"
             ],
@@ -21,7 +21,7 @@
             "type": "process",
             "args": [
                 "build",
-                "${workspaceFolder}/csharp/ISB/ISB.csproj",
+                "${workspaceFolder}/csharp/ISB.Shell/ISB.Shell.csproj",
                 "/property:GenerateFullPaths=true",
                 "/consoleloggerparameters:NoSummary",
                 "-c",
@@ -36,7 +36,7 @@
             "type": "process",
             "args": [
                 "publish",
-                "${workspaceFolder}/csharp/ISB/ISB.csproj",
+                "${workspaceFolder}/csharp/ISB.Shell/ISB.Shell.csproj",
                 "/property:GenerateFullPaths=true",
                 "/consoleloggerparameters:NoSummary"
             ],
@@ -49,7 +49,7 @@
             "type": "process",
             "args": [
                 "publish",
-                "${workspaceFolder}/csharp/ISB/ISB.csproj",
+                "${workspaceFolder}/csharp/ISB.Shell/ISB.Shell.csproj",
                 "/property:GenerateFullPaths=true",
                 "/consoleloggerparameters:NoSummary",
                 "-c",
@@ -77,7 +77,7 @@
             "args": [
                 "watch",
                 "run",
-                "${workspaceFolder}/csharp/ISB/ISB.csproj",
+                "${workspaceFolder}/csharp/ISB.Shell/ISB.Shell.csproj",
                 "/property:GenerateFullPaths=true",
                 "/consoleloggerparameters:NoSummary"
             ],

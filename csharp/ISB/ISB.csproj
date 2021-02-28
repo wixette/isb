@@ -8,7 +8,7 @@
     <Description>Iteractive Small Basic (ISB)</Description>
     <FileVersion>0.0.1</FileVersion>
     <InformationalVersion>0.0.1</InformationalVersion>
-    <OutputType>Exe</OutputType>
+    <OutputType>Library</OutputType>
     <Product>ISB</Product>
     <TargetFramework>net5.0</TargetFramework>
   </PropertyGroup>
