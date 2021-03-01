@@ -1,6 +1,7 @@
 // This is a derived work of Microsoft Small Basic (https://github.com/sb).
 // The original code is licensed under the MIT License.
 
+using System;
 using System.Diagnostics;
 using ISB.Scanning;
 using ISB.Parsing;
@@ -86,122 +87,214 @@ namespace ISB.Runtime
             switch (instruction.Name)
             {
                 case Instruction.NOP:
+                {
+                    // Does nothing.
                     break;
+                }
 
                 case Instruction.PAUSE:
+                {
                     // TODO
                     break;
+                }
 
                 case Instruction.BR:
+                {
                     int target = this.env.LookupLabel(instruction.Oprand1.ToString());
                     Debug.Assert(target >= 0);
                     this.env.IP = target;
                     break;
+                }
 
                 case Instruction.BR_IF:
+                {
                     int target1 = this.env.LookupLabel(instruction.Oprand1.ToString());
                     int target2 = this.env.LookupLabel(instruction.Oprand2.ToString());
                     Debug.Assert(target1 >= 0 && target2 >= 0);
                     var value = this.env.Stack.Pop();
-                    if (value.ToBoolean())
-                        this.env.IP = target1;
-                    else
-                        this.env.IP = target2;
+                    this.env.IP = value.ToBoolean() ? target1 : target2;
                     break;
+                }
 
                 case Instruction.SET:
-                    // TODO
+                {
+                    var value = this.env.Stack.Pop();
+                    this.env.SetRegister(instruction.Oprand1, value);
                     break;
+                }
 
                 case Instruction.GET:
-                    // TODO
+                {
+                    var value = this.env.GetRegister(instruction.Oprand1);
+                    this.env.Stack.Push(value);
                     break;
+                }
 
                 case Instruction.STORE:
-                    // TODO
+                {
+                    var value = this.env.Stack.Pop();
+                    this.env.SetMemory(instruction.Oprand1, value);
                     break;
+                }
 
                 case Instruction.LOAD:
-                    // TODO
+                {
+                    var value = this.env.GetMemory(instruction.Oprand1);
+                    this.env.Stack.Push(value);
                     break;
+                }
 
                 case Instruction.STORE_ARR:
-                    // TODO
+                {
+                    BaseValue[] arrayNameAndIndices = this.PrepareArrayNameAndIndices(instruction);
+                    var value = this.env.Stack.Pop();
+                    this.env.SetArrayItem(arrayNameAndIndices, value);
                     break;
+                }
 
                 case Instruction.LOAD_ARR:
-                    // TODO
+                {
+                    BaseValue[] arrayNameAndIndices = this.PrepareArrayNameAndIndices(instruction);
+                    var value = this.env.GetArrayItem(arrayNameAndIndices);
+                    this.env.Stack.Push(value);
                     break;
+                }
 
                 case Instruction.PUSH:
-                    // TODO
+                {
+                    var value = instruction.Oprand1;
+                    Debug.Assert(value is NumberValue);
+                    this.env.Stack.Push(value);
                     break;
+                }
 
                 case Instruction.PUSHS:
-                    // TODO
+                {
+                    var value = instruction.Oprand1;
+                    Debug.Assert(value is StringValue);
+                    this.env.Stack.Push(value);
                     break;
+                }
 
                 case Instruction.CALL:
+                {
                     // TODO
                     break;
+                }
 
                 case Instruction.RET:
+                {
                     // TODO
                     break;
+                }
 
                 case Instruction.CALL_LIB:
+                {
                     // TODO
                     break;
+                }
 
                 case Instruction.STORE_LIB:
+                {
                     // TODO
                     break;
+                }
 
                 case Instruction.LOAD_LIB:
+                {
                     // TODO
                     break;
+                }
 
                 case Instruction.ADD:
-                    // TODO
+                {
+                    this.BinaryOperation((op1, op2) => op1 + op2);
                     break;
+                }
 
                 case Instruction.SUB:
-                    // TODO
+                {
+                    this.BinaryOperation((op1, op2) => op1 - op2);
                     break;
+                }
 
                 case Instruction.MUL:
-                    // TODO
+                {
+                    this.BinaryOperation((op1, op2) => op1 * op2);
                     break;
+                }
 
                 case Instruction.DIV:
-                    // TODO
+                {
+                    this.BinaryOperation((op1, op2) => op1 / op2);
                     break;
+                }
 
                 case Instruction.EQ:
-                    // TODO
+                {
+                    this.BinaryLogicalOperation((op1, op2) => op1 == op2);
                     break;
+                }
 
                 case Instruction.NE:
-                    // TODO
+                {
+                    this.BinaryLogicalOperation((op1, op2) => op1 != op2);
                     break;
+                }
 
                 case Instruction.LT:
-                    // TODO
+                {
+                    this.BinaryLogicalOperation((op1, op2) => op1 < op2);
                     break;
+                }
 
                 case Instruction.GT:
-                    // TODO
+                {
+                    this.BinaryLogicalOperation((op1, op2) => op1 > op2);
                     break;
+                }
 
                 case Instruction.LE:
-                    // TODO
+                {
+                    this.BinaryLogicalOperation((op1, op2) => op1 <= op2);
                     break;
+                }
 
                 case Instruction.GE:
-                    // TODO
+                {
+                    this.BinaryLogicalOperation((op1, op2) => op1 >= op2);
                     break;
-
+                }
             }
+        }
+
+        private BaseValue[] PrepareArrayNameAndIndices(Instruction instruction)
+        {
+            int dimension = (int)Math.Floor(instruction.Oprand2.ToNumber());
+            Debug.Assert(dimension > 0);
+            BaseValue[] arrayNameAndIndices = new BaseValue[dimension + 1];
+            arrayNameAndIndices[0] = instruction.Oprand1;
+            for (int i = 1; i < dimension + 1; i++)
+            {
+                arrayNameAndIndices[i] = this.env.Stack.Pop();
+            }
+            return arrayNameAndIndices;
+        }
+
+        private void BinaryOperation(Func<decimal, decimal, decimal> operation)
+        {
+            decimal op2 = this.env.Stack.Pop().ToNumber();
+            decimal op1 = this.env.Stack.Pop().ToNumber();
+            decimal result = operation(op1, op2);
+            this.env.Stack.Push(new NumberValue(result));
+        }
+
+        private void BinaryLogicalOperation(Func<decimal, decimal, bool> operation)
+        {
+            decimal op2 = this.env.Stack.Pop().ToNumber();
+            decimal op1 = this.env.Stack.Pop().ToNumber();
+            bool result = operation(op1, op2);
+            this.env.Stack.Push(new BooleanValue(result));
         }
     }
 }
