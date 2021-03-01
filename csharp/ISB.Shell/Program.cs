@@ -10,17 +10,17 @@ namespace ISB.Shell
         public class Options
         {
             [Option('i', "input", Required=false,
-                HelpText="ISB source (*.bas) file or ISB assembly (*.asm) file to run. " +
-                    "If not set, the interactive shell mode will be on.")]
+                HelpText="BASIC file (*.bas) to run/compile, or ISB assembly file (*.asm) to run. " +
+                    "If not set, the interactive shell mode will start.")]
             public string InputFile { get; set; }
 
             [Option('c', "compile", Required=false,
-                HelpText="Compile ISB source to ISB assembly.")]
+                HelpText="Compile BASIC code to ISB assembly, without running it.")]
             public bool Compile { get; set; }
 
             [Option('o', "output", Required=false,
-                HelpText="Output ISB assembly file when --compile is set. " +
-                    "If not set, the assembly will be written to stdout.")]
+                HelpText="Output file path when --compile is set. " +
+                    "If not set, the output assembly will be written to stdout.")]
             public string OutputFile { get; set; }
         }
 
