@@ -10,18 +10,19 @@ using ISB.Utilities;
 
 namespace ISB.Runtime
 {
-    public sealed class AssemblyGenerator
+    // An incremental (stateful) compiler to translate ISB source into ISB assembly instructions.
+    public sealed class Compiler
     {
-        private readonly Environment environment;
+        private readonly Environment env;
         private readonly string moduleName;
         private readonly DiagnosticBag diagnostics;
         private int labelCounter = 0; // No need to be thread-safe.
 
         public Assembly Instructions { get; private set; }
 
-        public AssemblyGenerator(Environment environment, string moduleName, DiagnosticBag diagnostics)
+        public Compiler(Environment env, string moduleName, DiagnosticBag diagnostics)
         {
-            this.environment = environment;
+            this.env = env;
             this.moduleName = moduleName;
             this.diagnostics = diagnostics;
             this.Instructions = new Assembly();
@@ -30,11 +31,11 @@ namespace ISB.Runtime
 
         public void Reset()
         {
-            this.environment.Reset();
+            this.env.Reset();
             this.Instructions.Clear();
         }
 
-        public void Generate(SyntaxNode syntaxTree)
+        public void Compile(SyntaxNode syntaxTree)
         {
             this.GenerateSyntax(syntaxTree);
         }
@@ -95,7 +96,7 @@ namespace ISB.Runtime
 
         private void GenerateSubModuleStatementSyntax(Token name, SyntaxNode body)
         {
-            if (this.environment.SubModuleNameDictionary.ContainsKey(name.Text))
+            if (this.env.SubModuleNameDictionary.ContainsKey(name.Text))
             {
                 this.diagnostics.ReportTwoSubModulesWithTheSameName(name.Range, name.Text);
                 return;
@@ -105,7 +106,7 @@ namespace ISB.Runtime
             string endSubLabel = this.NewLabel();
             this.Instructions.Add(null, Instruction.BR, endSubLabel, null);
             this.Instructions.Add(subLabel, Instruction.NOP, null, null);
-            this.environment.SubModuleNameDictionary.Add(name.Text, this.Instructions.Count);
+            this.env.SubModuleNameDictionary.Add(name.Text, this.Instructions.Count);
             this.GenerateSyntax(body);
             this.Instructions.Add(null, Instruction.RET, "0", null);
             this.Instructions.Add(endSubLabel, Instruction.NOP, null, null);
@@ -113,20 +114,20 @@ namespace ISB.Runtime
 
         private void GenerateLabelSyntax(Token label)
         {
-            if (this.environment.LabelDictionary.ContainsKey(label.Text))
+            if (this.env.LabelDictionary.ContainsKey(label.Text))
             {
                 this.diagnostics.ReportTwoLabelsWithTheSameName(label.Range, label.Text);
             }
             else
             {
                 this.Instructions.Add(label.Text, Instruction.NOP, null, null);
-                this.environment.LabelDictionary.Add(label.Text, this.Instructions.Count);
+                this.env.LabelDictionary.Add(label.Text, this.Instructions.Count);
             }
         }
 
         private void GenerateGotoSyntax(Token label)
         {
-            if (!this.environment.LabelDictionary.ContainsKey(label.Text))
+            if (!this.env.LabelDictionary.ContainsKey(label.Text))
             {
                 this.diagnostics.ReportGoToUndefinedLabel(label.Range, label.Text);
             }
@@ -423,7 +424,7 @@ namespace ISB.Runtime
             var (libName, propertyName) = this.GetLibNameAndMemberName(node);
             if (forLeftValue)
             {
-                if (!this.environment.Libs.IsPropertyWritable(libName, propertyName))
+                if (!this.env.Libs.IsPropertyWritable(libName, propertyName))
                 {
                     this.diagnostics.ReportPropertyHasNoSetter(node.Range, libName, propertyName);
                     return;
@@ -432,7 +433,7 @@ namespace ISB.Runtime
             }
             else
             {
-                if (!this.environment.Libs.IsPropertyExist(libName, propertyName))
+                if (!this.env.Libs.IsPropertyExist(libName, propertyName))
                 {
                     this.diagnostics.ReportLibraryMemberNotFound(node.Range, libName, propertyName);
                     return;
@@ -447,7 +448,7 @@ namespace ISB.Runtime
             {
                 case SyntaxNodeKind.IdentifierExpressionSyntax:
                     string subName = node.Children[0].Terminator.Text;
-                    if (!this.environment.SubModuleNameDictionary.ContainsKey(subName))
+                    if (!this.env.SubModuleNameDictionary.ContainsKey(subName))
                     {
                         // TODO:
                         //  (1) forwardly check if the sub name is defined?
@@ -500,13 +501,13 @@ namespace ISB.Runtime
                 return;
             }
             var (libName, funcName) = this.GetLibNameAndMemberName(objectAccessNode);
-            if (!this.environment.Libs.IsFuncExist(libName, funcName))
+            if (!this.env.Libs.IsFuncExist(libName, funcName))
             {
                 // TODO: a separate diagnostic code for NoLibFuncDefined?
                 this.diagnostics.ReportUnsupportedInvocationBaseExpression(objectAccessNode.Range);
                 return;
             }
-            int expectedArgumentNumber = this.environment.Libs.GetFuncArgumentNumber(libName, funcName);
+            int expectedArgumentNumber = this.env.Libs.GetFuncArgumentNumber(libName, funcName);
             if (argumentNumber != expectedArgumentNumber)
             {
                 // TODO: report this error once the Libraries class is ready.

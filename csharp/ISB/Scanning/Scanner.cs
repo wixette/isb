@@ -99,8 +99,10 @@ namespace ISB.Scanning
 
                 default:
                     {
-                        var unrecognizedToken = this.AddToken(current.ToString(CultureInfo.CurrentCulture), TokenKind.Unrecognized);
-                        this.diagnostics.ReportUnrecognizedCharacter(unrecognizedToken.Range, current);
+                        var unrecognizedToken =
+                            this.AddToken(current.ToString(CultureInfo.CurrentCulture), TokenKind.Unrecognized);
+                        if (this.diagnostics != null)
+                            this.diagnostics.ReportUnrecognizedCharacter(unrecognizedToken.Range, current);
                         return;
                     }
             }
@@ -134,15 +136,18 @@ namespace ISB.Scanning
                 {
                     case '\"':
                         {
-                            this.AddToken(this.text.Substring(this.index, lookAhead - this.index + 1), TokenKind.StringLiteral);
+                            this.AddToken(this.text.Substring(this.index, lookAhead - this.index + 1),
+                                TokenKind.StringLiteral);
                             return;
                         }
 
                     case '\r':
                     case '\n':
                         {
-                            Token token = this.AddToken(this.text.Substring(this.index, lookAhead - this.index), TokenKind.StringLiteral);
-                            this.diagnostics.ReportUnterminatedStringLiteral(token.Range);
+                            Token token = this.AddToken(this.text.Substring(this.index, lookAhead - this.index),
+                                TokenKind.StringLiteral);
+                            if (this.diagnostics != null)
+                                this.diagnostics.ReportUnterminatedStringLiteral(token.Range);
                             return;
                         }
 
@@ -154,8 +159,10 @@ namespace ISB.Scanning
                 }
             }
 
-            Token unrecognizedToken = this.AddToken(this.text.Substring(this.index, lookAhead - this.index), TokenKind.StringLiteral);
-            this.diagnostics.ReportUnterminatedStringLiteral(unrecognizedToken.Range);
+            Token unrecognizedToken = this.AddToken(this.text.Substring(this.index, lookAhead - this.index),
+                TokenKind.StringLiteral);
+            if (this.diagnostics != null)
+                this.diagnostics.ReportUnterminatedStringLiteral(unrecognizedToken.Range);
         }
 
         private void ScanNumberToken()

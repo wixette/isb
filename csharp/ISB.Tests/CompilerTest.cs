@@ -6,7 +6,7 @@ using ISB.Utilities;
 
 namespace ISB.Tests
 {
-    public class AssemblyGeneratorTest
+    public class CompilerTest
     {
         const string code1 = @"";
         const string assembly1 = @"";
@@ -360,16 +360,15 @@ __Program_1__:
             Assert.Empty(diagnostics.Contents);
             SyntaxNode tree = Parser.Parse(tokens, diagnostics);
             Assert.Empty(diagnostics.Contents);
-            Environment environment = new Environment();
-            AssemblyGenerator generator =
-                new AssemblyGenerator(environment, "Program", diagnostics);
-            generator.Generate(tree);
+            Environment env = new Environment();
+            Compiler compiler = new Compiler(env, "Program", diagnostics);
+            compiler.Compile(tree);
             Assert.Empty(diagnostics.Contents);
 
             System.Console.WriteLine(code);
-            System.Console.WriteLine(generator.Instructions.ToTextFormat());
+            System.Console.WriteLine(compiler.Instructions.ToTextFormat());
 
-            Assert.Equal(assembly, generator.Instructions.ToTextFormat());
+            Assert.Equal(assembly, compiler.Instructions.ToTextFormat());
         }
 
         const string errInput1 = @"a:
@@ -398,9 +397,8 @@ endsub";
             SyntaxNode tree = Parser.Parse(tokens, diagnostics);
             Assert.Empty(diagnostics.Contents);
             Environment environment = new Environment();
-            AssemblyGenerator generator =
-                new AssemblyGenerator(environment, "Program", diagnostics);
-            generator.Generate(tree);
+            Compiler compiler = new Compiler(environment, "Program", diagnostics);
+            compiler.Compile(tree);
             Assert.Equal(errDiagnostics.Length, diagnostics.Contents.Count);
             for (int i = 0; i < errDiagnostics.Length; i++)
             {

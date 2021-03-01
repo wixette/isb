@@ -85,14 +85,16 @@ namespace ISB.Parsing
                 }
                 else
                 {
-                    this.diagnostics.ReportUnexpectedTokenFound(current.Range, current.Kind, kind);
+                    if (this.diagnostics != null)
+                        this.diagnostics.ReportUnexpectedTokenFound(current.Range, current.Kind, kind);
                     return new Token(kind, string.Empty, current.Range);
                 }
             }
             else
             {
                 var range = this.tokens[this.tokens.Count - 1].Range;
-                this.diagnostics.ReportUnexpectedEndOfStream(range, kind);
+                if (this.diagnostics != null)
+                    this.diagnostics.ReportUnexpectedEndOfStream(range, kind);
                 return new Token(kind, string.Empty, range);
             }
         }
@@ -119,7 +121,8 @@ namespace ISB.Parsing
 
                 if (reportErrors)
                 {
-                    this.diagnostics.ReportUnexpectedStatementInsteadOfNewLine(currentToken.Range);
+                    if (this.diagnostics != null)
+                        this.diagnostics.ReportUnexpectedStatementInsteadOfNewLine(currentToken.Range);
                     reportErrors = false;
                 }
 
@@ -223,7 +226,8 @@ namespace ISB.Parsing
 
                     if (foundKind != TokenKind.Unrecognized)
                     {
-                        this.diagnostics.ReportUnexpectedTokenInsteadOfStatement(foundToken.Range, foundToken.Kind);
+                        if (this.diagnostics != null)
+                            this.diagnostics.ReportUnexpectedTokenInsteadOfStatement(foundToken.Range, foundToken.Kind);
                     }
                     return SyntaxNode.CreateTerminal(SyntaxNodeKind.UnrecognizedStatementSyntax, foundToken);
             }
@@ -485,8 +489,9 @@ namespace ISB.Parsing
                             return SyntaxNode.CreateNonTerminal(SyntaxNodeKind.ArgumentGroupSyntax, arguments);
 
                         case TokenKind foundKind:
-                            this.diagnostics.ReportUnexpectedTokenFound(this.tokens[this.index].Range,
-                                foundKind, TokenKind.Comma);
+                            if (this.diagnostics != null)
+                                this.diagnostics.ReportUnexpectedTokenFound(this.tokens[this.index].Range,
+                                    foundKind, TokenKind.Comma);
                             arguments.Add(SyntaxNode.CreateNonTerminal(SyntaxNodeKind.ArgumentSyntax,
                                 currentArgument,
                                 SyntaxNode.CreateEmpty()
@@ -527,7 +532,8 @@ namespace ISB.Parsing
                 var range = this.tokens[this.tokens.Count - 1].Range;
                 var missingToken = new Token(TokenKind.Identifier, string.Empty, range);
 
-                this.diagnostics.ReportUnexpectedEndOfStream(range, missingToken.Kind);
+                if (this.diagnostics != null)
+                    this.diagnostics.ReportUnexpectedEndOfStream(range, missingToken.Kind);
                 return SyntaxNode.CreateTerminal(SyntaxNodeKind.IdentifierExpressionSyntax, missingToken);
             }
 
@@ -560,7 +566,9 @@ namespace ISB.Parsing
 
                     if (foundKind != TokenKind.Unrecognized)
                     {
-                        this.diagnostics.ReportUnexpectedTokenFound(foundToken.Range, foundKind, TokenKind.Identifier);
+                        if (this.diagnostics != null)
+                            this.diagnostics.ReportUnexpectedTokenFound(
+                                foundToken.Range, foundKind, TokenKind.Identifier);
                     }
 
                     return SyntaxNode.CreateTerminal(SyntaxNodeKind.UnrecognizedExpressionSyntax, foundToken);
