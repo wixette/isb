@@ -356,9 +356,9 @@ __Program_1__:
         public void TestFormatAndParse(string code, string assembly)
         {
             DiagnosticBag diagnostics = new DiagnosticBag();
-            Scanner scanner = new Scanner(code, diagnostics);
+            var tokens = Scanner.Scan(code, diagnostics);
             Assert.Empty(diagnostics.Contents);
-            Parser parser = new Parser(scanner.Tokens, diagnostics);
+            Parser parser = new Parser(tokens, diagnostics);
             Assert.Empty(diagnostics.Contents);
             Environment environment = new Environment();
             AssemblyGenerator generator =
@@ -393,9 +393,9 @@ endsub";
         public void TestErrorCases(string errInput, DiagnosticCode[] errDiagnostics)
         {
             DiagnosticBag diagnostics = new DiagnosticBag();
-            Scanner scanner = new Scanner(errInput, diagnostics);
+            var tokens = Scanner.Scan(errInput, diagnostics);
             Assert.Empty(diagnostics.Contents);
-            Parser parser = new Parser(scanner.Tokens, diagnostics);
+            Parser parser = new Parser(tokens, diagnostics);
             Assert.Empty(diagnostics.Contents);
             Environment environment = new Environment();
             AssemblyGenerator generator =

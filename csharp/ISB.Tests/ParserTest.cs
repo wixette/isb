@@ -448,9 +448,9 @@ const string code21 = @"a()()";
         public void TestExpectedParsing(string input, string expected)
         {
             DiagnosticBag diagnostics = new DiagnosticBag();
-            Scanner scanner = new Scanner(input, diagnostics);
+            var tokens = Scanner.Scan(input, diagnostics);
             Assert.Empty(diagnostics.Contents);
-            Parser parser = new Parser(scanner.Tokens, diagnostics);
+            Parser parser = new Parser(tokens, diagnostics);
             Assert.Empty(diagnostics.Contents);
             string treeDump = SyntaxTreeDumper.Dump(parser.SyntaxTree);
 
@@ -553,9 +553,9 @@ abc()
         public void TestErrorCases(string errInput, DiagnosticCode[] errDiagnostics)
         {
             DiagnosticBag diagnostics = new DiagnosticBag();
-            Scanner scanner = new Scanner(errInput, diagnostics);
+            var tokens = Scanner.Scan(errInput, diagnostics);
             Assert.Empty(diagnostics.Contents);
-            Parser parser = new Parser(scanner.Tokens, diagnostics);
+            Parser parser = new Parser(tokens, diagnostics);
             Assert.Equal(errDiagnostics.Length, diagnostics.Contents.Count);
             for (int i = 0; i < errDiagnostics.Length; i++)
             {
@@ -574,9 +574,9 @@ abc()
         public void TestUnsupportedParsing(string errInput, DiagnosticCode[] errDiagnostics)
         {
             DiagnosticBag diagnostics = new DiagnosticBag();
-            Scanner scanner = new Scanner(errInput, diagnostics);
+            var tokens = Scanner.Scan(errInput, diagnostics);
             Assert.Empty(diagnostics.Contents);
-            Parser parser = new Parser(scanner.Tokens, diagnostics);
+            Parser parser = new Parser(tokens, diagnostics);
             Assert.Equal(errDiagnostics.Length, diagnostics.Contents.Count);
             for (int i = 0; i < errDiagnostics.Length; i++)
             {

@@ -7,6 +7,7 @@ using ISB.Utilities;
 
 namespace ISB.Scanning
 {
+    // A stateless class that does not hold any info between two calls.
     public sealed class Scanner
     {
         private readonly string text;
@@ -17,11 +18,11 @@ namespace ISB.Scanning
         private int line = 0;
         private int column = 0;
 
-        public Scanner(string text, DiagnosticBag diagnostics)
+        private Scanner(string text, DiagnosticBag diagnostics, List<Token> tokens)
         {
             this.diagnostics = diagnostics;
             this.text = text;
-            this.tokens = new List<Token>();
+            this.tokens = tokens;
 
             while (this.index < this.text.Length)
             {
@@ -29,7 +30,12 @@ namespace ISB.Scanning
             }
         }
 
-        public IReadOnlyList<Token> Tokens => this.tokens;
+        public static List<Token> Scan(string text, DiagnosticBag diagnostics)
+        {
+            List<Token> tokens = new List<Token>();
+            Scanner scanner = new Scanner(text, diagnostics, tokens);
+            return tokens;
+        }
 
         private void ScanNextToken()
         {
