@@ -65,7 +65,8 @@ namespace ISB.Runtime
             // This parser is only for debugging. It is not a fully-functional scanner/parser. It simply drops all
             // invalid input parts and try to produce as many out instructions as possible.
             Assembly assembly = new Assembly();
-            string[] lines = textFormatAssembly.Split(new string[] { "\n", "\r\n" }, StringSplitOptions.None);
+            string[] lines = textFormatAssembly.Split(new string[] { "\r\n", "\r", "\n" },
+                System.StringSplitOptions.None);
             string label = null;
             foreach (string line in lines)
             {
