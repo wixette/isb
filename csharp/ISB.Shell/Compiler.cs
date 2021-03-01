@@ -1,3 +1,4 @@
+using System;
 using System.IO;
 using ISB.Scanning;
 using ISB.Parsing;
@@ -8,7 +9,7 @@ namespace ISB.Shell
 {
     internal sealed class Compiler
     {
-        public static bool Compile(string code, TextWriter output, TextWriter err)
+        public static bool CompileToTextFormat(string fileName, string code, TextWriter output, TextWriter err)
         {
             DiagnosticBag diagnostics = new DiagnosticBag();
             Scanner scanner = new Scanner(code, diagnostics);
@@ -19,7 +20,7 @@ namespace ISB.Shell
                 return false;
             }
 
-            Environment environment = new Environment();
+            ISB.Runtime.Environment environment = new ISB.Runtime.Environment();
             AssemblyGenerator generator =
                 new AssemblyGenerator(environment, "Program", diagnostics);
             generator.Generate(parser.SyntaxTree);
@@ -29,6 +30,12 @@ namespace ISB.Shell
                 return false;
             }
 
+            string commentLine = ';' + new String('-', 99);
+            output.WriteLine(commentLine);
+            output.WriteLine($"; The ISB Assembly code generated from {fileName}");
+            output.WriteLine($"; The code can be parsed and run by the shell tool of ISB (Interactive Small Basic).");
+            output.WriteLine($"; See https://github.com/wixette/isb for more details.");
+            output.WriteLine(commentLine);
             output.WriteLine(generator.Instructions.ToTextFormat());
             return true;
         }

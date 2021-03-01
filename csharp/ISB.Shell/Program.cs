@@ -35,6 +35,7 @@ namespace ISB.Shell
             {
                 Console.Error.WriteLine(helpText.Heading);
                 Console.Error.WriteLine(helpText.Copyright);
+                Console.Error.WriteLine();
                 RunOptions(options);
             });
         }
@@ -43,33 +44,34 @@ namespace ISB.Shell
         {
             if (!String.IsNullOrWhiteSpace(opts.InputFile))
             {
+                string fileName = Path.GetFileName(opts.InputFile);
                 string ext = Path.GetExtension(opts.InputFile);
                 if (ext != null && ext.ToLower() == BasicExtension)
                 {
                     if (opts.Compile)
                     {
-                        Console.Error.WriteLine($"Compiling {opts.InputFile} to assembly code.");
+                        // Compiles the input file to assembly code.
                         string code = File.ReadAllText(opts.InputFile);
                         if (!String.IsNullOrWhiteSpace(opts.OutputFile))
                         {
                             using (StreamWriter output = new StreamWriter(opts.OutputFile))
                             {
-                                Compiler.Compile(code, output, Console.Error);
+                                Compiler.CompileToTextFormat(fileName, code, output, Console.Error);
                             }
                         }
                         else
                         {
-                            Compiler.Compile(code, Console.Out, Console.Error);
+                            Compiler.CompileToTextFormat(fileName, code, Console.Out, Console.Error);
                         }
                     }
                     else
                     {
-                        Console.Error.WriteLine($"Running BASIC program {opts.InputFile}.");
+                        // Runs BASIC program.
                     }
                 }
                 else if (ext != null && ext.ToLower() == AssemblyExtension)
                 {
-                    Console.Error.WriteLine($"Running ISB Assembly program {opts.InputFile}.");
+                    // Runs ISB assembly.
                 }
                 else
                 {
@@ -78,7 +80,7 @@ namespace ISB.Shell
             }
             else
             {
-                Console.Error.WriteLine("Entering the interactive mode.");
+                // Entering the interactive mode.
             }
         }
     }
