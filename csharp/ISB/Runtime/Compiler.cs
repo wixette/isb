@@ -40,6 +40,11 @@ namespace ISB.Runtime
             this.GenerateSyntax(syntaxTree);
         }
 
+        public void ParseAssembly(string assemblyCode)
+        {
+            this.Instructions = Assembly.Parse(assemblyCode);
+        }
+
         private string NewLabel()
         {
             return String.Format("__{0}_{1}__", this.moduleName, this.labelCounter++);
@@ -96,7 +101,7 @@ namespace ISB.Runtime
 
         private void GenerateSubModuleStatementSyntax(Token name, SyntaxNode body)
         {
-            if (this.env.SubModuleNameDictionary.ContainsKey(name.Text))
+            if (this.env.SubNames.ContainsKey(name.Text))
             {
                 if (this.diagnostics != null)
                     this.diagnostics.ReportTwoSubModulesWithTheSameName(name.Range, name.Text);
@@ -107,7 +112,7 @@ namespace ISB.Runtime
             string endSubLabel = this.NewLabel();
             this.Instructions.Add(null, Instruction.BR, endSubLabel, null);
             this.Instructions.Add(subLabel, Instruction.NOP, null, null);
-            this.env.SubModuleNameDictionary.Add(name.Text, this.Instructions.Count);
+            this.env.SubNames.Add(name.Text, this.Instructions.Count - 1);
             this.GenerateSyntax(body);
             this.Instructions.Add(null, Instruction.RET, "0", null);
             this.Instructions.Add(endSubLabel, Instruction.NOP, null, null);
@@ -115,7 +120,7 @@ namespace ISB.Runtime
 
         private void GenerateLabelSyntax(Token label)
         {
-            if (this.env.LabelDictionary.ContainsKey(label.Text))
+            if (this.env.Labels.ContainsKey(label.Text))
             {
                 if (this.diagnostics != null)
                     this.diagnostics.ReportTwoLabelsWithTheSameName(label.Range, label.Text);
@@ -123,13 +128,13 @@ namespace ISB.Runtime
             else
             {
                 this.Instructions.Add(label.Text, Instruction.NOP, null, null);
-                this.env.LabelDictionary.Add(label.Text, this.Instructions.Count);
+                this.env.Labels.Add(label.Text, this.Instructions.Count - 1);
             }
         }
 
         private void GenerateGotoSyntax(Token label)
         {
-            if (!this.env.LabelDictionary.ContainsKey(label.Text))
+            if (!this.env.Labels.ContainsKey(label.Text))
             {
                 if (this.diagnostics != null)
                     this.diagnostics.ReportGoToUndefinedLabel(label.Range, label.Text);
@@ -455,7 +460,7 @@ namespace ISB.Runtime
             {
                 case SyntaxNodeKind.IdentifierExpressionSyntax:
                     string subName = node.Children[0].Terminator.Text;
-                    if (!this.env.SubModuleNameDictionary.ContainsKey(subName))
+                    if (!this.env.SubNames.ContainsKey(subName))
                     {
                         // TODO:
                         //  (1) forwardly check if the sub name is defined?

@@ -22,47 +22,47 @@ namespace ISB.Runtime
         }
 
         // Does nothing.
-        public static readonly string NOP = "nop";
+        public const string NOP = "nop";
 
         // Pauses the execution for debugging.
-        public static readonly string PAUSE = "pause";
+        public const string PAUSE = "pause";
 
         // Unconditional jump.
         //   br <label>
-        public static readonly string BR = "br";
+        public const string BR = "br";
 
         // Conditional jump.
         //   br_if <label1> <label2>
         //
         //   (1) value := Stack.Pop()
         //   (2) if value JumpTo(label1) else JumpTo(label2)
-        public static readonly string BR_IF = "br_if";
+        public const string BR_IF = "br_if";
 
         // Sets a value to a register.
         //   set <register_no>
         //
         //   (1) value := Stack.Pop()
         //   (2) register[register_no] := value  ; <register_no> can be 0, 1, 2, 3, ...
-        public static readonly string SET = "set";
+        public const string SET = "set";
 
         // Gets a value from a register.
         //   get <register_no>
         //
         //   (1) Stack.Push(register[register_no])  ; <register_no> can be 0, 1, 2, 3, ...
-        public static readonly string GET = "get";
+        public const string GET = "get";
 
         // Stores a value to a variable.
         //   store <variable>
         //
         //   (1) value := Stack.Pop()
         //   (2) variable := value
-        public static readonly string STORE = "store";
+        public const string STORE = "store";
 
         // Pushes the value of a variable into the stack.
         //   load <variable>
         //
         //   (1) Stack.Push(variable)
-        public static readonly string LOAD = "load";
+        public const string LOAD = "load";
 
         // Stores a value to an indexable location of an array.
         //   store_arr <array> <dimension>
@@ -73,7 +73,7 @@ namespace ISB.Runtime
         //   (4)   arrayItemRef := arrayItemRef[index]
         //   (5) value := Stack.Pop()
         //   (6) *arrayItemRef := value
-        public static readonly string STORE_ARR = "store_arr";
+        public const string STORE_ARR = "store_arr";
 
         // Loads a value from an indexable location of an array.
         //   load_arr <array> <dimension>
@@ -83,19 +83,19 @@ namespace ISB.Runtime
         //   (3)   index := Stack.Pop()
         //   (4)   arrayItemRef := arrayItemRef[index]
         //   (5) Stack.Push(*arrayItemRef)
-        public static readonly string LOAD_ARR = "load_arr";
+        public const string LOAD_ARR = "load_arr";
 
         // Pushes a number value into the stack.
         //   push <number>
         //
         //   (1) Stack.Push(number)
-        public static readonly string PUSH = "push";
+        public const string PUSH = "push";
 
         // Pushes a string value into the stack.
         //   push <str>
         //
         //   (1) Stack.Push(str)
-        public static readonly string PUSHS = "pushs";
+        public const string PUSHS = "pushs";
 
         // Calls a function.
         // It's the caller's duty to push arguments into the stack.
@@ -109,7 +109,7 @@ namespace ISB.Runtime
         //
         //   (1) Stack.Push(IP)
         //   (2) IP := <func.Entry>  ; JumpTo(func.Entry)
-        public static readonly string CALL = "call";
+        public const string CALL = "call";
 
         // Returns from a function.
         // It's the caller's duty to push arguments into the stack.
@@ -123,7 +123,7 @@ namespace ISB.Runtime
         //   (4) Run(func.Body)
         //   (5) Stack.Push(return_value)
         //   (6) IP := <return_add>  ; JumpTo(return_add)
-        public static readonly string RET = "ret";
+        public const string RET = "ret";
 
         // Calls a function in an external lib.
         // It's the caller's duty to push arguments into the stack.
@@ -143,20 +143,20 @@ namespace ISB.Runtime
         //   (4)   Run(func.Body)
         //   (5)   Stack.Push(return_value)
         //   (6) IP := <return_add>  ; JumpTo(return_add)
-        public static readonly string CALL_LIB = "call_lib";
+        public const string CALL_LIB = "call_lib";
 
         // Stores a value to a lib's writable property.
         //   store_lib <lib> <property>
         //
         //   (1) value := Stack.Pop()
         //   (2) lib.property := value
-        public static readonly string STORE_LIB = "store_lib";
+        public const string STORE_LIB = "store_lib";
 
         // Loads a value from a lib's property.
         //   load_lib <lib> <property>
         //
         //   (1) Stack.Push(lib.property)
-        public static readonly string LOAD_LIB = "load_lib";
+        public const string LOAD_LIB = "load_lib";
 
         // Adds two oprands.
         //   add
@@ -165,7 +165,7 @@ namespace ISB.Runtime
         //   (2) value1 := Stack.Pop()
         //   (3) result = value1 + value2
         //   (4) Stack.Push(result)
-        public static readonly string ADD = "add";
+        public const string ADD = "add";
 
         // Substracts two oprands.
         //   sub
@@ -174,7 +174,7 @@ namespace ISB.Runtime
         //   (2) value1 := Stack.Pop()
         //   (3) result = value1 - value2
         //   (4) Stack.Push(result)
-        public static readonly string SUB = "sub";
+        public const string SUB = "sub";
 
         // Times two oprands.
         //   mul
@@ -183,7 +183,7 @@ namespace ISB.Runtime
         //   (2) value1 := Stack.Pop()
         //   (3) result = value1 * value2
         //   (4) Stack.Push(result)
-        public static readonly string MUL = "mul";
+        public const string MUL = "mul";
 
         // Divides an oprand by another.
         //   div
@@ -192,7 +192,7 @@ namespace ISB.Runtime
         //   (2) value1 := Stack.Pop()
         //   (3) result = value1 / value2
         //   (4) Stack.Push(result)
-        public static readonly string DIV = "div";
+        public const string DIV = "div";
 
         // Determinates if two values are equal.
         //   eq
@@ -201,7 +201,7 @@ namespace ISB.Runtime
         //   (2) value1 := Stack.Pop()
         //   (3) result = value1 == value2
         //   (4) Stack.Push(result)
-        public static readonly string EQ = "eq";
+        public const string EQ = "eq";
 
         // Determinates if two values are not equal.
         //   ne
@@ -210,7 +210,7 @@ namespace ISB.Runtime
         //   (2) value1 := Stack.Pop()
         //   (3) result = value1 != value2
         //   (4) Stack.Push(result)
-        public static readonly string NE = "ne";
+        public const string NE = "ne";
 
         // Compares two values.
         //   lt
@@ -219,7 +219,7 @@ namespace ISB.Runtime
         //   (2) value1 := Stack.Pop()
         //   (3) result = value1 < value2
         //   (4) Stack.Push(result)
-        public static readonly string LT = "lt";
+        public const string LT = "lt";
 
         // Compares two values.
         //   gt
@@ -228,7 +228,7 @@ namespace ISB.Runtime
         //   (2) value1 := Stack.Pop()
         //   (3) result = value1 > value2
         //   (4) Stack.Push(result)
-        public static readonly string GT = "gt";
+        public const string GT = "gt";
 
         // Compares two values.
         //   le
@@ -237,7 +237,7 @@ namespace ISB.Runtime
         //   (2) value1 := Stack.Pop()
         //   (3) result = value1 <= value2
         //   (4) Stack.Push(result)
-        public static readonly string LE = "le";
+        public const string LE = "le";
 
         // Compares two values.
         //   ge
@@ -246,11 +246,11 @@ namespace ISB.Runtime
         //   (2) value1 := Stack.Pop()
         //   (3) result = value1 >= value2
         //   (4) Stack.Push(result)
-        public static readonly string GE = "ge";
+        public const string GE = "ge";
 
-        public static readonly string ZeroLiteral = "0";
-        public static readonly string TrueLiteral = "1";
-        public static readonly string FalseLiteral = "0";
+        public const string ZeroLiteral = "0";
+        public const string TrueLiteral = "1";
+        public const string FalseLiteral = "0";
 
         private static readonly Dictionary<string, (OprandKind, OprandKind)> instructionSet =
             new Dictionary<string, (OprandKind, OprandKind)>()

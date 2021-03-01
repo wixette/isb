@@ -19,6 +19,8 @@ namespace ISB.Runtime
 
         public int Count { get=> Instructions.Count; }
 
+        public Instruction this[int index] => this.Instructions[index];
+
         IEnumerator IEnumerable.GetEnumerator()
         {
             return this.GetEnumerator();
