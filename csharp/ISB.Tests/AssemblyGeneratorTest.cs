@@ -358,12 +358,12 @@ __Program_1__:
             DiagnosticBag diagnostics = new DiagnosticBag();
             var tokens = Scanner.Scan(code, diagnostics);
             Assert.Empty(diagnostics.Contents);
-            Parser parser = new Parser(tokens, diagnostics);
+            SyntaxNode tree = Parser.Parse(tokens, diagnostics);
             Assert.Empty(diagnostics.Contents);
             Environment environment = new Environment();
             AssemblyGenerator generator =
                 new AssemblyGenerator(environment, "Program", diagnostics);
-            generator.Generate(parser.SyntaxTree);
+            generator.Generate(tree);
             Assert.Empty(diagnostics.Contents);
 
             System.Console.WriteLine(code);
@@ -395,12 +395,12 @@ endsub";
             DiagnosticBag diagnostics = new DiagnosticBag();
             var tokens = Scanner.Scan(errInput, diagnostics);
             Assert.Empty(diagnostics.Contents);
-            Parser parser = new Parser(tokens, diagnostics);
+            SyntaxNode tree = Parser.Parse(tokens, diagnostics);
             Assert.Empty(diagnostics.Contents);
             Environment environment = new Environment();
             AssemblyGenerator generator =
                 new AssemblyGenerator(environment, "Program", diagnostics);
-            generator.Generate(parser.SyntaxTree);
+            generator.Generate(tree);
             Assert.Equal(errDiagnostics.Length, diagnostics.Contents.Count);
             for (int i = 0; i < errDiagnostics.Length; i++)
             {

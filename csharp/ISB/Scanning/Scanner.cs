@@ -23,18 +23,22 @@ namespace ISB.Scanning
             this.diagnostics = diagnostics;
             this.text = text;
             this.tokens = tokens;
-
-            while (this.index < this.text.Length)
-            {
-                this.ScanNextToken();
-            }
         }
 
         public static List<Token> Scan(string text, DiagnosticBag diagnostics)
         {
             List<Token> tokens = new List<Token>();
             Scanner scanner = new Scanner(text, diagnostics, tokens);
+            scanner.ScanInternal();
             return tokens;
+        }
+
+        private void ScanInternal()
+        {
+            while (this.index < this.text.Length)
+            {
+                this.ScanNextToken();
+            }
         }
 
         private void ScanNextToken()

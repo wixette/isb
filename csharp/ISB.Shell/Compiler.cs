@@ -12,8 +12,8 @@ namespace ISB.Shell
         public static bool CompileToTextFormat(string fileName, string code, TextWriter output, TextWriter err)
         {
             DiagnosticBag diagnostics = new DiagnosticBag();
-            Scanner scanner = new Scanner(code, diagnostics);
-            Parser parser = new Parser(scanner.Tokens, diagnostics);
+            var tokens = Scanner.Scan(code, diagnostics);
+            SyntaxNode tree = Parser.Parse(tokens, diagnostics);
             if (diagnostics.Contents.Count > 0)
             {
                 ErrorReport.Report(code, diagnostics, err);
@@ -23,7 +23,7 @@ namespace ISB.Shell
             ISB.Runtime.Environment environment = new ISB.Runtime.Environment();
             AssemblyGenerator generator =
                 new AssemblyGenerator(environment, "Program", diagnostics);
-            generator.Generate(parser.SyntaxTree);
+            generator.Generate(tree);
             if (diagnostics.Contents.Count > 0)
             {
                 ErrorReport.Report(code, diagnostics, err);

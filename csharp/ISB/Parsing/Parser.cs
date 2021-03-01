@@ -8,6 +8,7 @@ using ISB.Utilities;
 
 namespace ISB.Parsing
 {
+    // A stateless class that does not hold any info between two passes.
     public sealed class Parser
     {
         private static readonly TokenKind[] BinaryOperatorPrecedence =
@@ -30,11 +31,20 @@ namespace ISB.Parsing
         private readonly DiagnosticBag diagnostics;
         private int index = 0;
 
-        public Parser(IReadOnlyList<Token> tokens, DiagnosticBag diagnostics)
+        private Parser(IReadOnlyList<Token> tokens, DiagnosticBag diagnostics)
         {
             this.tokens = tokens;
             this.diagnostics = diagnostics;
+        }
 
+        public static SyntaxNode Parse(IReadOnlyList<Token> tokens, DiagnosticBag diagnostics)
+        {
+            Parser parser = new Parser(tokens, diagnostics);
+            return parser.ParseInternal();
+        }
+
+        private SyntaxNode ParseInternal()
+        {
             var statements = new List<SyntaxNode>();
 
             while (this.index < this.tokens.Count)
@@ -52,15 +62,13 @@ namespace ISB.Parsing
 
             if (statements.Count > 0)
             {
-                this.SyntaxTree = SyntaxNode.CreateNonTerminal(SyntaxNodeKind.StatementBlockSyntax, statements);
+                return SyntaxNode.CreateNonTerminal(SyntaxNodeKind.StatementBlockSyntax, statements);
             }
             else
             {
-                this.SyntaxTree = SyntaxNode.CreateEmpty();
+                return SyntaxNode.CreateEmpty();
             }
         }
-
-        public SyntaxNode SyntaxTree { get; private set; }
 
         private TokenKind Peek() => this.tokens[this.index].Kind;
 

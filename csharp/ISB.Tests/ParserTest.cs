@@ -450,9 +450,9 @@ const string code21 = @"a()()";
             DiagnosticBag diagnostics = new DiagnosticBag();
             var tokens = Scanner.Scan(input, diagnostics);
             Assert.Empty(diagnostics.Contents);
-            Parser parser = new Parser(tokens, diagnostics);
+            SyntaxNode tree = Parser.Parse(tokens, diagnostics);
             Assert.Empty(diagnostics.Contents);
-            string treeDump = SyntaxTreeDumper.Dump(parser.SyntaxTree);
+            string treeDump = SyntaxTreeDumper.Dump(tree);
 
             // System.Console.WriteLine(input);
             // System.Console.WriteLine(treeDump);
@@ -555,7 +555,7 @@ abc()
             DiagnosticBag diagnostics = new DiagnosticBag();
             var tokens = Scanner.Scan(errInput, diagnostics);
             Assert.Empty(diagnostics.Contents);
-            Parser parser = new Parser(tokens, diagnostics);
+            SyntaxNode tree = Parser.Parse(tokens, diagnostics);
             Assert.Equal(errDiagnostics.Length, diagnostics.Contents.Count);
             for (int i = 0; i < errDiagnostics.Length; i++)
             {
@@ -576,7 +576,7 @@ abc()
             DiagnosticBag diagnostics = new DiagnosticBag();
             var tokens = Scanner.Scan(errInput, diagnostics);
             Assert.Empty(diagnostics.Contents);
-            Parser parser = new Parser(tokens, diagnostics);
+            SyntaxNode tree = Parser.Parse(tokens, diagnostics);
             Assert.Equal(errDiagnostics.Length, diagnostics.Contents.Count);
             for (int i = 0; i < errDiagnostics.Length; i++)
             {
