@@ -98,7 +98,8 @@ namespace ISB.Runtime
         {
             if (this.env.SubModuleNameDictionary.ContainsKey(name.Text))
             {
-                this.diagnostics.ReportTwoSubModulesWithTheSameName(name.Range, name.Text);
+                if (this.diagnostics != null)
+                    this.diagnostics.ReportTwoSubModulesWithTheSameName(name.Range, name.Text);
                 return;
             }
             // Sub modules are implemented as 0-argument 0-return functions.
@@ -116,7 +117,8 @@ namespace ISB.Runtime
         {
             if (this.env.LabelDictionary.ContainsKey(label.Text))
             {
-                this.diagnostics.ReportTwoLabelsWithTheSameName(label.Range, label.Text);
+                if (this.diagnostics != null)
+                    this.diagnostics.ReportTwoLabelsWithTheSameName(label.Range, label.Text);
             }
             else
             {
@@ -129,7 +131,8 @@ namespace ISB.Runtime
         {
             if (!this.env.LabelDictionary.ContainsKey(label.Text))
             {
-                this.diagnostics.ReportGoToUndefinedLabel(label.Range, label.Text);
+                if (this.diagnostics != null)
+                    this.diagnostics.ReportGoToUndefinedLabel(label.Range, label.Text);
             }
             else
             {
@@ -265,7 +268,8 @@ namespace ISB.Runtime
                 else
                 {
                     // The left expression cannot result in a valid left value.
-                    this.diagnostics.ReportExpectedALeftValue(left.Range);
+                    if (this.diagnostics != null)
+                        this.diagnostics.ReportExpectedALeftValue(left.Range);
                 }
             }
             else
@@ -418,7 +422,8 @@ namespace ISB.Runtime
             if (node.Children[0].Kind != SyntaxNodeKind.IdentifierExpressionSyntax)
             {
                 // Embeded ObjectAccessExpressionSyntax like "a.b.c = 0" is not supported.
-                this.diagnostics.ReportUnsupportedDotBaseExpression(node.Range);
+                if (this.diagnostics != null)
+                    this.diagnostics.ReportUnsupportedDotBaseExpression(node.Range);
                 return;
             }
             var (libName, propertyName) = this.GetLibNameAndMemberName(node);
@@ -426,7 +431,8 @@ namespace ISB.Runtime
             {
                 if (!this.env.Libs.IsPropertyWritable(libName, propertyName))
                 {
-                    this.diagnostics.ReportPropertyHasNoSetter(node.Range, libName, propertyName);
+                    if (this.diagnostics != null)
+                        this.diagnostics.ReportPropertyHasNoSetter(node.Range, libName, propertyName);
                     return;
                 }
                 this.Instructions.Add(null, Instruction.STORE_LIB, libName, propertyName);
@@ -435,7 +441,8 @@ namespace ISB.Runtime
             {
                 if (!this.env.Libs.IsPropertyExist(libName, propertyName))
                 {
-                    this.diagnostics.ReportLibraryMemberNotFound(node.Range, libName, propertyName);
+                    if (this.diagnostics != null)
+                        this.diagnostics.ReportLibraryMemberNotFound(node.Range, libName, propertyName);
                     return;
                 }
                 this.Instructions.Add(null, Instruction.LOAD_LIB, libName, propertyName);
@@ -453,7 +460,8 @@ namespace ISB.Runtime
                         // TODO:
                         //  (1) forwardly check if the sub name is defined?
                         //  (2) a separate diagnostic code for NoSubModuleDefined?
-                        this.diagnostics.ReportUnsupportedInvocationBaseExpression(node.Range);
+                        if (this.diagnostics != null)
+                            this.diagnostics.ReportUnsupportedInvocationBaseExpression(node.Range);
                         return;
                     }
                     this.GenerateCallSub(subName, node.Children[2]);
@@ -463,7 +471,8 @@ namespace ISB.Runtime
                     break;
                 default:
                     // Embedded InvocationExpressionSyntax like "a()()" is not supported.
-                    this.diagnostics.ReportUnsupportedInvocationBaseExpression(node.Range);
+                    if (this.diagnostics != null)
+                        this.diagnostics.ReportUnsupportedInvocationBaseExpression(node.Range);
                     break;
             }
         }
@@ -473,8 +482,9 @@ namespace ISB.Runtime
             if (!argumentGroupNode.IsEmpty)
             {
                 // No argument for sub module is supported.
-                this.diagnostics.ReportUnexpectedArgumentsCount(
-                    argumentGroupNode.Range, argumentGroupNode.Children.Count, 0);
+                if (this.diagnostics != null)
+                    this.diagnostics.ReportUnexpectedArgumentsCount(
+                        argumentGroupNode.Range, argumentGroupNode.Children.Count, 0);
                 return;
             }
             this.Instructions.Add(null, Instruction.CALL, subName, null);
@@ -497,22 +507,25 @@ namespace ISB.Runtime
             if (objectAccessNode.Children[0].Kind != SyntaxNodeKind.IdentifierExpressionSyntax)
             {
                 // Embeded ObjectAccessExpressionSyntax like "a.b.c()" is not supported.
-                this.diagnostics.ReportUnsupportedDotBaseExpression(objectAccessNode.Range);
+                if (this.diagnostics != null)
+                    this.diagnostics.ReportUnsupportedDotBaseExpression(objectAccessNode.Range);
                 return;
             }
             var (libName, funcName) = this.GetLibNameAndMemberName(objectAccessNode);
             if (!this.env.Libs.IsFuncExist(libName, funcName))
             {
                 // TODO: a separate diagnostic code for NoLibFuncDefined?
-                this.diagnostics.ReportUnsupportedInvocationBaseExpression(objectAccessNode.Range);
+                if (this.diagnostics != null)
+                    this.diagnostics.ReportUnsupportedInvocationBaseExpression(objectAccessNode.Range);
                 return;
             }
             int expectedArgumentNumber = this.env.Libs.GetFuncArgumentNumber(libName, funcName);
             if (argumentNumber != expectedArgumentNumber)
             {
                 // TODO: report this error once the Libraries class is ready.
-                // this.diagnostics.ReportUnexpectedArgumentsCount(
-                //    objectAccessNode.Range, argumentNumber, expectedArgumentNumber);
+                // if (this.diagnostics != null)
+                //     this.diagnostics.ReportUnexpectedArgumentsCount(
+                //        objectAccessNode.Range, argumentNumber, expectedArgumentNumber);
             }
             this.Instructions.Add(null, Instruction.CALL_LIB, libName, funcName);
         }
