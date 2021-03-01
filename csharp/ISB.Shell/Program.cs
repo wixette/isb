@@ -2,6 +2,7 @@
 using System.IO;
 using CommandLine;
 using CommandLine.Text;
+using ISB.Runtime;
 
 namespace ISB.Shell
 {
@@ -86,21 +87,10 @@ namespace ISB.Shell
 
         private static bool CompileToTextFormat(string fileName, string code, TextWriter output, TextWriter err)
         {
-            var diagnostics = new ISB.Utilities.DiagnosticBag();
-            var tokens = ISB.Scanning.Scanner.Scan(code, diagnostics);
-            var tree = ISB.Parsing.Parser.Parse(tokens, diagnostics);
-            if (diagnostics.Contents.Count > 0)
+            Engine engine = new Engine();
+            if (!engine.Compile(code, false))
             {
-                ErrorReport.Report(code, diagnostics, err);
-                return false;
-            }
-
-            var env = new ISB.Runtime.Environment();
-            var compiler = new ISB.Runtime.Compiler(env, "Program", diagnostics);
-            compiler.Compile(tree);
-            if (diagnostics.Contents.Count > 0)
-            {
-                ErrorReport.Report(code, diagnostics, err);
+                ErrorReport.Report(code, engine.ErrorInfo, err);
                 return false;
             }
 
@@ -110,7 +100,7 @@ namespace ISB.Shell
             output.WriteLine($"; The code can be parsed and run by the shell tool of ISB (Interactive Small Basic).");
             output.WriteLine($"; See https://github.com/wixette/isb for more details.");
             output.WriteLine(commentLine);
-            output.WriteLine(compiler.Instructions.ToTextFormat());
+            output.WriteLine(engine.AssemblyInTextFormat);
             return true;
         }
     }

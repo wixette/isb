@@ -12,6 +12,11 @@ namespace ISB.Utilities
 
         public IReadOnlyList<Diagnostic> Contents => this.builder;
 
+        public void Reset()
+        {
+            this.builder.Clear();
+        }
+
         public void ReportUnrecognizedCharacter(TextRange range, char character)
         {
             this.builder.Add(new Diagnostic(DiagnosticCode.UnrecognizedCharacter, range, character.ToString()));
