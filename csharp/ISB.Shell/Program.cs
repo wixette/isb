@@ -40,7 +40,7 @@ namespace ISB.Shell
             });
         }
 
-        static void RunOptions(Options opts)
+        private static void RunOptions(Options opts)
         {
             if (!String.IsNullOrWhiteSpace(opts.InputFile))
             {
@@ -56,12 +56,12 @@ namespace ISB.Shell
                         {
                             using (StreamWriter output = new StreamWriter(opts.OutputFile))
                             {
-                                Compiler.CompileToTextFormat(fileName, code, output, Console.Error);
+                                CompileToTextFormat(fileName, code, output, Console.Error);
                             }
                         }
                         else
                         {
-                            Compiler.CompileToTextFormat(fileName, code, Console.Out, Console.Error);
+                            CompileToTextFormat(fileName, code, Console.Out, Console.Error);
                         }
                     }
                     else
@@ -82,6 +82,36 @@ namespace ISB.Shell
             {
                 // Entering the interactive mode.
             }
+        }
+
+        private static bool CompileToTextFormat(string fileName, string code, TextWriter output, TextWriter err)
+        {
+            var diagnostics = new ISB.Utilities.DiagnosticBag();
+            var tokens = ISB.Scanning.Scanner.Scan(code, diagnostics);
+            var tree = ISB.Parsing.Parser.Parse(tokens, diagnostics);
+            if (diagnostics.Contents.Count > 0)
+            {
+                ErrorReport.Report(code, diagnostics, err);
+                return false;
+            }
+
+            var env = new ISB.Runtime.Environment();
+            var compiler = new ISB.Runtime.Compiler(env, "Program", diagnostics);
+            compiler.Compile(tree);
+            if (diagnostics.Contents.Count > 0)
+            {
+                ErrorReport.Report(code, diagnostics, err);
+                return false;
+            }
+
+            string commentLine = ';' + new String('-', 99);
+            output.WriteLine(commentLine);
+            output.WriteLine($"; The ISB Assembly code generated from {fileName}");
+            output.WriteLine($"; The code can be parsed and run by the shell tool of ISB (Interactive Small Basic).");
+            output.WriteLine($"; See https://github.com/wixette/isb for more details.");
+            output.WriteLine(commentLine);
+            output.WriteLine(compiler.Instructions.ToTextFormat());
+            return true;
         }
     }
 }
