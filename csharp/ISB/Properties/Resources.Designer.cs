@@ -88,6 +88,12 @@ namespace ISB.Properties {
                 return ResourceManager.GetString("PropertyHasNoSetter", resourceCulture);
             }
         }
+
+        internal static string RuntimeError {
+            get {
+                return ResourceManager.GetString("RuntimeError", resourceCulture);
+            }
+        }
         
         internal static string TwoLabelsWithTheSameName {
             get {

@@ -30,6 +30,7 @@ namespace ISB.Utilities
             InvalidExpressionStatement,
             LibraryMemberNotFound,
             PropertyHasNoSetter,
+            RuntimeError,
             TwoLabelsWithTheSameName,
             TwoSubModulesWithTheSameName,
             UnassignedExpressionStatement,
@@ -86,6 +87,12 @@ namespace ISB.Utilities
         {
             return new Diagnostic(ErrorCode.PropertyHasNoSetter, range,
                 Resources.PropertyHasNoSetter, library, property);
+        }
+
+        public static Diagnostic ReportRuntimeError(TextRange range, string description)
+        {
+            return new Diagnostic(ErrorCode.RuntimeError, range,
+                Resources.RuntimeError, description);
         }
 
         public static Diagnostic ReportTwoLabelsWithTheSameName(TextRange range, string label)

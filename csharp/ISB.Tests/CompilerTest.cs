@@ -405,5 +405,50 @@ endsub";
                 Assert.Equal(errDiagnostics[i], diagnostics.Contents[i].Code);
             }
         }
+
+        [Fact]
+        public void TestSourceMap()
+        {
+            DiagnosticBag diagnostics = new DiagnosticBag();
+            var tokens = Scanner.Scan(code22, diagnostics);
+            Assert.Empty(diagnostics.Contents);
+            SyntaxNode tree = Parser.Parse(tokens, diagnostics);
+            Assert.Empty(diagnostics.Contents);
+            Environment env = new Environment();
+            Compiler compiler = new Compiler(env, "Program", diagnostics);
+            compiler.Compile(tree);
+            Assert.Empty(diagnostics.Contents);
+
+            // System.Console.WriteLine(code22);
+            // System.Console.WriteLine(compiler.Instructions.ToTextFormat());
+
+            TextRange[] expectedSourceMap = new TextRange[] {
+                ((0, 3), (0, 3)),
+                ((0, 7), (0, 7)),
+                ((0, 3), (0, 7)),
+                ((0, 0), (1, 6)),
+                ((0, 0), (1, 6)),
+                ((1, 6), (1, 6)),
+                ((1, 2), (1, 6)),
+                ((0, 0), (1, 6)),
+                ((0, 0), (1, 6)),
+                ((2, 7), (2, 7)),
+                ((2, 11), (2, 11)),
+                ((2, 7), (2, 11)),
+                ((2, 0), (3, 6)),
+                ((2, 0), (3, 6)),
+                ((3, 6), (3, 6)),
+                ((3, 2), (3, 6)),
+                ((2, 0), (3, 6)),
+                ((2, 0), (3, 6)),
+                ((5, 6), (5, 6)),
+                ((5, 2), (5, 6)),
+                ((0, 0), (6, 4))
+            };
+            for (int i = 0; i < compiler.Instructions.Count; i++)
+            {
+                Assert.Equal(expectedSourceMap[i],compiler.LookupSourceMap(i));
+            }
+        }
     }
 }

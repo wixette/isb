@@ -138,6 +138,9 @@
   <data name="PropertyHasNoSetter" xml:space="preserve">
     <value>Property '{0}.{1}' cannot be assigned to. It is ready only.</value>
   </data>
+  <data name="RuntimeError" xml:space="preserve">
+    <value>Runtime error: {0}</value>
+  </data>
   <data name="TwoLabelsWithTheSameName" xml:space="preserve">
     <value>A label with the same name '{0}' is already defined.</value>
   </data>
