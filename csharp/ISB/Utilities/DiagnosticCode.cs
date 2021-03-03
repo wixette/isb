@@ -61,7 +61,7 @@ namespace ISB.Utilities
                 case DiagnosticCode.UnsupportedInvocationBaseExpression: return Resources.UnsupportedInvocationBaseExpression;
                 case DiagnosticCode.UnterminatedStringLiteral: return Resources.UnterminatedStringLiteral;
                 case DiagnosticCode.ValueIsNotANumber: return Resources.ValueIsNotANumber;
-                default: throw ExceptionUtilities.UnexpectedValue(kind);
+                default: throw ExceptionUtilities.UnexpectedEnumValue(kind);
             }
         }
     }

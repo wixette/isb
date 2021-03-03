@@ -79,7 +79,7 @@ namespace ISB.Parsing
                 case SyntaxNodeKind.StringLiteralExpressionSyntax: return "StringLiteralExpressionSyntax";
                 case SyntaxNodeKind.UnrecognizedExpressionSyntax: return "UnrecognizedExpressionSyntax";
                 case SyntaxNodeKind.UnrecognizedStatementSyntax: return "UnrecognizedStatementSyntax";
-                default: throw ExceptionUtilities.UnexpectedValue(kind);
+                default: throw ExceptionUtilities.UnexpectedEnumValue(kind);
             }
         }
     }

@@ -91,7 +91,7 @@ namespace ISB.Scanning
                 case TokenKind.StringLiteral: return "string";
                 case TokenKind.Comment: return "comment";
                 case TokenKind.Unrecognized: return "unrecognized";
-                default: throw ExceptionUtilities.UnexpectedValue(kind);
+                default: throw ExceptionUtilities.UnexpectedEnumValue(kind);
             }
         }
     }

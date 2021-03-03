@@ -7,9 +7,10 @@ namespace ISB.Utilities
 {
     public static class ExceptionUtilities
     {
-        public static InvalidOperationException UnexpectedValue<TValue>(TValue value)
+        // For enum extensions to verify value validity.
+        public static InvalidOperationException UnexpectedEnumValue<TValue>(TValue value)
         {
-            return new InvalidOperationException($"Unexpected value '{value}' of type '{typeof(TValue).FullName}'");
+            return new InvalidOperationException($"Unexpected enum value '{value}' of type '{typeof(TValue).FullName}'");
         }
     }
 }
