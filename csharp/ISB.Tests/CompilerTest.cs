@@ -384,12 +384,12 @@ endsub";
         const string errInput5 = @"foo()";
 
         [Theory]
-        [InlineData(errInput1, new DiagnosticCode[] {DiagnosticCode.TwoLabelsWithTheSameName})]
-        [InlineData(errInput2, new DiagnosticCode[] {DiagnosticCode.GoToUndefinedLabel})]
-        [InlineData(errInput3, new DiagnosticCode[] {DiagnosticCode.TwoSubModulesWithTheSameName})]
-        [InlineData(errInput4, new DiagnosticCode[] {DiagnosticCode.UnsupportedDotBaseExpression})]
-        [InlineData(errInput5, new DiagnosticCode[] {DiagnosticCode.UnsupportedInvocationBaseExpression})]
-        public void TestErrorCases(string errInput, DiagnosticCode[] errDiagnostics)
+        [InlineData(errInput1, new Diagnostic.ErrorCode[] {Diagnostic.ErrorCode.TwoLabelsWithTheSameName})]
+        [InlineData(errInput2, new Diagnostic.ErrorCode[] {Diagnostic.ErrorCode.GoToUndefinedLabel})]
+        [InlineData(errInput3, new Diagnostic.ErrorCode[] {Diagnostic.ErrorCode.TwoSubModulesWithTheSameName})]
+        [InlineData(errInput4, new Diagnostic.ErrorCode[] {Diagnostic.ErrorCode.UnsupportedDotBaseExpression})]
+        [InlineData(errInput5, new Diagnostic.ErrorCode[] {Diagnostic.ErrorCode.UnsupportedInvocationBaseExpression})]
+        public void TestErrorCases(string errInput, Diagnostic.ErrorCode[] errDiagnostics)
         {
             DiagnosticBag diagnostics = new DiagnosticBag();
             var tokens = Scanner.Scan(errInput, diagnostics);

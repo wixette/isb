@@ -123,6 +123,9 @@
     <data name="AssigningNonSubModuleToEvent" xml:space="preserve">
     <value>You can only assign submodules to events.</value>
   </data>
+  <data name="ExpectedALeftValue" xml:space="preserve">
+    <value>You can only assign a value to a variable, an array item or a library property.</value>
+  </data>
   <data name="ExpectedExpressionWithAValue" xml:space="preserve">
     <value>This expression must have a value to be used here.</value>
   </data>
@@ -134,6 +137,9 @@
   </data>
   <data name="LibraryMemberDeprecatedFromOlderVersion" xml:space="preserve">
     <value>The library member '{0}.{1}' was available in older versions only, and has not been made available to this version yet.</value>
+  </data>
+  <data name="LibraryMemberNeedsDesktop" xml:space="preserve">
+    <value>The library member '{0}.{1}' cannot be used in the online editor. Please download the desktop editor to use it.</value>
   </data>
   <data name="LibraryMemberNotFound" xml:space="preserve">
     <value>The library '{0}' has no member named '{1}'.</value>
@@ -182,11 +188,5 @@
   </data>
   <data name="ValueIsNotANumber" xml:space="preserve">
     <value>The value '{0}' is not a valid number.</value>
-  </data>
-  <data name="LibraryMemberNeedsDesktop" xml:space="preserve">
-    <value>The library member '{0}.{1}' cannot be used in the online editor. Please download the desktop editor to use it.</value>
-  </data>
-  <data name="ExpectedALeftValue" xml:space="preserve">
-    <value>You can only assign a value to a variable, an array item or a library property.</value>
   </data>
 </root>

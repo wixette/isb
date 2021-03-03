@@ -8,7 +8,7 @@ namespace ISB.Tests
         [Fact]
         public void Test1()
         {
-            Diagnostic d = new Diagnostic(DiagnosticCode.GoToUndefinedLabel, ((5, 5), (5, 15)), "unknown");
+            Diagnostic d = Diagnostic.ReportGoToUndefinedLabel(((5, 5), (5, 15)), "unknown");
             Assert.Contains("unknown", d.ToDisplayString());
         }
 
@@ -16,7 +16,7 @@ namespace ISB.Tests
         public void Test2()
         {
             DiagnosticBag bag = new DiagnosticBag();
-            bag.ReportInvalidExpressionStatement(((5, 5), (5, 15)));
+            bag.Add(Diagnostic.ReportInvalidExpressionStatement(((5, 5), (5, 15))));
             Assert.Single(bag.Contents);
         }
     }

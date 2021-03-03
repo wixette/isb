@@ -518,39 +518,39 @@ abc()
 ";
 
         [Theory]
-        [InlineData(errInput1, new DiagnosticCode[] {DiagnosticCode.UnexpectedEndOfStream})]
-        [InlineData(errInput2, new DiagnosticCode[] {DiagnosticCode.UnexpectedTokenInsteadOfStatement,
-            DiagnosticCode.UnexpectedTokenInsteadOfStatement})]
-        [InlineData(errInput3, new DiagnosticCode[] {DiagnosticCode.UnexpectedTokenFound})]
-        [InlineData(errInput4, new DiagnosticCode[] {DiagnosticCode.UnexpectedTokenInsteadOfStatement})]
-        [InlineData(errInput5, new DiagnosticCode[] {DiagnosticCode.UnexpectedTokenInsteadOfStatement,
-            DiagnosticCode.UnexpectedTokenInsteadOfStatement})]
-        [InlineData(errInput6, new DiagnosticCode[] {DiagnosticCode.UnexpectedTokenInsteadOfStatement,
-            DiagnosticCode.UnexpectedTokenInsteadOfStatement})]
-        [InlineData(errInput7, new DiagnosticCode[] {DiagnosticCode.UnexpectedTokenInsteadOfStatement})]
-        [InlineData(errInput8, new DiagnosticCode[] {DiagnosticCode.UnexpectedTokenFound,
-            DiagnosticCode.UnexpectedTokenInsteadOfStatement,
-            DiagnosticCode.UnexpectedTokenInsteadOfStatement})]
-        [InlineData(errInput9, new DiagnosticCode[] {DiagnosticCode.UnexpectedTokenInsteadOfStatement})]
-        [InlineData(errInput10, new DiagnosticCode[] {DiagnosticCode.UnexpectedTokenInsteadOfStatement})]
-        [InlineData(errInput11, new DiagnosticCode[] {DiagnosticCode.UnexpectedStatementInsteadOfNewLine})]
-        [InlineData(errInput12, new DiagnosticCode[] {DiagnosticCode.UnexpectedTokenFound})]
-        [InlineData(errInput13, new DiagnosticCode[] {DiagnosticCode.UnexpectedEndOfStream})]
-        [InlineData(errInput14, new DiagnosticCode[] {DiagnosticCode.UnexpectedTokenFound})]
-        [InlineData(errInput15, new DiagnosticCode[] {DiagnosticCode.UnexpectedTokenFound})]
-        [InlineData(errInput16, new DiagnosticCode[] {DiagnosticCode.UnexpectedTokenFound})]
-        [InlineData(errInput17, new DiagnosticCode[] {DiagnosticCode.UnexpectedTokenFound,
-            DiagnosticCode.UnexpectedStatementInsteadOfNewLine})]
-        [InlineData(errInput18, new DiagnosticCode[] {DiagnosticCode.UnexpectedTokenFound,
-            DiagnosticCode.UnexpectedStatementInsteadOfNewLine})]
-        [InlineData(errInput19, new DiagnosticCode[] {DiagnosticCode.UnexpectedStatementInsteadOfNewLine})]
-        [InlineData(errInput20, new DiagnosticCode[] {DiagnosticCode.UnexpectedEndOfStream})]
-        [InlineData(errInput21, new DiagnosticCode[] {DiagnosticCode.UnexpectedEndOfStream})]
-        [InlineData(errInput22, new DiagnosticCode[] {DiagnosticCode.UnexpectedTokenFound})]
-        [InlineData(errInput23, new DiagnosticCode[] {DiagnosticCode.UnexpectedTokenFound})]
-        [InlineData(errInput24, new DiagnosticCode[] {DiagnosticCode.UnexpectedTokenFound,
-            DiagnosticCode.UnexpectedTokenInsteadOfStatement})]
-        public void TestErrorCases(string errInput, DiagnosticCode[] errDiagnostics)
+        [InlineData(errInput1, new Diagnostic.ErrorCode[] {Diagnostic.ErrorCode.UnexpectedEndOfStream})]
+        [InlineData(errInput2, new Diagnostic.ErrorCode[] {Diagnostic.ErrorCode.UnexpectedTokenInsteadOfStatement,
+            Diagnostic.ErrorCode.UnexpectedTokenInsteadOfStatement})]
+        [InlineData(errInput3, new Diagnostic.ErrorCode[] {Diagnostic.ErrorCode.UnexpectedTokenFound})]
+        [InlineData(errInput4, new Diagnostic.ErrorCode[] {Diagnostic.ErrorCode.UnexpectedTokenInsteadOfStatement})]
+        [InlineData(errInput5, new Diagnostic.ErrorCode[] {Diagnostic.ErrorCode.UnexpectedTokenInsteadOfStatement,
+            Diagnostic.ErrorCode.UnexpectedTokenInsteadOfStatement})]
+        [InlineData(errInput6, new Diagnostic.ErrorCode[] {Diagnostic.ErrorCode.UnexpectedTokenInsteadOfStatement,
+            Diagnostic.ErrorCode.UnexpectedTokenInsteadOfStatement})]
+        [InlineData(errInput7, new Diagnostic.ErrorCode[] {Diagnostic.ErrorCode.UnexpectedTokenInsteadOfStatement})]
+        [InlineData(errInput8, new Diagnostic.ErrorCode[] {Diagnostic.ErrorCode.UnexpectedTokenFound,
+            Diagnostic.ErrorCode.UnexpectedTokenInsteadOfStatement,
+            Diagnostic.ErrorCode.UnexpectedTokenInsteadOfStatement})]
+        [InlineData(errInput9, new Diagnostic.ErrorCode[] {Diagnostic.ErrorCode.UnexpectedTokenInsteadOfStatement})]
+        [InlineData(errInput10, new Diagnostic.ErrorCode[] {Diagnostic.ErrorCode.UnexpectedTokenInsteadOfStatement})]
+        [InlineData(errInput11, new Diagnostic.ErrorCode[] {Diagnostic.ErrorCode.UnexpectedStatementInsteadOfNewLine})]
+        [InlineData(errInput12, new Diagnostic.ErrorCode[] {Diagnostic.ErrorCode.UnexpectedTokenFound})]
+        [InlineData(errInput13, new Diagnostic.ErrorCode[] {Diagnostic.ErrorCode.UnexpectedEndOfStream})]
+        [InlineData(errInput14, new Diagnostic.ErrorCode[] {Diagnostic.ErrorCode.UnexpectedTokenFound})]
+        [InlineData(errInput15, new Diagnostic.ErrorCode[] {Diagnostic.ErrorCode.UnexpectedTokenFound})]
+        [InlineData(errInput16, new Diagnostic.ErrorCode[] {Diagnostic.ErrorCode.UnexpectedTokenFound})]
+        [InlineData(errInput17, new Diagnostic.ErrorCode[] {Diagnostic.ErrorCode.UnexpectedTokenFound,
+            Diagnostic.ErrorCode.UnexpectedStatementInsteadOfNewLine})]
+        [InlineData(errInput18, new Diagnostic.ErrorCode[] {Diagnostic.ErrorCode.UnexpectedTokenFound,
+            Diagnostic.ErrorCode.UnexpectedStatementInsteadOfNewLine})]
+        [InlineData(errInput19, new Diagnostic.ErrorCode[] {Diagnostic.ErrorCode.UnexpectedStatementInsteadOfNewLine})]
+        [InlineData(errInput20, new Diagnostic.ErrorCode[] {Diagnostic.ErrorCode.UnexpectedEndOfStream})]
+        [InlineData(errInput21, new Diagnostic.ErrorCode[] {Diagnostic.ErrorCode.UnexpectedEndOfStream})]
+        [InlineData(errInput22, new Diagnostic.ErrorCode[] {Diagnostic.ErrorCode.UnexpectedTokenFound})]
+        [InlineData(errInput23, new Diagnostic.ErrorCode[] {Diagnostic.ErrorCode.UnexpectedTokenFound})]
+        [InlineData(errInput24, new Diagnostic.ErrorCode[] {Diagnostic.ErrorCode.UnexpectedTokenFound,
+            Diagnostic.ErrorCode.UnexpectedTokenInsteadOfStatement})]
+        public void TestErrorCases(string errInput, Diagnostic.ErrorCode[] errDiagnostics)
         {
             DiagnosticBag diagnostics = new DiagnosticBag();
             var tokens = Scanner.Scan(errInput, diagnostics);
@@ -567,11 +567,14 @@ abc()
         const string unsupportedInput2 = @"a = 1 : b = 2";
         const string unsupportedInput3 = @"If a = 1 Then b = 2 EndIf";
         [Theory]
-        [InlineData(unsupportedInput1, new DiagnosticCode[] {DiagnosticCode.UnexpectedTokenInsteadOfStatement})]
-        [InlineData(unsupportedInput2, new DiagnosticCode[] {DiagnosticCode.UnexpectedStatementInsteadOfNewLine})]
-        [InlineData(unsupportedInput3, new DiagnosticCode[] {DiagnosticCode.UnexpectedStatementInsteadOfNewLine,
-            DiagnosticCode.UnexpectedEndOfStream})]
-        public void TestUnsupportedParsing(string errInput, DiagnosticCode[] errDiagnostics)
+        [InlineData(unsupportedInput1, new Diagnostic.ErrorCode[] {
+            Diagnostic.ErrorCode.UnexpectedTokenInsteadOfStatement})]
+        [InlineData(unsupportedInput2, new Diagnostic.ErrorCode[] {
+            Diagnostic.ErrorCode.UnexpectedStatementInsteadOfNewLine})]
+        [InlineData(unsupportedInput3, new Diagnostic.ErrorCode[] {
+            Diagnostic.ErrorCode.UnexpectedStatementInsteadOfNewLine,
+            Diagnostic.ErrorCode.UnexpectedEndOfStream})]
+        public void TestUnsupportedParsing(string errInput, Diagnostic.ErrorCode[] errDiagnostics)
         {
             DiagnosticBag diagnostics = new DiagnosticBag();
             var tokens = Scanner.Scan(errInput, diagnostics);

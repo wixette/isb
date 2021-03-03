@@ -86,7 +86,8 @@ namespace ISB.Parsing
                 else
                 {
                     if (this.diagnostics != null)
-                        this.diagnostics.ReportUnexpectedTokenFound(current.Range, current.Kind, kind);
+                        this.diagnostics.Add(
+                                Diagnostic.ReportUnexpectedTokenFound(current.Range, current.Kind, kind));
                     return new Token(kind, string.Empty, current.Range);
                 }
             }
@@ -94,7 +95,8 @@ namespace ISB.Parsing
             {
                 var range = this.tokens[this.tokens.Count - 1].Range;
                 if (this.diagnostics != null)
-                    this.diagnostics.ReportUnexpectedEndOfStream(range, kind);
+                    this.diagnostics.Add(
+                        Diagnostic.ReportUnexpectedEndOfStream(range, kind));
                 return new Token(kind, string.Empty, range);
             }
         }
@@ -122,7 +124,7 @@ namespace ISB.Parsing
                 if (reportErrors)
                 {
                     if (this.diagnostics != null)
-                        this.diagnostics.ReportUnexpectedStatementInsteadOfNewLine(currentToken.Range);
+                        this.diagnostics.Add(Diagnostic.ReportUnexpectedStatementInsteadOfNewLine(currentToken.Range));
                     reportErrors = false;
                 }
 
@@ -227,7 +229,8 @@ namespace ISB.Parsing
                     if (foundKind != TokenKind.Unrecognized)
                     {
                         if (this.diagnostics != null)
-                            this.diagnostics.ReportUnexpectedTokenInsteadOfStatement(foundToken.Range, foundToken.Kind);
+                            this.diagnostics.Add(
+                                Diagnostic.ReportUnexpectedTokenInsteadOfStatement(foundToken.Range, foundToken.Kind));
                     }
                     return SyntaxNode.CreateTerminal(SyntaxNodeKind.UnrecognizedStatementSyntax, foundToken);
             }
@@ -490,8 +493,9 @@ namespace ISB.Parsing
 
                         case TokenKind foundKind:
                             if (this.diagnostics != null)
-                                this.diagnostics.ReportUnexpectedTokenFound(this.tokens[this.index].Range,
-                                    foundKind, TokenKind.Comma);
+                                this.diagnostics.Add(
+                                        Diagnostic.ReportUnexpectedTokenFound(
+                                            this.tokens[this.index].Range, foundKind, TokenKind.Comma));
                             arguments.Add(SyntaxNode.CreateNonTerminal(SyntaxNodeKind.ArgumentSyntax,
                                 currentArgument,
                                 SyntaxNode.CreateEmpty()
@@ -533,7 +537,7 @@ namespace ISB.Parsing
                 var missingToken = new Token(TokenKind.Identifier, string.Empty, range);
 
                 if (this.diagnostics != null)
-                    this.diagnostics.ReportUnexpectedEndOfStream(range, missingToken.Kind);
+                    this.diagnostics.Add(Diagnostic.ReportUnexpectedEndOfStream(range, missingToken.Kind));
                 return SyntaxNode.CreateTerminal(SyntaxNodeKind.IdentifierExpressionSyntax, missingToken);
             }
 
@@ -567,8 +571,8 @@ namespace ISB.Parsing
                     if (foundKind != TokenKind.Unrecognized)
                     {
                         if (this.diagnostics != null)
-                            this.diagnostics.ReportUnexpectedTokenFound(
-                                foundToken.Range, foundKind, TokenKind.Identifier);
+                            this.diagnostics.Add(Diagnostic.ReportUnexpectedTokenFound(
+                                foundToken.Range, foundKind, TokenKind.Identifier));
                     }
 
                     return SyntaxNode.CreateTerminal(SyntaxNodeKind.UnrecognizedExpressionSyntax, foundToken);

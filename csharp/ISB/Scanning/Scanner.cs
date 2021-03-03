@@ -102,7 +102,8 @@ namespace ISB.Scanning
                         var unrecognizedToken =
                             this.AddToken(current.ToString(CultureInfo.CurrentCulture), TokenKind.Unrecognized);
                         if (this.diagnostics != null)
-                            this.diagnostics.ReportUnrecognizedCharacter(unrecognizedToken.Range, current);
+                            this.diagnostics.Add(
+                                Diagnostic.ReportUnrecognizedCharacter(unrecognizedToken.Range, current));
                         return;
                     }
             }
@@ -147,7 +148,7 @@ namespace ISB.Scanning
                             Token token = this.AddToken(this.text.Substring(this.index, lookAhead - this.index),
                                 TokenKind.StringLiteral);
                             if (this.diagnostics != null)
-                                this.diagnostics.ReportUnterminatedStringLiteral(token.Range);
+                                this.diagnostics.Add(Diagnostic.ReportUnterminatedStringLiteral(token.Range));
                             return;
                         }
 
@@ -162,7 +163,7 @@ namespace ISB.Scanning
             Token unrecognizedToken = this.AddToken(this.text.Substring(this.index, lookAhead - this.index),
                 TokenKind.StringLiteral);
             if (this.diagnostics != null)
-                this.diagnostics.ReportUnterminatedStringLiteral(unrecognizedToken.Range);
+                this.diagnostics.Add(Diagnostic.ReportUnterminatedStringLiteral(unrecognizedToken.Range));
         }
 
         private void ScanNumberToken()

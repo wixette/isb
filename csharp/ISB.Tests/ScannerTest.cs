@@ -88,7 +88,7 @@ namespace ISB.Tests
 
             Assert.Equal(3, tokens.Count);
             Assert.Single(bag.Contents);
-            Assert.Equal(DiagnosticCode.UnterminatedStringLiteral, bag.Contents[0].Code);
+            Assert.Equal(Diagnostic.ErrorCode.UnterminatedStringLiteral, bag.Contents[0].Code);
             Assert.Equal(((0, 2), (0, 5)), bag.Contents[0].Range);
         }
 
@@ -100,7 +100,7 @@ namespace ISB.Tests
 
             Assert.Single(tokens);
             Assert.Single(bag.Contents);
-            Assert.Equal(DiagnosticCode.UnrecognizedCharacter, bag.Contents[0].Code);
+            Assert.Equal(Diagnostic.ErrorCode.UnrecognizedCharacter, bag.Contents[0].Code);
             Assert.Equal(((0, 0), (0, 0)), bag.Contents[0].Range);
         }
     }
