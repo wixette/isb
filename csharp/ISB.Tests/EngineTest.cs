@@ -6,19 +6,19 @@ namespace ISB.Tests
     public class EngineTest
     {
         [Fact]
-        public void Test1()
+        public void TestNOP()
         {
             Engine engine = new Engine();
             engine.ParseAssembly(@"nop");
             Assert.Equal(0, engine.IP);
             Assert.Equal(0, engine.StackCount);
-            engine.Run(false);
+            engine.Run(true);
             Assert.Equal(1, engine.IP);
             Assert.Equal(0, engine.StackCount);
         }
 
         [Fact]
-        public void Test2()
+        public void TestBR()
         {
             Engine engine = new Engine();
             engine.ParseAssembly(@"br label2
@@ -28,8 +28,32 @@ namespace ISB.Tests
             br label1
             label3:
             nop");
-            engine.Run(false);
+            engine.Run(true);
             Assert.Equal(4, engine.IP);
+        }
+
+        [Fact]
+        public void TestPUSH()
+        {
+            Engine engine = new Engine();
+            engine.ParseAssembly(@"push 3.14");
+            engine.Run(true);
+            Assert.Equal(1, engine.IP);
+            Assert.Equal(1, engine.StackCount);
+            NumberValue value = (NumberValue)engine.StackTop;
+            Assert.Equal((decimal)3.14, value.ToNumber());
+        }
+
+        [Fact]
+        public void TestPUSHS()
+        {
+            Engine engine = new Engine();
+            engine.ParseAssembly(@"pushs ""3.14""");
+            engine.Run(true);
+            Assert.Equal(1, engine.IP);
+            Assert.Equal(1, engine.StackCount);
+            StringValue value = (StringValue)engine.StackTop;
+            Assert.Equal("3.14", value.ToString());
         }
     }
 }

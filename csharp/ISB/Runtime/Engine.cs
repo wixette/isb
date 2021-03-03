@@ -47,6 +47,7 @@ namespace ISB.Runtime
             if (this.HasError)
             {
                 // So far we don't mix the stage of scanning/parsing and the stage of IR generating.
+                // TODO: reports errors.
                 return false;
             }
             this.compiler.Compile(tree);
@@ -61,6 +62,7 @@ namespace ISB.Runtime
             this.compiler.Reset();
             this.diagnostics.Reset();
             this.compiler.ParseAssembly(assemblyCode);
+            // TODO: reports errors.
         }
 
         public bool Run(bool init)
