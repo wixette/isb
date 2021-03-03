@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using System.IO;
 using ISB.Scanning;
 using ISB.Utilities;
@@ -14,10 +15,11 @@ namespace ISB.Shell
             string[] lines = code.Split(new string[] { "\r\n", "\r", "\n" },
                 System.StringSplitOptions.None);
 
-            TextRange lastRange = ((-1, -1), (-1, -1));
+            TextRange lastRange = TextRange.None;
             foreach (var diagnostic in diagnostics.Contents)
             {
-                ReportDiagnostic(lines, diagnostic, lastRange != diagnostic.Range, err);
+                bool showCode = diagnostic.Range != TextRange.None && diagnostic.Range != lastRange;
+                ReportDiagnostic(lines, diagnostic, showCode, err);
                 lastRange = diagnostic.Range;
             }
         }
@@ -26,6 +28,7 @@ namespace ISB.Shell
         {
             if (showCode)
             {
+                Debug.Assert(diagnostic.Range != TextRange.None);
                 err.WriteLine($"Error found at Line {diagnostic.Range.Start.Line}, Col {diagnostic.Range.Start.Column}:");
                 int startLine = diagnostic.Range.Start.Line;
                 int endLine = diagnostic.Range.End.Line;

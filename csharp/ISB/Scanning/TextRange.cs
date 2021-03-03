@@ -24,6 +24,8 @@ namespace ISB.Scanning
             return new TextRange(tuple.Start, tuple.End);
         }
 
+        public static TextRange None => new TextRange((-1, -1), (-1, -1));
+
         public static bool operator ==(TextRange left, TextRange right) =>
             left.Start == right.Start && left.End == right.End;
 
