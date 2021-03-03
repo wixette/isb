@@ -19,7 +19,7 @@ namespace ISB.Utilities
         // (2) Add or remove messages in Properties/Resources.resx.
         // (3) Open the project in Visual Studio (since VS Code doesn't support auto Designer class generation) and
         //    use the IDE to auto update Properties/Resources.Designer.cs.
-        // (4) Implement a "public static Diagnostic Report..." method in this class. Please mkae sure the Report...
+        // (4) Add or remove "public static Diagnostic Report..." method in this class. Please mkae sure the Report...
         //    methods are listed in the alphabetic order.
         public enum ErrorCode
         {
@@ -28,8 +28,6 @@ namespace ISB.Utilities
             ExpectedExpressionWithAValue,
             GoToUndefinedLabel,
             InvalidExpressionStatement,
-            LibraryMemberDeprecatedFromOlderVersion,
-            LibraryMemberNeedsDesktop,
             LibraryMemberNotFound,
             PropertyHasNoSetter,
             TwoLabelsWithTheSameName,
@@ -76,18 +74,6 @@ namespace ISB.Utilities
         {
             return new Diagnostic(ErrorCode.InvalidExpressionStatement, range,
                 Resources.InvalidExpressionStatement);
-        }
-
-        public static Diagnostic ReportLibraryMemberDeprecatedFromOlderVersion(TextRange range, string library, string member)
-        {
-            return new Diagnostic(ErrorCode.LibraryMemberDeprecatedFromOlderVersion, range,
-                Resources.LibraryMemberDeprecatedFromOlderVersion, library, member);
-        }
-
-        public static Diagnostic ReportLibraryMemberNeedsDesktop(TextRange range, string library, string member)
-        {
-            return new Diagnostic(ErrorCode.LibraryMemberNeedsDesktop, range,
-                Resources.LibraryMemberNeedsDesktop, library, member);
         }
 
         public static Diagnostic ReportLibraryMemberNotFound(TextRange range, string library, string member)

@@ -47,15 +47,15 @@ namespace ISB.Properties {
             }
         }
         
-        internal static string Welcome {
-            get {
-                return ResourceManager.GetString("Welcome", resourceCulture);
-            }
-        }
-        
         internal static string AssigningNonSubModuleToEvent {
             get {
                 return ResourceManager.GetString("AssigningNonSubModuleToEvent", resourceCulture);
+            }
+        }
+        
+        internal static string ExpectedALeftValue {
+            get {
+                return ResourceManager.GetString("ExpectedALeftValue", resourceCulture);
             }
         }
         
@@ -74,12 +74,6 @@ namespace ISB.Properties {
         internal static string InvalidExpressionStatement {
             get {
                 return ResourceManager.GetString("InvalidExpressionStatement", resourceCulture);
-            }
-        }
-        
-        internal static string LibraryMemberDeprecatedFromOlderVersion {
-            get {
-                return ResourceManager.GetString("LibraryMemberDeprecatedFromOlderVersion", resourceCulture);
             }
         }
         
@@ -176,18 +170,6 @@ namespace ISB.Properties {
         internal static string ValueIsNotANumber {
             get {
                 return ResourceManager.GetString("ValueIsNotANumber", resourceCulture);
-            }
-        }
-        
-        internal static string LibraryMemberNeedsDesktop {
-            get {
-                return ResourceManager.GetString("LibraryMemberNeedsDesktop", resourceCulture);
-            }
-        }
-        
-        internal static string ExpectedALeftValue {
-            get {
-                return ResourceManager.GetString("ExpectedALeftValue", resourceCulture);
             }
         }
     }

@@ -117,10 +117,7 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="Welcome" xml:space="preserve">
-    <value>Welcome!</value>
-  </data>
-    <data name="AssigningNonSubModuleToEvent" xml:space="preserve">
+  <data name="AssigningNonSubModuleToEvent" xml:space="preserve">
     <value>You can only assign submodules to events.</value>
   </data>
   <data name="ExpectedALeftValue" xml:space="preserve">
@@ -134,12 +131,6 @@
   </data>
   <data name="InvalidExpressionStatement" xml:space="preserve">
     <value>This expression is not a valid statement.</value>
-  </data>
-  <data name="LibraryMemberDeprecatedFromOlderVersion" xml:space="preserve">
-    <value>The library member '{0}.{1}' was available in older versions only, and has not been made available to this version yet.</value>
-  </data>
-  <data name="LibraryMemberNeedsDesktop" xml:space="preserve">
-    <value>The library member '{0}.{1}' cannot be used in the online editor. Please download the desktop editor to use it.</value>
   </data>
   <data name="LibraryMemberNotFound" xml:space="preserve">
     <value>The library '{0}' has no member named '{1}'.</value>
