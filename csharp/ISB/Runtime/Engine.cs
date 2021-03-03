@@ -22,25 +22,6 @@ namespace ISB.Runtime
             this.compiler = new Compiler(this.env, "Program", this.diagnostics);
         }
 
-        private void ResetForCompiling(bool isIncremental)
-        {
-            this.diagnostics.Reset();
-            if (!isIncremental)
-            {
-                this.env.Reset();
-                this.compiler.Reset();
-            }
-        }
-
-        private void ResetForRunning(bool isIncremental)
-        {
-            this.diagnostics.Reset();
-            if (!isIncremental)
-            {
-                this.env.Reset();
-            }
-        }
-
         public bool HasError => this.diagnostics.Contents.Count > 0;
 
         public DiagnosticBag ErrorInfo => this.diagnostics;
@@ -53,9 +34,14 @@ namespace ISB.Runtime
 
         public BaseValue StackTop => (BaseValue)this.env.Stack.Peek().Clone();
 
-        public bool Compile(string code, bool isIncremental)
+        public bool Compile(string code, bool init)
         {
-            this.ResetForCompiling(isIncremental);
+            if (!init)
+            {
+                this.env.Reset();
+                this.compiler.Reset();
+            }
+            this.diagnostics.Reset();
             var tokens = Scanner.Scan(code, diagnostics);
             var tree = Parser.Parse(tokens, diagnostics);
             if (this.HasError)
@@ -71,19 +57,36 @@ namespace ISB.Runtime
         // and environment states are cleared.
         public void ParseAssembly(string assemblyCode)
         {
-            this.ResetForCompiling(true);
+            this.env.Reset();
+            this.compiler.Reset();
+            this.diagnostics.Reset();
             this.compiler.ParseAssembly(assemblyCode);
         }
 
-        public bool Run(bool isIncremental)
+        public bool Run(bool init)
         {
-            this.ResetForRunning(isIncremental);
+            if (init)
+            {
+                this.env.Reset();
+            }
+            this.diagnostics.Reset();
             this.ExecuteAssembly();
             return !this.HasError;
         }
 
         private void ExecuteAssembly()
         {
+            // Scans for new labels and updates the label dictionary.
+            for (int i = this.env.IP; i < this.compiler.Instructions.Count; i++)
+            {
+                var instruction = this.compiler.Instructions[i];
+                if (instruction.Label != null)
+                {
+                    this.env.Labels.Add(instruction.Label, i);
+                }
+            }
+
+            // Executes instructions one by one.
             while (this.env.IP < this.compiler.Instructions.Count)
             {
                 Instruction instruction = this.compiler.Instructions[this.env.IP];
@@ -110,7 +113,12 @@ namespace ISB.Runtime
 
                 case Instruction.BR:
                 {
+                    Console.WriteLine(instruction.Oprand1.ToString());
+                    
                     int target = this.env.LookupLabel(instruction.Oprand1.ToString());
+
+                    Console.WriteLine($"{target}");
+
                     Debug.Assert(target >= 0);
                     this.env.IP = target;
                     break;
