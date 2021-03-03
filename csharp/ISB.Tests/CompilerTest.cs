@@ -365,8 +365,8 @@ __Program_1__:
             compiler.Compile(tree);
             Assert.Empty(diagnostics.Contents);
 
-            System.Console.WriteLine(code);
-            System.Console.WriteLine(compiler.Instructions.ToTextFormat());
+            // System.Console.WriteLine(code);
+            // System.Console.WriteLine(compiler.Instructions.ToTextFormat());
 
             Assert.Equal(assembly, compiler.Instructions.ToTextFormat());
         }

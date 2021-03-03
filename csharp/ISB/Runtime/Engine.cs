@@ -47,6 +47,12 @@ namespace ISB.Runtime
 
         public string AssemblyInTextFormat => compiler.Instructions.ToTextFormat();
 
+        public int IP => this.env.IP;
+
+        public int StackCount => this.env.Stack.Count;
+
+        public BaseValue StackTop => (BaseValue)this.env.Stack.Peek().Clone();
+
         public bool Compile(string code, bool isIncremental)
         {
             this.ResetForCompiling(isIncremental);
@@ -61,8 +67,11 @@ namespace ISB.Runtime
             return !this.HasError;
         }
 
+        // Parsing assembly does not support incremental mode. Once a new assebmly is parsed, the existing instructions
+        // and environment states are cleared.
         public void ParseAssembly(string assemblyCode)
         {
+            this.ResetForCompiling(true);
             this.compiler.ParseAssembly(assemblyCode);
         }
 
@@ -89,6 +98,7 @@ namespace ISB.Runtime
                 case Instruction.NOP:
                 {
                     // Does nothing.
+                    this.env.IP++;
                     break;
                 }
 
@@ -120,6 +130,7 @@ namespace ISB.Runtime
                 {
                     var value = this.env.Stack.Pop();
                     this.env.SetRegister(instruction.Oprand1, value);
+                    this.env.IP++;
                     break;
                 }
 
@@ -127,6 +138,7 @@ namespace ISB.Runtime
                 {
                     var value = this.env.GetRegister(instruction.Oprand1);
                     this.env.Stack.Push(value);
+                    this.env.IP++;
                     break;
                 }
 
@@ -134,6 +146,7 @@ namespace ISB.Runtime
                 {
                     var value = this.env.Stack.Pop();
                     this.env.SetMemory(instruction.Oprand1, value);
+                    this.env.IP++;
                     break;
                 }
 
@@ -141,6 +154,7 @@ namespace ISB.Runtime
                 {
                     var value = this.env.GetMemory(instruction.Oprand1);
                     this.env.Stack.Push(value);
+                    this.env.IP++;
                     break;
                 }
 
@@ -149,6 +163,7 @@ namespace ISB.Runtime
                     BaseValue[] arrayNameAndIndices = this.PrepareArrayNameAndIndices(instruction);
                     var value = this.env.Stack.Pop();
                     this.env.SetArrayItem(arrayNameAndIndices, value);
+                    this.env.IP++;
                     break;
                 }
 
@@ -157,6 +172,7 @@ namespace ISB.Runtime
                     BaseValue[] arrayNameAndIndices = this.PrepareArrayNameAndIndices(instruction);
                     var value = this.env.GetArrayItem(arrayNameAndIndices);
                     this.env.Stack.Push(value);
+                    this.env.IP++;
                     break;
                 }
 
@@ -165,6 +181,7 @@ namespace ISB.Runtime
                     var value = instruction.Oprand1;
                     Debug.Assert(value is NumberValue);
                     this.env.Stack.Push(value);
+                    this.env.IP++;
                     break;
                 }
 
@@ -173,6 +190,7 @@ namespace ISB.Runtime
                     var value = instruction.Oprand1;
                     Debug.Assert(value is StringValue);
                     this.env.Stack.Push(value);
+                    this.env.IP++;
                     break;
                 }
 
@@ -209,60 +227,70 @@ namespace ISB.Runtime
                 case Instruction.ADD:
                 {
                     this.BinaryOperation((op1, op2) => op1 + op2);
+                    this.env.IP++;
                     break;
                 }
 
                 case Instruction.SUB:
                 {
                     this.BinaryOperation((op1, op2) => op1 - op2);
+                    this.env.IP++;
                     break;
                 }
 
                 case Instruction.MUL:
                 {
                     this.BinaryOperation((op1, op2) => op1 * op2);
+                    this.env.IP++;
                     break;
                 }
 
                 case Instruction.DIV:
                 {
                     this.BinaryOperation((op1, op2) => op1 / op2);
+                    this.env.IP++;
                     break;
                 }
 
                 case Instruction.EQ:
                 {
                     this.BinaryLogicalOperation((op1, op2) => op1 == op2);
+                    this.env.IP++;
                     break;
                 }
 
                 case Instruction.NE:
                 {
                     this.BinaryLogicalOperation((op1, op2) => op1 != op2);
+                    this.env.IP++;
                     break;
                 }
 
                 case Instruction.LT:
                 {
                     this.BinaryLogicalOperation((op1, op2) => op1 < op2);
+                    this.env.IP++;
                     break;
                 }
 
                 case Instruction.GT:
                 {
                     this.BinaryLogicalOperation((op1, op2) => op1 > op2);
+                    this.env.IP++;
                     break;
                 }
 
                 case Instruction.LE:
                 {
                     this.BinaryLogicalOperation((op1, op2) => op1 <= op2);
+                    this.env.IP++;
                     break;
                 }
 
                 case Instruction.GE:
                 {
                     this.BinaryLogicalOperation((op1, op2) => op1 >= op2);
+                    this.env.IP++;
                     break;
                 }
             }
