@@ -108,7 +108,7 @@ namespace ISB.Runtime
                 array = (ArrayValue)array[index];
             }
             string lastIndex = arrayNameAndIndices[arrayNameAndIndices.Length - 1].ToString();
-            return array[lastIndex];
+            return array.ContainsKey(lastIndex) ? array[lastIndex] : StringValue.Empty;
         }
     }
 }

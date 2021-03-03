@@ -119,6 +119,64 @@ namespace ISB.Tests
             Assert.False(engine.HasError);
             Assert.Equal(9, engine.IP);
             Assert.Equal("-0.1", engine.StackTop.ToString());
+
+            engine.ParseAssembly(@"push 10
+            push 20
+            ge");
+            engine.Run(true);
+            Assert.False(engine.HasError);
+            Assert.Equal(3, engine.IP);
+            Assert.False(engine.StackTop.ToBoolean());
+        }
+
+        [Fact]
+        public void TestArrayOperations()
+        {
+            Engine engine = new Engine();
+            engine.Compile(@"a[0] = 3
+            a[1] = ""Hello""
+            a[1]", true);
+            engine.Run(true);
+            Assert.False(engine.HasError);
+            Assert.Equal("Hello", engine.StackTop.ToString());
+
+            engine.Compile(@"a[0] = 3
+            a[1] = ""Hello""
+            a[0]", true);
+            engine.Run(true);
+            Assert.False(engine.HasError);
+            Assert.Equal("3", engine.StackTop.ToString());
+
+            engine.Compile(@"a[0] = 3
+            a[1] = ""Hello""
+            a[""unknown""]", true);
+            engine.Run(true);
+            Assert.False(engine.HasError);
+            Assert.Equal("", engine.StackTop.ToString());
+
+            engine.Compile(@"a[1][2] = 1
+            a[8][0] = 2
+            a[""a""][1][""b""] = 3
+            a[8][0]", true);
+            engine.Run(true);
+            Assert.False(engine.HasError);
+            Assert.Equal("2", engine.StackTop.ToString());
+
+            engine.Compile(@"a[1][2] = 1
+            a[8][0] = 2
+            a[""a""][1][""b""] = 3
+            a[""a""][1][""b""]", true);
+            engine.Run(true);
+            Assert.False(engine.HasError);
+            Assert.Equal("3", engine.StackTop.ToString());
+
+            engine.Compile(@"a[1][2] = 1
+            a[8][0] = 2
+            a[""a""][1][""b""] = 3
+            a[""a""][1][""c""]", true);
+            engine.Run(true);
+            Assert.False(engine.HasError);
+            Assert.Equal("", engine.StackTop.ToString());
         }
 
 
