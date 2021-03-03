@@ -12,6 +12,15 @@ namespace ISB.Utilities
     [DebuggerDisplay("{ToDisplayString()}")]
     public sealed class Diagnostic
     {
+        // How to Add/remove error code.
+        //
+        // (1) Add or remove ErrorCode entries in the following enum. Please make sure the entries are listed in
+        //    the alphabetic order.
+        // (2) Add or remove messages in Properties/Resources.resx.
+        // (3) Open the project in Visual Studio (since VS Code doesn't support auto Designer class generation) and
+        //    use the IDE to auto update Properties/Resources.Designer.cs.
+        // (4) Implement a "public static Diagnostic Report..." method in this class. Please mkae sure the Report...
+        //    methods are listed in the alphabetic order.
         public enum ErrorCode
         {
             AssigningNonSubModuleToEvent,
