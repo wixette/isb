@@ -113,12 +113,7 @@ namespace ISB.Runtime
 
                 case Instruction.BR:
                 {
-                    Console.WriteLine(instruction.Oprand1.ToString());
-                    
                     int target = this.env.LookupLabel(instruction.Oprand1.ToString());
-
-                    Console.WriteLine($"{target}");
-
                     Debug.Assert(target >= 0);
                     this.env.IP = target;
                     break;
