@@ -18,7 +18,7 @@ namespace ISB.Runtime
         private readonly string moduleName;
         private readonly DiagnosticBag diagnostics;
         private int labelCounter = 0; // No need to be thread-safe.
-        private List<TextRange> sourceMap;
+        private Dictionary<int, TextRange> sourceMap;
 
         public Assembly Instructions { get; private set; }
 
@@ -34,7 +34,7 @@ namespace ISB.Runtime
         {
             this.env.Reset();
             this.Instructions = new Assembly();
-            this.sourceMap = new List<TextRange>();
+            this.sourceMap = new Dictionary<int, TextRange>();
         }
 
         public void Compile(SyntaxNode syntaxTree)
@@ -49,7 +49,7 @@ namespace ISB.Runtime
 
         public TextRange LookupSourceMap(int IP)
         {
-            if (IP >= 0 && IP < this.sourceMap.Count)
+            if (this.sourceMap.ContainsKey(IP))
                 return this.sourceMap[IP];
             else
                 return TextRange.None;
@@ -62,9 +62,9 @@ namespace ISB.Runtime
 
         private void AddInstruction(TextRange sourceRange, string label, string name, string oprand1, string oprand2)
         {
+            int IP = this.Instructions.Count;
             this.Instructions.Add(label, name, oprand1, oprand2);
-            this.sourceMap.Add(sourceRange);
-            Debug.Equals(this.Instructions.Count, this.sourceMap.Count);
+            this.sourceMap[IP] = sourceRange;
         }
 
         private void GenerateSyntax(SyntaxNode node)

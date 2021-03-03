@@ -89,11 +89,33 @@ namespace ISB.Runtime
             }
 
             // Executes instructions one by one.
-            while (this.env.IP < this.compiler.Instructions.Count)
+            while (this.env.IP < this.compiler.Instructions.Count && !this.HasError)
             {
                 Instruction instruction = this.compiler.Instructions[this.env.IP];
                 ExecuteInstruction(instruction);
             }
+        }
+
+        private void ReportRuntimeError(string description)
+        {
+            this.diagnostics.Add(Diagnostic.ReportRuntimeError(
+                this.compiler.LookupSourceMap(this.IP),
+                $"{description} ({this.IP}: {this.compiler.Instructions[this.env.IP].ToDisplayString()})"));
+        }
+
+        private void ReportUndefinedAssemblyLabel(string label)
+        {
+            this.ReportRuntimeError($"Undefined assembly label {label}");
+        }
+
+        private void ReportEmptyStack()
+        {
+            this.ReportRuntimeError($"Unexpected empty stack.");
+        }
+
+        private void ReportInvalidValue(string value)
+        {
+            this.ReportRuntimeError($"Invalid Value {value}.");
         }
 
         private void ExecuteInstruction(Instruction instruction)
@@ -115,27 +137,52 @@ namespace ISB.Runtime
 
                 case Instruction.BR:
                 {
-                    int target = this.env.LookupLabel(instruction.Oprand1.ToString());
-                    Debug.Assert(target >= 0);
-                    this.env.IP = target;
+                    string label = instruction.Oprand1.ToString();
+                    int target = this.env.LookupLabel(label);
+                    if (target >= 0)
+                    {
+                        this.env.IP = target;
+                    }
+                    else
+                    {
+                        this.ReportUndefinedAssemblyLabel(label);
+                    }
                     break;
                 }
 
                 case Instruction.BR_IF:
                 {
-                    int target1 = this.env.LookupLabel(instruction.Oprand1.ToString());
-                    int target2 = this.env.LookupLabel(instruction.Oprand2.ToString());
-                    Debug.Assert(target1 >= 0 && target2 >= 0);
-                    var value = this.env.Stack.Pop();
-                    this.env.IP = value.ToBoolean() ? target1 : target2;
+                    string label1 = instruction.Oprand1.ToString();
+                    int target1 = this.env.LookupLabel(label1);
+                    string label2 = instruction.Oprand2.ToString();
+                    int target2 = this.env.LookupLabel(label2);
+                    if (target1 >= 0 && target2 >= 0)
+                    {
+                        var value = this.env.Stack.Pop();
+                        this.env.IP = value.ToBoolean() ? target1 : target2;
+                    }
+                    else
+                    {
+                        if (target1 < 0)
+                            this.ReportUndefinedAssemblyLabel(label1);
+                        if (target2 < 0)
+                            this.ReportUndefinedAssemblyLabel(label2);
+                    }
                     break;
                 }
 
                 case Instruction.SET:
                 {
-                    var value = this.env.Stack.Pop();
-                    this.env.SetRegister(instruction.Oprand1, value);
-                    this.env.IP++;
+                    if (this.env.Stack.Count > 0)
+                    {
+                        var value = this.env.Stack.Pop();
+                        this.env.SetRegister(instruction.Oprand1, value);
+                        this.env.IP++;
+                    }
+                    else
+                    {
+                        this.ReportEmptyStack();
+                    }
                     break;
                 }
 
@@ -149,9 +196,16 @@ namespace ISB.Runtime
 
                 case Instruction.STORE:
                 {
-                    var value = this.env.Stack.Pop();
-                    this.env.SetMemory(instruction.Oprand1, value);
-                    this.env.IP++;
+                    if (this.env.Stack.Count > 0)
+                    {
+                        var value = this.env.Stack.Pop();
+                        this.env.SetMemory(instruction.Oprand1, value);
+                        this.env.IP++;
+                    }
+                    else
+                    {
+                        this.ReportEmptyStack();
+                    }
                     break;
                 }
 
@@ -165,19 +219,32 @@ namespace ISB.Runtime
 
                 case Instruction.STORE_ARR:
                 {
-                    BaseValue[] arrayNameAndIndices = this.PrepareArrayNameAndIndices(instruction);
-                    var value = this.env.Stack.Pop();
-                    this.env.SetArrayItem(arrayNameAndIndices, value);
-                    this.env.IP++;
+                    BaseValue[] arrayNameAndIndices;
+                    if (this.PrepareArrayNameAndIndices(instruction, out arrayNameAndIndices))
+                    {
+                        if (this.env.Stack.Count > 0)
+                        {
+                            var value = this.env.Stack.Pop();
+                            this.env.SetArrayItem(arrayNameAndIndices, value);
+                            this.env.IP++;
+                        }
+                        else
+                        {
+                            this.ReportEmptyStack();
+                        }
+                    }
                     break;
                 }
 
                 case Instruction.LOAD_ARR:
                 {
-                    BaseValue[] arrayNameAndIndices = this.PrepareArrayNameAndIndices(instruction);
-                    var value = this.env.GetArrayItem(arrayNameAndIndices);
-                    this.env.Stack.Push(value);
-                    this.env.IP++;
+                    BaseValue[] arrayNameAndIndices;
+                    if (this.PrepareArrayNameAndIndices(instruction, out arrayNameAndIndices))
+                    {
+                        var value = this.env.GetArrayItem(arrayNameAndIndices);
+                        this.env.Stack.Push(value);
+                        this.env.IP++;
+                    }
                     break;
                 }
 
@@ -231,103 +298,125 @@ namespace ISB.Runtime
 
                 case Instruction.ADD:
                 {
-                    this.BinaryOperation((op1, op2) => op1 + op2);
-                    this.env.IP++;
+                    if (this.BinaryOperation((op1, op2) => op1 + op2))
+                        this.env.IP++;
                     break;
                 }
 
                 case Instruction.SUB:
                 {
-                    this.BinaryOperation((op1, op2) => op1 - op2);
-                    this.env.IP++;
+                    if (this.BinaryOperation((op1, op2) => op1 - op2))
+                        this.env.IP++;
                     break;
                 }
 
                 case Instruction.MUL:
                 {
-                    this.BinaryOperation((op1, op2) => op1 * op2);
-                    this.env.IP++;
+                    if (this.BinaryOperation((op1, op2) => op1 * op2))
+                        this.env.IP++;
                     break;
                 }
 
                 case Instruction.DIV:
                 {
-                    this.BinaryOperation((op1, op2) => op1 / op2);
-                    this.env.IP++;
+                    if (this.BinaryOperation((op1, op2) => op1 / op2))
+                        this.env.IP++;
                     break;
                 }
 
                 case Instruction.EQ:
                 {
-                    this.BinaryLogicalOperation((op1, op2) => op1 == op2);
-                    this.env.IP++;
+                    if (this.BinaryLogicalOperation((op1, op2) => op1 == op2))
+                        this.env.IP++;
                     break;
                 }
 
                 case Instruction.NE:
                 {
-                    this.BinaryLogicalOperation((op1, op2) => op1 != op2);
-                    this.env.IP++;
+                    if (this.BinaryLogicalOperation((op1, op2) => op1 != op2))
+                        this.env.IP++;
                     break;
                 }
 
                 case Instruction.LT:
                 {
-                    this.BinaryLogicalOperation((op1, op2) => op1 < op2);
-                    this.env.IP++;
+                    if (this.BinaryLogicalOperation((op1, op2) => op1 < op2))
+                        this.env.IP++;
                     break;
                 }
 
                 case Instruction.GT:
                 {
-                    this.BinaryLogicalOperation((op1, op2) => op1 > op2);
-                    this.env.IP++;
+                    if (this.BinaryLogicalOperation((op1, op2) => op1 > op2))
+                        this.env.IP++;
                     break;
                 }
 
                 case Instruction.LE:
                 {
-                    this.BinaryLogicalOperation((op1, op2) => op1 <= op2);
-                    this.env.IP++;
+                    if (this.BinaryLogicalOperation((op1, op2) => op1 <= op2))
+                        this.env.IP++;
                     break;
                 }
 
                 case Instruction.GE:
                 {
-                    this.BinaryLogicalOperation((op1, op2) => op1 >= op2);
-                    this.env.IP++;
+                    if (this.BinaryLogicalOperation((op1, op2) => op1 >= op2))
+                        this.env.IP++;
                     break;
                 }
             }
         }
 
-        private BaseValue[] PrepareArrayNameAndIndices(Instruction instruction)
+        private bool PrepareArrayNameAndIndices(Instruction instruction, out BaseValue[] arrayNameAndIndices)
         {
             int dimension = (int)Math.Floor(instruction.Oprand2.ToNumber());
-            Debug.Assert(dimension > 0);
-            BaseValue[] arrayNameAndIndices = new BaseValue[dimension + 1];
+            if (dimension <= 0)
+            {
+                this.ReportInvalidValue(dimension.ToString());
+                arrayNameAndIndices = null;
+                return false;
+            }
+            arrayNameAndIndices = new BaseValue[dimension + 1];
             arrayNameAndIndices[0] = instruction.Oprand1;
             for (int i = 1; i < dimension + 1; i++)
             {
+                if (this.env.Stack.Count <= 0)
+                {
+                    this.ReportEmptyStack();
+                    return false;
+                }
                 arrayNameAndIndices[i] = this.env.Stack.Pop();
             }
-            return arrayNameAndIndices;
+            return true;
         }
 
-        private void BinaryOperation(Func<decimal, decimal, decimal> operation)
+        private bool BinaryOperation(Func<decimal, decimal, decimal> operation)
         {
+            if (this.env.Stack.Count < 2)
+            {
+                this.ReportEmptyStack();
+                return false;
+            }
             decimal op2 = this.env.Stack.Pop().ToNumber();
             decimal op1 = this.env.Stack.Pop().ToNumber();
             decimal result = operation(op1, op2);
             this.env.Stack.Push(new NumberValue(result));
+            return true;
         }
 
-        private void BinaryLogicalOperation(Func<decimal, decimal, bool> operation)
+        private bool BinaryLogicalOperation(Func<decimal, decimal, bool> operation)
         {
+            if (this.env.Stack.Count < 2)
+            {
+                this.ReportEmptyStack();
+                return false;
+            }
             decimal op2 = this.env.Stack.Pop().ToNumber();
             decimal op1 = this.env.Stack.Pop().ToNumber();
             bool result = operation(op1, op2);
             this.env.Stack.Push(new BooleanValue(result));
+            return true;
         }
     }
 }
