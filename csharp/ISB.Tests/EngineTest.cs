@@ -29,6 +29,7 @@ namespace ISB.Tests
             label3:
             nop");
             engine.Run(true);
+            Assert.False(engine.HasError);
             Assert.Equal(4, engine.IP);
         }
 
@@ -38,6 +39,7 @@ namespace ISB.Tests
             Engine engine = new Engine();
             engine.ParseAssembly(@"push 3.14");
             engine.Run(true);
+            Assert.False(engine.HasError);
             Assert.Equal(1, engine.IP);
             Assert.Equal(1, engine.StackCount);
             NumberValue value = (NumberValue)engine.StackTop;
@@ -50,10 +52,30 @@ namespace ISB.Tests
             Engine engine = new Engine();
             engine.ParseAssembly(@"pushs ""3.14""");
             engine.Run(true);
+            Assert.False(engine.HasError);
             Assert.Equal(1, engine.IP);
             Assert.Equal(1, engine.StackCount);
             StringValue value = (StringValue)engine.StackTop;
             Assert.Equal("3.14", value.ToString());
+        }
+
+        [Fact]
+        public void TestBR_IF()
+        {
+            Engine engine = new Engine();
+            engine.ParseAssembly(@"push 1
+            br_if label1 label2
+            label1:
+            push 1
+            br label3
+            label2:
+            push 2
+            label3:
+            nop");
+            engine.Run(true);
+            Assert.False(engine.HasError);
+            Assert.Equal(6, engine.IP);
+            Assert.Equal("1", engine.StackTop.ToString());
         }
     }
 }
