@@ -39,5 +39,10 @@ namespace ISB.Runtime
                 return new NumberValue(0);
             }
         }
+
+        public override object Clone()
+        {
+            return new NumberValue(this.Value);
+        }
     }
 }

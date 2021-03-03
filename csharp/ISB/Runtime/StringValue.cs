@@ -45,5 +45,10 @@ namespace ISB.Runtime
                 .Replace("\\\"", "\"")
                 .Replace("\\\\", "\\");
         }
+
+        public override object Clone()
+        {
+            return new StringValue(this.Value);
+        }
     }
 }

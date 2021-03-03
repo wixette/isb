@@ -17,9 +17,14 @@ namespace ISB.Runtime
             this.contents = new Dictionary<string, BaseValue>(StringComparer.OrdinalIgnoreCase);
         }
 
-        public ArrayValue(Dictionary<string, BaseValue> contents)
+        // Deep copy from the input dictionary.
+        public ArrayValue(IReadOnlyDictionary<string, BaseValue> contents)
+            : this()
         {
-            this.contents = contents;
+            foreach (var key in contents.Keys)
+            {
+                this.contents[key] = (BaseValue)contents[key].Clone();
+            }
         }
 
         public IEnumerable<string> Keys => this.contents.Keys;
@@ -84,5 +89,10 @@ namespace ISB.Runtime
         public override bool ToBoolean() => false;
 
         public override decimal ToNumber() => 0;
+
+        public override object Clone()
+        {
+            return new ArrayValue(this.contents);
+        }
     }
 }

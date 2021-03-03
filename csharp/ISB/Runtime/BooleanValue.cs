@@ -29,5 +29,10 @@ namespace ISB.Runtime
                     return new BooleanValue(false);
             }
         }
+
+        public override object Clone()
+        {
+            return new BooleanValue(this.Value);
+        }
     }
 }

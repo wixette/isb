@@ -13,6 +13,10 @@ namespace ISB.Tests
             var value = new BooleanValue(initial);
             Assert.Equal(displayString, value.ToDisplayString());
             Assert.Equal(number, value.ToNumber());
+
+            var cloned = (BooleanValue)value.Clone();
+            Assert.Equal(value.ToBoolean(), cloned.ToBoolean());
+            Assert.False(object.ReferenceEquals(value, cloned));
         }
 
         [Theory]
@@ -25,6 +29,10 @@ namespace ISB.Tests
             var value = new NumberValue(initial);
             Assert.Equal(displayString, value.ToDisplayString());
             Assert.Equal(boolValue, value.ToBoolean());
+
+            var cloned = (NumberValue)value.Clone();
+            Assert.Equal(value.ToNumber(), cloned.ToNumber());
+            Assert.False(object.ReferenceEquals(value, cloned));
         }
 
         [Theory]
@@ -37,6 +45,10 @@ namespace ISB.Tests
             var value = new StringValue(initial);
             Assert.Equal(boolValue, value.ToBoolean());
             Assert.Equal(number, value.ToNumber());
+
+            var cloned = (StringValue)value.Clone();
+            Assert.Equal(value.ToString(), cloned.ToString());
+            Assert.False(object.ReferenceEquals(value, cloned));
         }
 
         [Fact]
@@ -72,6 +84,16 @@ namespace ISB.Tests
             Assert.Equal("y", array["x"].ToDisplayString());
             Assert.True(array.ContainsKey("1"));
             Assert.Equal(@"1=a;x=y;", array.ToDisplayString());
+
+            var cloned = (ArrayValue)array.Clone();
+            Assert.Equal(array.Count, cloned.Count);
+            Assert.False(object.ReferenceEquals(array, cloned));
+            foreach (var key in array.Keys)
+            {
+                Assert.True(cloned.ContainsKey(key));
+                Assert.Equal(array[key].ToString(), cloned[key].ToString());
+                Assert.False(object.ReferenceEquals(array[key], cloned[key]));
+            }
         }
     }
 }
