@@ -105,16 +105,19 @@ namespace ISB.Runtime
 
         private void ReportUndefinedAssemblyLabel(string label)
         {
-            this.ReportRuntimeError($"Undefined assembly label {label}");
+            // TODO: moves this message to Resources.
+            this.ReportRuntimeError($"Undefined assembly label, {label}");
         }
 
         private void ReportEmptyStack()
         {
+            // TODO: moves this message to Resources.
             this.ReportRuntimeError($"Unexpected empty stack.");
         }
 
         private void ReportInvalidValue(string value)
         {
+            // TODO: moves this message to Resources.
             this.ReportRuntimeError($"Invalid Value {value}.");
         }
 
