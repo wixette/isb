@@ -179,6 +179,24 @@ namespace ISB.Tests
             Assert.Equal("", engine.StackTop.ToString());
         }
 
+        [Fact]
+        public void TestFebonacci()
+        {
+            string code =
+                @"NUM = 20
+                  Fib[0] = 0
+                  Fib[1] = 1
+                  For i = 2 to NUM
+                      Fib[i] = Fib[i - 1] + Fib[i - 2]
+                  EndFor
+                  Fib[20]";
+            Engine engine = new Engine();
+            engine.Compile(code, true);
+            engine.Run(true);
+            Assert.False(engine.HasError);
+            Assert.Equal("6765", engine.StackTop.ToString());
+        }
+
 
         [Theory]
 
