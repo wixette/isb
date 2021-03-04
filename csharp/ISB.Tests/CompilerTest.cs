@@ -327,6 +327,44 @@ __Program_1__:
     nop
 ";
 
+        const string code26 = @"If a mod 2 = 0 or a mod 3 = 0 then
+    x = 0
+endif";
+        const string assembly26 = @"    load a
+    push 2
+    mod
+    push 0
+    eq
+    br_if __Program_4__ __Program_3__
+__Program_3__:
+    nop
+    load a
+    push 3
+    mod
+    push 0
+    eq
+    br_if __Program_4__ __Program_5__
+__Program_4__:
+    nop
+    push 1
+    br __Program_6__
+__Program_5__:
+    nop
+    push 0
+__Program_6__:
+    nop
+    br_if __Program_1__ __Program_2__
+__Program_1__:
+    nop
+    push 0
+    store x
+    br __Program_0__
+__Program_2__:
+    nop
+__Program_0__:
+    nop
+";
+
         [Theory]
         [InlineData (code1, assembly1)]
         [InlineData (code2, assembly2)]
@@ -353,6 +391,7 @@ __Program_1__:
         [InlineData (code23, assembly23)]
         [InlineData (code24, assembly24)]
         [InlineData (code25, assembly25)]
+        [InlineData (code26, assembly26)]
         public void TestFormatAndParse(string code, string assembly)
         {
             DiagnosticBag diagnostics = new DiagnosticBag();

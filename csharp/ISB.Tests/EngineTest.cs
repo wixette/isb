@@ -182,7 +182,7 @@ namespace ISB.Tests
         [Fact]
         public void TestFebonacci()
         {
-            string code =
+            const string code =
                 @"NUM = 20
                   Fib[0] = 0
                   Fib[1] = 1
@@ -192,9 +192,48 @@ namespace ISB.Tests
                   Fib[20]";
             Engine engine = new Engine();
             engine.Compile(code, true);
+            Assert.False(engine.HasError);
             engine.Run(true);
             Assert.False(engine.HasError);
             Assert.Equal("6765", engine.StackTop.ToString());
+        }
+
+        [Fact]
+        public void TestIsPrime()
+        {
+            const string code =
+                @"n = 1000117 ' number to be test.
+                  IsPrime = 0
+                  if n <= 3 then
+                    if n > 1 then
+                      IsPrime = 1
+                      goto TheEnd
+                    else
+                      IsPrime = 0
+                      goto TheEnd
+                    endif
+                  elseif n mod 2 = 0 or n mod 3 = 0 then
+                    IsPrime = 0
+                    goto TheEnd
+                  else
+                    i = 5
+                    while i * i <= n
+                      if n mod i = 0 or n mod (i + 2) = 0 then
+                        IsPrime = 0
+                        goto TheEnd
+                      endif
+                      i = i + 6
+                    endwhile
+                    IsPrime = 1
+                  endif
+                  TheEnd:
+                  IsPrime";
+            Engine engine = new Engine();
+            engine.Compile(code, true);
+            Assert.False(engine.HasError);
+            engine.Run(true);
+            Assert.False(engine.HasError);
+            Assert.True(engine.StackTop.ToBoolean());
         }
 
 
