@@ -39,11 +39,13 @@ namespace ISB.Shell
                         Math.Max(0, diagnostic.Range.Start.Column) : 0;
                     int endColumn = (i == endLine) ?
                         Math.Min(lines[i].Length - 1, diagnostic.Range.End.Column) : lines[i].Length - 1;
-                    string wave = new String('~', endColumn - startColumn + 1);
-                    err.WriteLine(wave.PadLeft(Math.Max(0, startColumn - 1)));
+                    string indicator = new String('~', endColumn - startColumn + 1);
+                    string padding = startColumn > 0 ? new String(' ', startColumn) : "";
+                    err.WriteLine(padding + indicator);
                 }
             }
             err.WriteLine(diagnostic.ToDisplayString());
+            err.WriteLine();
         }
     }
 }
