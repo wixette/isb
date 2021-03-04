@@ -223,6 +223,7 @@ namespace ISB.Scanning
                 case "endsub": this.AddToken(word, TokenKind.EndSub); return;
                 case "or": this.AddToken(word, TokenKind.Or); return;
                 case "and": this.AddToken(word, TokenKind.And); return;
+                case "mod": this.AddToken(word, TokenKind.Mod); return;
                 default: this.AddToken(word, TokenKind.Identifier); return;
             }
         }

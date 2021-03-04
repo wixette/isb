@@ -24,7 +24,8 @@ namespace ISB.Parsing
             TokenKind.Plus,
             TokenKind.Minus,
             TokenKind.Multiply,
-            TokenKind.Divide
+            TokenKind.Divide,
+            TokenKind.Mod
         };
 
         private readonly IReadOnlyList<Token> tokens;

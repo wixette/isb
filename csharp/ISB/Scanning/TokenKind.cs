@@ -35,6 +35,7 @@ namespace ISB.Scanning
         Minus,
         Multiply,
         Divide,
+        Mod,
         Colon,
         LessThan,
         GreaterThan,
@@ -81,6 +82,7 @@ namespace ISB.Scanning
                 case TokenKind.Minus: return "-";
                 case TokenKind.Multiply: return "*";
                 case TokenKind.Divide: return "/";
+                case TokenKind.Mod: return "Mod";
                 case TokenKind.Colon: return ":";
                 case TokenKind.LessThan: return "<";
                 case TokenKind.GreaterThan: return ">";
