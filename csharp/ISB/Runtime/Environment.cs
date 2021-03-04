@@ -8,6 +8,10 @@ namespace ISB.Runtime
 {
     public sealed class Environment
     {
+        public HashSet<string> LabelsForCompiling { get; private set; }
+
+        public HashSet<string> SubNamesForCompiling { get; private set; }
+
         public Dictionary<string, int> Labels { get; private set; }
 
         public Dictionary<string, int> SubNames { get; private set; }
@@ -29,6 +33,8 @@ namespace ISB.Runtime
 
         public void Reset()
         {
+            this.LabelsForCompiling = new HashSet<string>();
+            this.SubNamesForCompiling = new HashSet<string>();
             this.Labels = new Dictionary<string, int>();
             this.SubNames = new Dictionary<string, int>();
             this.Stack = new Stack<BaseValue>();

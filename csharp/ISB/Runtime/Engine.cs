@@ -328,6 +328,13 @@ namespace ISB.Runtime
                     break;
                 }
 
+                case Instruction.MOD:
+                {
+                    if (this.BinaryOperation((op1, op2) => op1 % op2))
+                        this.env.IP++;
+                    break;
+                }
+
                 case Instruction.EQ:
                 {
                     if (this.BinaryLogicalOperation((op1, op2) => op1 == op2))

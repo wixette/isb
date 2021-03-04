@@ -39,6 +39,7 @@ namespace ISB.Runtime
 
         public void Compile(SyntaxNode syntaxTree)
         {
+            this.CollectLabelsAndSubNames(syntaxTree);
             this.GenerateSyntax(syntaxTree);
         }
 
@@ -53,6 +54,53 @@ namespace ISB.Runtime
                 return this.sourceMap[IP];
             else
                 return TextRange.None;
+        }
+
+        private class LabelsAndSubNamesVisitor : ISyntaxNodeVisitor
+        {
+            private Environment env;
+            private DiagnosticBag diagnostics;
+
+            public LabelsAndSubNamesVisitor(Environment env,  DiagnosticBag diagnostics)
+            {
+                this.env = env;
+                this.diagnostics = diagnostics;
+            }
+
+            public void VisitNode(SyntaxNode node, int level)
+            {
+                if (node.Kind == SyntaxNodeKind.LabelStatementSyntax)
+                {
+                    Token label = node.Children[0].Terminator;
+                    if (this.env.LabelsForCompiling.Contains(label.Text))
+                    {
+                        if (this.diagnostics != null)
+                            this.diagnostics.Add(Diagnostic.ReportTwoLabelsWithTheSameName(label.Range, label.Text));
+                    }
+                    this.env.LabelsForCompiling.Add(label.Text);
+                }
+                else if (node.Kind == SyntaxNodeKind.SubModuleStatementSyntax)
+                {
+                    Token name = node.Children[1].Terminator;
+                    if (this.env.SubNamesForCompiling.Contains(name.Text))
+                    {
+                        if (this.diagnostics != null)
+                            this.diagnostics.Add(Diagnostic.ReportTwoSubModulesWithTheSameName(name.Range, name.Text));
+                        return;
+                    }
+                    this.env.SubNamesForCompiling.Add(name.Text);
+                }
+            }
+        }
+
+        private void CollectLabelsAndSubNames(SyntaxNode node)
+        {
+            LabelsAndSubNamesVisitor visitor = new LabelsAndSubNamesVisitor(this.env, this.diagnostics);
+            SyntaxTreeWalker walker = new SyntaxTreeWalker(node);
+            walker.Walk(visitor, new SyntaxNodeKind[] {
+                SyntaxNodeKind.LabelStatementSyntax,
+                SyntaxNodeKind.SubModuleStatementSyntax
+            });
         }
 
         private string NewLabel()
@@ -120,18 +168,11 @@ namespace ISB.Runtime
         {
             Token name = node.Children[1].Terminator;
             SyntaxNode body = node.Children[2];
-            if (this.env.SubNames.ContainsKey(name.Text))
-            {
-                if (this.diagnostics != null)
-                    this.diagnostics.Add(Diagnostic.ReportTwoSubModulesWithTheSameName(name.Range, name.Text));
-                return;
-            }
             // Sub modules are implemented as 0-argument 0-return functions.
             string subLabel = this.NewLabel();
             string endSubLabel = this.NewLabel();
             this.AddInstruction(node.Range, null, Instruction.BR, endSubLabel, null);
             this.AddInstruction(node.Range, subLabel, Instruction.NOP, null, null);
-            this.env.SubNames.Add(name.Text, this.Instructions.Count - 1);
             this.GenerateSyntax(body);
             this.AddInstruction(node.Range, null, Instruction.RET, "0", null);
             this.AddInstruction(node.Range, endSubLabel, Instruction.NOP, null, null);
@@ -140,22 +181,13 @@ namespace ISB.Runtime
         private void GenerateLabelSyntax(SyntaxNode node)
         {
             Token label = node.Children[0].Terminator;
-            if (this.env.Labels.ContainsKey(label.Text))
-            {
-                if (this.diagnostics != null)
-                    this.diagnostics.Add(Diagnostic.ReportTwoLabelsWithTheSameName(label.Range, label.Text));
-            }
-            else
-            {
-                this.AddInstruction(node.Range, label.Text, Instruction.NOP, null, null);
-                this.env.Labels.Add(label.Text, this.Instructions.Count - 1);
-            }
+            this.AddInstruction(node.Range, label.Text, Instruction.NOP, null, null);
         }
 
         private void GenerateGotoSyntax(SyntaxNode node)
         {
             Token label = node.Children[1].Terminator;
-            if (!this.env.Labels.ContainsKey(label.Text))
+            if (!this.env.LabelsForCompiling.Contains(label.Text))
             {
                 if (this.diagnostics != null)
                     this.diagnostics.Add(Diagnostic.ReportGoToUndefinedLabel(label.Range, label.Text));
@@ -320,6 +352,9 @@ namespace ISB.Runtime
                         break;
                     case TokenKind.Divide:
                         instructionName = Instruction.DIV;
+                        break;
+                    case TokenKind.Mod:
+                        instructionName = Instruction.MOD;
                         break;
                     case TokenKind.Equal:
                         instructionName = Instruction.EQ;
@@ -491,7 +526,7 @@ namespace ISB.Runtime
             {
                 case SyntaxNodeKind.IdentifierExpressionSyntax:
                     string subName = node.Children[0].Terminator.Text;
-                    if (!this.env.SubNames.ContainsKey(subName))
+                    if (!this.env.SubNamesForCompiling.Contains(subName))
                     {
                         // TODO:
                         //  (1) forwardly check if the sub name is defined?

@@ -194,6 +194,15 @@ namespace ISB.Runtime
         //   (4) Stack.Push(result)
         public const string DIV = "div";
 
+        // Modulo. Divides an oprand by another and returns the reminder.
+        //   mod
+        //
+        //   (1) value2 := Stack.Pop()
+        //   (2) value1 := Stack.Pop()
+        //   (3) result = value1 % value2
+        //   (4) Stack.Push(result)
+        public const string MOD = "mod";
+
         // Determinates if two values are equal.
         //   eq
         //
