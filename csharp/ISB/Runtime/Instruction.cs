@@ -285,6 +285,7 @@ namespace ISB.Runtime
             { SUB, (OprandKind.None, OprandKind.None) },
             { MUL, (OprandKind.None, OprandKind.None) },
             { DIV, (OprandKind.None, OprandKind.None) },
+            { MOD, (OprandKind.None, OprandKind.None) },
             { EQ, (OprandKind.None, OprandKind.None) },
             { NE, (OprandKind.None, OprandKind.None) },
             { LT, (OprandKind.None, OprandKind.None) },
