@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Threading.Tasks;
 using CommandLine;
 using CommandLine.Text;
 using ISB.Runtime;
@@ -140,15 +141,26 @@ namespace ISB.Shell
             return true;
         }
 
-        private static REPL.EvalResult Evaluate(string line)
+        private class Evaluator : REPL.IEvaluator
         {
-            Console.WriteLine(line);
-            return REPL.EvalResult.OK;
+            private Engine engine;
+            public Evaluator()
+            {
+                this.engine = new Engine("Program");
+            }
+
+            public REPL.EvalResult Eval(string line, out Task incompleteTask)
+            {
+                incompleteTask = null;
+                Console.WriteLine(line);
+                return REPL.EvalResult.OK;
+            }
         }
 
         private static void StartREPL()
         {
-            REPL repl = new REPL("] ", "> ", Evaluate);
+            Evaluator evaluator = new Evaluator();
+            REPL repl = new REPL("] ", "> ", evaluator);
             repl.Loop();
         }
     }

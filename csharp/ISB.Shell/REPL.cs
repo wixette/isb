@@ -1,4 +1,5 @@
 using System;
+using System.Threading.Tasks;
 
 namespace ISB.Shell
 {
@@ -18,18 +19,22 @@ namespace ISB.Shell
             Wait
         }
 
+        public interface IEvaluator
+        {
+            public EvalResult Eval(string line, out Task incompleteTask);
+        }
+
         string prompt;
         string secondLevelPrompt;
-
-        Func<string, EvalResult> evaluate;
+        IEvaluator evaluator;
 
         public REPL(string prompt,
             string secondLevelPrompt,
-            Func<string, EvalResult> evaluate)
+            IEvaluator evaluator)
         {
             this.prompt = prompt;
             this.secondLevelPrompt = secondLevelPrompt;
-            this.evaluate = evaluate;
+            this.evaluator = evaluator;
         }
 
         public void Loop()
@@ -38,7 +43,7 @@ namespace ISB.Shell
             {
                 Console.Write(prompt);
                 string line = Console.ReadLine();
-                EvalResult result = this.evaluate.Invoke(line);
+                EvalResult result = this.evaluator.Eval(line, out Task incompleteTask);
                 if (result == EvalResult.OK)
                 {
                     continue;
@@ -51,7 +56,7 @@ namespace ISB.Shell
                 {
                     // TODO
                 }
-                else if (result == EvalResult.Wait)
+                else if (result == EvalResult.Wait && incompleteTask != null)
                 {
                     // TODO
                 }
