@@ -245,6 +245,11 @@ namespace ISB.Tests
         [InlineData (@"push 0
         add",
         @"Runtime error: Unexpected empty stack. (1:     add)")]
+
+        [InlineData (@"push 3
+        push 0
+        div",
+        @"Runtime error: Division by zero. (2:     div)")]
         public void TestRuntimeErrors(string code, string error)
         {
             Engine engine = new Engine("Program");

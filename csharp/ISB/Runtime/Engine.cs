@@ -122,6 +122,12 @@ namespace ISB.Runtime
             this.ReportRuntimeError($"Invalid Value {value}.");
         }
 
+        private void ReportDivisionByZero()
+        {
+            // TODO: moves this message to Resources.
+            this.ReportRuntimeError($"Division by zero.");
+        }
+
         private void ExecuteInstruction(Instruction instruction)
         {
             switch (instruction.Name)
@@ -302,35 +308,35 @@ namespace ISB.Runtime
 
                 case Instruction.ADD:
                 {
-                    if (this.BinaryOperation((op1, op2) => op1 + op2))
+                    if (this.BinaryOperation((op1, op2) => op1 + op2, false))
                         this.env.IP++;
                     break;
                 }
 
                 case Instruction.SUB:
                 {
-                    if (this.BinaryOperation((op1, op2) => op1 - op2))
+                    if (this.BinaryOperation((op1, op2) => op1 - op2, false))
                         this.env.IP++;
                     break;
                 }
 
                 case Instruction.MUL:
                 {
-                    if (this.BinaryOperation((op1, op2) => op1 * op2))
+                    if (this.BinaryOperation((op1, op2) => op1 * op2, false))
                         this.env.IP++;
                     break;
                 }
 
                 case Instruction.DIV:
                 {
-                    if (this.BinaryOperation((op1, op2) => op1 / op2))
+                    if (this.BinaryOperation((op1, op2) => op1 / op2, true))
                         this.env.IP++;
                     break;
                 }
 
                 case Instruction.MOD:
                 {
-                    if (this.BinaryOperation((op1, op2) => op1 % op2))
+                    if (this.BinaryOperation((op1, op2) => op1 % op2, true))
                         this.env.IP++;
                     break;
                 }
@@ -402,7 +408,7 @@ namespace ISB.Runtime
             return true;
         }
 
-        private bool BinaryOperation(Func<decimal, decimal, decimal> operation)
+        private bool BinaryOperation(Func<decimal, decimal, decimal> operation, bool checkDivisionByZero)
         {
             if (this.env.Stack.Count < 2)
             {
@@ -411,6 +417,11 @@ namespace ISB.Runtime
             }
             decimal op2 = this.env.Stack.Pop().ToNumber();
             decimal op1 = this.env.Stack.Pop().ToNumber();
+            if (checkDivisionByZero && op2 == 0)
+            {
+                this.ReportDivisionByZero();
+                return false;
+            }
             decimal result = operation(op1, op2);
             this.env.Stack.Push(new NumberValue(result));
             return true;
