@@ -400,14 +400,13 @@ __Program_0__:
             SyntaxNode tree = Parser.Parse(tokens, diagnostics);
             Assert.Empty(diagnostics.Contents);
             Environment env = new Environment();
-            Compiler compiler = new Compiler(env, "Program", diagnostics);
-            compiler.Compile(tree);
+            Assembly instructions = Compiler.Compile(tree, env, "Program", diagnostics, out _, out _);
             Assert.Empty(diagnostics.Contents);
 
             // System.Console.WriteLine(code);
             // System.Console.WriteLine(compiler.Instructions.ToTextFormat());
 
-            Assert.Equal(assembly, compiler.Instructions.ToTextFormat());
+            Assert.Equal(assembly, instructions.ToTextFormat());
         }
 
         const string errInput1 = @"a:
@@ -435,9 +434,8 @@ endsub";
             Assert.Empty(diagnostics.Contents);
             SyntaxNode tree = Parser.Parse(tokens, diagnostics);
             Assert.Empty(diagnostics.Contents);
-            Environment environment = new Environment();
-            Compiler compiler = new Compiler(environment, "Program", diagnostics);
-            compiler.Compile(tree);
+            Environment env = new Environment();
+            Assembly instructions = Compiler.Compile(tree, env, "Program", diagnostics, out _, out _);
             Assert.Equal(errDiagnostics.Length, diagnostics.Contents.Count);
             for (int i = 0; i < errDiagnostics.Length; i++)
             {
@@ -454,8 +452,7 @@ endsub";
             SyntaxNode tree = Parser.Parse(tokens, diagnostics);
             Assert.Empty(diagnostics.Contents);
             Environment env = new Environment();
-            Compiler compiler = new Compiler(env, "Program", diagnostics);
-            compiler.Compile(tree);
+            Assembly instructions = Compiler.Compile(tree, env, "Program", diagnostics, out _, out _);
             Assert.Empty(diagnostics.Contents);
 
             // System.Console.WriteLine(code22);
@@ -484,9 +481,9 @@ endsub";
                 ((5, 2), (5, 6)),
                 ((0, 0), (6, 4))
             };
-            for (int i = 0; i < compiler.Instructions.Count; i++)
+            for (int i = 0; i < instructions.Count; i++)
             {
-                Assert.Equal(expectedSourceMap[i],compiler.LookupSourceMap(i));
+                Assert.Equal(expectedSourceMap[i], instructions.LookupSourceMap(i));
             }
         }
     }

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using ISB.Scanning;
@@ -8,23 +9,20 @@ namespace ISB.Shell
 {
     internal sealed class ErrorReport
     {
-        public static void Report(string code, DiagnosticBag diagnostics, TextWriter err)
+        public static void Report(List<string> codeLines, DiagnosticBag diagnostics, TextWriter err)
         {
             if (diagnostics == null || diagnostics.Contents.Count <= 0)
                 return;
-            string[] lines = code.Split(new string[] { "\r\n", "\r", "\n" },
-                System.StringSplitOptions.None);
-
             TextRange lastRange = TextRange.None;
             foreach (var diagnostic in diagnostics.Contents)
             {
                 bool showCode = diagnostic.Range != TextRange.None && diagnostic.Range != lastRange;
-                ReportDiagnostic(lines, diagnostic, showCode, err);
+                ReportDiagnostic(codeLines, diagnostic, showCode, err);
                 lastRange = diagnostic.Range;
             }
         }
 
-        private static void ReportDiagnostic(string[] lines, Diagnostic diagnostic, bool showCode, TextWriter err)
+        private static void ReportDiagnostic(List<string> lines, Diagnostic diagnostic, bool showCode, TextWriter err)
         {
             if (showCode)
             {

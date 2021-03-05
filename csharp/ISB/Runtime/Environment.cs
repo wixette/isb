@@ -8,23 +8,30 @@ namespace ISB.Runtime
 {
     public sealed class Environment
     {
-        public HashSet<string> LabelsForCompiling { get; private set; }
+        public HashSet<string> CompileTimeLabels { get; private set; }
+        public HashSet<string> CompileTimeSubNames { get; private set; }
 
-        public HashSet<string> SubNamesForCompiling { get; private set; }
-
-        public Dictionary<string, int> Labels { get; private set; }
-
-        public Dictionary<string, int> SubNames { get; private set; }
-
-        public Stack<BaseValue> Stack { get; private set; }
+        public Dictionary<string, int> RuntimeLabels { get; private set; }
+        public Stack<BaseValue> RuntimeStack { get; private set; }
 
         public Libraries Libs { get; private set; }
-
         public Dictionary<int, BaseValue> Registers { get; private set; }
-
         public ArrayValue Memory { get; private set; }
 
         public int IP { get; set; }
+
+        private int autoLabelNo = 0;
+        public int NextAutoLabelNo
+        {
+            get
+            {
+                return autoLabelNo++;
+            }
+            private set
+            {
+                this.autoLabelNo = value;
+            }
+        }
 
         public Environment()
         {
@@ -33,31 +40,23 @@ namespace ISB.Runtime
 
         public void Reset()
         {
-            this.LabelsForCompiling = new HashSet<string>();
-            this.SubNamesForCompiling = new HashSet<string>();
-            this.Labels = new Dictionary<string, int>();
-            this.SubNames = new Dictionary<string, int>();
-            this.Stack = new Stack<BaseValue>();
+            this.CompileTimeLabels = new HashSet<string>();
+            this.CompileTimeSubNames = new HashSet<string>();
+            this.RuntimeLabels = new Dictionary<string, int>();
+            this.RuntimeStack = new Stack<BaseValue>();
             this.Libs = new Libraries();
             this.Registers = new Dictionary<int, BaseValue>();
             this.Memory = new ArrayValue();
             this.IP = 0;
+            this.NextAutoLabelNo = 0;
         }
 
-        public int LookupLabel(string label)
+        public int RuntimeLabelToIP(string label)
         {
-            if (!this.Labels.ContainsKey(label))
+            if (!this.RuntimeLabels.ContainsKey(label))
                 return -1;
             else
-                return this.Labels[label];
-        }
-
-        public int LookupSub(string subName)
-        {
-            if (!this.SubNames.ContainsKey(subName))
-                return -1;
-            else
-                return this.SubNames[subName];
+                return this.RuntimeLabels[label];
         }
 
         private int GetRegisterIndex(BaseValue registerNo)

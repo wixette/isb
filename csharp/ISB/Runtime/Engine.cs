@@ -2,6 +2,7 @@
 // The original code is licensed under the MIT License.
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using ISB.Scanning;
 using ISB.Parsing;
@@ -12,47 +13,90 @@ namespace ISB.Runtime
     public sealed class Engine
     {
         private Environment env;
+        private string moduleName;
         private DiagnosticBag diagnostics;
-        private Compiler compiler;
+        private Assembly assembly;
 
         public Engine(string moduleName)
         {
             this.env = new Environment();
+            this.moduleName = moduleName;
             this.diagnostics = new DiagnosticBag();
-            this.compiler = new Compiler(this.env, moduleName, this.diagnostics);
+            this.assembly = new Assembly();
+            this.CodeLines = new List<string>();
         }
+
+        public List<string> CodeLines { get; private set; }
 
         public bool HasError => this.diagnostics.Contents.Count > 0;
 
         public DiagnosticBag ErrorInfo => this.diagnostics;
 
-        public string AssemblyInTextFormat => compiler.Instructions.ToTextFormat();
+        public string AssemblyInTextFormat => this.assembly.ToTextFormat();
 
         public int IP => this.env.IP;
 
-        public int StackCount => this.env.Stack.Count;
+        public int StackCount => this.env.RuntimeStack.Count;
 
         public BaseValue StackTop =>
-            this.env.Stack.Count > 0 ? (BaseValue)this.env.Stack.Peek().Clone() : null;
+            this.env.RuntimeStack.Count > 0 ? (BaseValue)this.env.RuntimeStack.Peek().Clone() : null;
 
         public bool Compile(string code, bool init)
         {
             if (!init)
             {
                 this.env.Reset();
-                this.compiler.Reset();
+                this.assembly.Clear();
             }
             this.diagnostics.Reset();
             var tokens = Scanner.Scan(code, diagnostics);
             var tree = Parser.Parse(tokens, diagnostics);
             if (this.HasError)
             {
-                // So far we don't mix the stage of scanning/parsing and the stage of IR generating.
-                // TODO: reports errors.
                 return false;
             }
-            this.compiler.Compile(tree);
-            return !this.HasError;
+            Assembly newAssembly = Compiler.Compile(tree, this.env, this.moduleName, this.diagnostics,
+                out HashSet<string> newCompileTimeLabels, out HashSet<string> newCompileTimeSubNames);
+            if (this.HasError)
+            {
+                return false;
+            }
+            int baseLineNo = this.CodeLines.Count;
+            MergeAssembly(this.assembly, newAssembly, baseLineNo);
+            string[] newCodeLines = code.Split(new string[] { "\r\n", "\r", "\n" }, System.StringSplitOptions.None);
+            MergeCodeLines(this.CodeLines, newCodeLines);
+            MergeSymbolSet(this.env.CompileTimeLabels, newCompileTimeLabels);
+            MergeSymbolSet(this.env.CompileTimeSubNames, newCompileTimeSubNames);
+            return true;
+        }
+
+        private static void MergeCodeLines(List<string> to, string[] from)
+        {
+            to.AddRange(from);
+        }
+
+        private static void MergeAssembly(Assembly to, Assembly from, int baseLineNo)
+        {
+            foreach (var i in from.Instructions)
+            {
+                to.Instructions.Add(i);
+            }
+            // The line numbers in the source map need to be updated
+            foreach (var i in from.SourceMap)
+            {
+                if (i != TextRange.None)
+                    to.SourceMap.Add(
+                        ((i.Start.Line + baseLineNo, i.Start.Column),
+                        (i.Start.Line + baseLineNo, i.Start.Column)));
+                else
+                    to.SourceMap.Add(i);
+            }
+        }
+
+        private static void MergeSymbolSet(HashSet<string> to, HashSet<string> from)
+        {
+            foreach (var k in from)
+                to.Add(k);
         }
 
         // Parsing assembly does not support incremental mode. Once a new assebmly is parsed, the existing instructions
@@ -60,9 +104,8 @@ namespace ISB.Runtime
         public void ParseAssembly(string assemblyCode)
         {
             this.env.Reset();
-            this.compiler.Reset();
             this.diagnostics.Reset();
-            this.compiler.ParseAssembly(assemblyCode);
+            this.assembly = Compiler.ParseAssembly(assemblyCode);
             // TODO: reports errors.
         }
 
@@ -80,19 +123,19 @@ namespace ISB.Runtime
         private void ExecuteAssembly()
         {
             // Scans for new labels and updates the label dictionary.
-            for (int i = this.env.IP; i < this.compiler.Instructions.Count; i++)
+            for (int i = this.env.IP; i < this.assembly.Instructions.Count; i++)
             {
-                var instruction = this.compiler.Instructions[i];
+                var instruction = this.assembly.Instructions[i];
                 if (instruction.Label != null)
                 {
-                    this.env.Labels.Add(instruction.Label, i);
+                    this.env.RuntimeLabels.Add(instruction.Label, i);
                 }
             }
 
             // Executes instructions one by one.
-            while (this.env.IP < this.compiler.Instructions.Count && !this.HasError)
+            while (this.env.IP < this.assembly.Instructions.Count && !this.HasError)
             {
-                Instruction instruction = this.compiler.Instructions[this.env.IP];
+                Instruction instruction = this.assembly.Instructions[this.env.IP];
                 ExecuteInstruction(instruction);
             }
         }
@@ -100,8 +143,8 @@ namespace ISB.Runtime
         private void ReportRuntimeError(string description)
         {
             this.diagnostics.Add(Diagnostic.ReportRuntimeError(
-                this.compiler.LookupSourceMap(this.IP),
-                $"{description} ({this.IP}: {this.compiler.Instructions[this.env.IP].ToDisplayString()})"));
+                this.assembly.LookupSourceMap(this.IP),
+                $"{description} ({this.IP}: {this.assembly.Instructions[this.env.IP].ToDisplayString()})"));
         }
 
         private void ReportUndefinedAssemblyLabel(string label)
@@ -148,7 +191,7 @@ namespace ISB.Runtime
                 case Instruction.BR:
                 {
                     string label = instruction.Oprand1.ToString();
-                    int target = this.env.LookupLabel(label);
+                    int target = this.env.RuntimeLabelToIP(label);
                     if (target >= 0)
                     {
                         this.env.IP = target;
@@ -163,12 +206,12 @@ namespace ISB.Runtime
                 case Instruction.BR_IF:
                 {
                     string label1 = instruction.Oprand1.ToString();
-                    int target1 = this.env.LookupLabel(label1);
+                    int target1 = this.env.RuntimeLabelToIP(label1);
                     string label2 = instruction.Oprand2.ToString();
-                    int target2 = this.env.LookupLabel(label2);
+                    int target2 = this.env.RuntimeLabelToIP(label2);
                     if (target1 >= 0 && target2 >= 0)
                     {
-                        var value = this.env.Stack.Pop();
+                        var value = this.env.RuntimeStack.Pop();
                         this.env.IP = value.ToBoolean() ? target1 : target2;
                     }
                     else
@@ -183,9 +226,9 @@ namespace ISB.Runtime
 
                 case Instruction.SET:
                 {
-                    if (this.env.Stack.Count > 0)
+                    if (this.env.RuntimeStack.Count > 0)
                     {
-                        var value = this.env.Stack.Pop();
+                        var value = this.env.RuntimeStack.Pop();
                         this.env.SetRegister(instruction.Oprand1, value);
                         this.env.IP++;
                     }
@@ -199,16 +242,16 @@ namespace ISB.Runtime
                 case Instruction.GET:
                 {
                     var value = this.env.GetRegister(instruction.Oprand1);
-                    this.env.Stack.Push(value);
+                    this.env.RuntimeStack.Push(value);
                     this.env.IP++;
                     break;
                 }
 
                 case Instruction.STORE:
                 {
-                    if (this.env.Stack.Count > 0)
+                    if (this.env.RuntimeStack.Count > 0)
                     {
-                        var value = this.env.Stack.Pop();
+                        var value = this.env.RuntimeStack.Pop();
                         this.env.SetMemory(instruction.Oprand1, value);
                         this.env.IP++;
                     }
@@ -222,7 +265,7 @@ namespace ISB.Runtime
                 case Instruction.LOAD:
                 {
                     var value = this.env.GetMemory(instruction.Oprand1);
-                    this.env.Stack.Push(value);
+                    this.env.RuntimeStack.Push(value);
                     this.env.IP++;
                     break;
                 }
@@ -232,9 +275,9 @@ namespace ISB.Runtime
                     BaseValue[] arrayNameAndIndices;
                     if (this.PrepareArrayNameAndIndices(instruction, out arrayNameAndIndices))
                     {
-                        if (this.env.Stack.Count > 0)
+                        if (this.env.RuntimeStack.Count > 0)
                         {
-                            var value = this.env.Stack.Pop();
+                            var value = this.env.RuntimeStack.Pop();
                             this.env.SetArrayItem(arrayNameAndIndices, value);
                             this.env.IP++;
                         }
@@ -252,7 +295,7 @@ namespace ISB.Runtime
                     if (this.PrepareArrayNameAndIndices(instruction, out arrayNameAndIndices))
                     {
                         var value = this.env.GetArrayItem(arrayNameAndIndices);
-                        this.env.Stack.Push(value);
+                        this.env.RuntimeStack.Push(value);
                         this.env.IP++;
                     }
                     break;
@@ -262,7 +305,7 @@ namespace ISB.Runtime
                 {
                     var value = instruction.Oprand1;
                     Debug.Assert(value is NumberValue);
-                    this.env.Stack.Push(value);
+                    this.env.RuntimeStack.Push(value);
                     this.env.IP++;
                     break;
                 }
@@ -271,7 +314,7 @@ namespace ISB.Runtime
                 {
                     var value = instruction.Oprand1;
                     Debug.Assert(value is StringValue);
-                    this.env.Stack.Push(value);
+                    this.env.RuntimeStack.Push(value);
                     this.env.IP++;
                     break;
                 }
@@ -398,46 +441,46 @@ namespace ISB.Runtime
             arrayNameAndIndices[0] = instruction.Oprand1;
             for (int i = 1; i < dimension + 1; i++)
             {
-                if (this.env.Stack.Count <= 0)
+                if (this.env.RuntimeStack.Count <= 0)
                 {
                     this.ReportEmptyStack();
                     return false;
                 }
-                arrayNameAndIndices[i] = this.env.Stack.Pop();
+                arrayNameAndIndices[i] = this.env.RuntimeStack.Pop();
             }
             return true;
         }
 
         private bool BinaryOperation(Func<decimal, decimal, decimal> operation, bool checkDivisionByZero)
         {
-            if (this.env.Stack.Count < 2)
+            if (this.env.RuntimeStack.Count < 2)
             {
                 this.ReportEmptyStack();
                 return false;
             }
-            decimal op2 = this.env.Stack.Pop().ToNumber();
-            decimal op1 = this.env.Stack.Pop().ToNumber();
+            decimal op2 = this.env.RuntimeStack.Pop().ToNumber();
+            decimal op1 = this.env.RuntimeStack.Pop().ToNumber();
             if (checkDivisionByZero && op2 == 0)
             {
                 this.ReportDivisionByZero();
                 return false;
             }
             decimal result = operation(op1, op2);
-            this.env.Stack.Push(new NumberValue(result));
+            this.env.RuntimeStack.Push(new NumberValue(result));
             return true;
         }
 
         private bool BinaryLogicalOperation(Func<decimal, decimal, bool> operation)
         {
-            if (this.env.Stack.Count < 2)
+            if (this.env.RuntimeStack.Count < 2)
             {
                 this.ReportEmptyStack();
                 return false;
             }
-            decimal op2 = this.env.Stack.Pop().ToNumber();
-            decimal op1 = this.env.Stack.Pop().ToNumber();
+            decimal op2 = this.env.RuntimeStack.Pop().ToNumber();
+            decimal op1 = this.env.RuntimeStack.Pop().ToNumber();
             bool result = operation(op1, op2);
-            this.env.Stack.Push(new BooleanValue(result));
+            this.env.RuntimeStack.Push(new BooleanValue(result));
             return true;
         }
     }

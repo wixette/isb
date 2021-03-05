@@ -5,21 +5,33 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Text;
+using ISB.Scanning;
 
 namespace ISB.Runtime
 {
     public sealed class Assembly : IEnumerable<Instruction>
     {
-        public List<Instruction> Instructions { get; private set; }
+        public List<Instruction> Instructions { get; private init; }
+        public List<TextRange> SourceMap { get; private init; }
 
         public Assembly()
         {
             this.Instructions = new List<Instruction>();
+            this.SourceMap = new List<TextRange>();
         }
 
         public int Count { get=> Instructions.Count; }
 
         public Instruction this[int index] => this.Instructions[index];
+
+        public TextRange LookupSourceMap(int IP)
+        {
+            if (IP >= 0 && IP < this.SourceMap.Count)
+                return this.SourceMap[IP];
+            else
+                return TextRange.None;
+        }
+
 
         IEnumerator IEnumerable.GetEnumerator()
         {
@@ -34,18 +46,22 @@ namespace ISB.Runtime
         public void Clear()
         {
             this.Instructions.Clear();
+            this.SourceMap.Clear();
         }
 
-        public void Add(Instruction instruction)
+        public void Add(TextRange sourceRange, Instruction instruction)
         {
-            this.Instructions.Add(instruction);
-        }
-
-        public void Add(string label, string name, string oprand1, string oprand2)
-        {
-            var instruction = Instruction.Create(label, name, oprand1, oprand2);
             if (instruction != null)
+            {
+                int IP = this.Instructions.Count;
                 this.Instructions.Add(instruction);
+                this.SourceMap.Add(sourceRange);
+            }
+        }
+
+        public void Add(TextRange sourceRange, string label, string name, string oprand1, string oprand2)
+        {
+            this.Add(sourceRange, Instruction.Create(label, name, oprand1, oprand2));
         }
 
         public string ToDisplayString()
@@ -90,7 +106,7 @@ namespace ISB.Runtime
                     var instruction = Instruction.Create(label, name, oprand1Token, oprand2Token);
                     if (instruction != null)
                     {
-                        assembly.Add(instruction);
+                        assembly.Add(TextRange.None, instruction);
                         label = null;
                     }
                 }

@@ -1,4 +1,5 @@
 ﻿using Xunit;
+using ISB.Scanning;
 using ISB.Runtime;
 
 namespace ISB.Tests
@@ -9,14 +10,14 @@ namespace ISB.Tests
         public void TestFormatAndParse()
         {
             Assembly assembly1 = new Assembly();
-            assembly1.Add(null, Instruction.NOP, null, null);
-            assembly1.Add("label1", Instruction.ADD, null, null);
-            assembly1.Add("label2", Instruction.SUB, null, null);
-            assembly1.Add("label3", Instruction.BR, "label1", null);
-            assembly1.Add(null, Instruction.BR_IF, "label2", "label3");
-            assembly1.Add(null, Instruction.STORE_ARR, "a", "2");
-            assembly1.Add(null, Instruction.PUSH, Instruction.TrueLiteral, null);
-            assembly1.Add(null, Instruction.PUSHS, "Say \"Hello, World!\"", null);
+            assembly1.Add(TextRange.None, null, Instruction.NOP, null, null);
+            assembly1.Add(TextRange.None, "label1", Instruction.ADD, null, null);
+            assembly1.Add(TextRange.None, "label2", Instruction.SUB, null, null);
+            assembly1.Add(TextRange.None, "label3", Instruction.BR, "label1", null);
+            assembly1.Add(TextRange.None, null, Instruction.BR_IF, "label2", "label3");
+            assembly1.Add(TextRange.None, null, Instruction.STORE_ARR, "a", "2");
+            assembly1.Add(TextRange.None, null, Instruction.PUSH, Instruction.TrueLiteral, null);
+            assembly1.Add(TextRange.None, null, Instruction.PUSHS, "Say \"Hello, World!\"", null);
 
             string asm = assembly1.ToTextFormat();
             Assert.Equal(@"    nop
