@@ -15,11 +15,11 @@ namespace ISB.Runtime
         private DiagnosticBag diagnostics;
         private Compiler compiler;
 
-        public Engine()
+        public Engine(string moduleName)
         {
             this.env = new Environment();
             this.diagnostics = new DiagnosticBag();
-            this.compiler = new Compiler(this.env, "Program", this.diagnostics);
+            this.compiler = new Compiler(this.env, moduleName, this.diagnostics);
         }
 
         public bool HasError => this.diagnostics.Contents.Count > 0;

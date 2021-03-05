@@ -47,12 +47,11 @@ namespace ISB.Shell
             {
                 string fileName = Path.GetFileName(opts.InputFile);
                 string ext = Path.GetExtension(opts.InputFile);
+                string code = File.ReadAllText(opts.InputFile);
                 if (ext != null && ext.ToLower() == BasicExtension)
                 {
                     if (opts.Compile)
                     {
-                        // Compiles the input file to assembly code.
-                        string code = File.ReadAllText(opts.InputFile);
                         if (!String.IsNullOrWhiteSpace(opts.OutputFile))
                         {
                             using (StreamWriter output = new StreamWriter(opts.OutputFile))
@@ -67,12 +66,12 @@ namespace ISB.Shell
                     }
                     else
                     {
-                        // Runs BASIC program.
+                        RunProgram(fileName, code, Console.Out, Console.Error);
                     }
                 }
                 else if (ext != null && ext.ToLower() == AssemblyExtension)
                 {
-                    // Runs ISB assembly.
+                    RunAssembly(fileName, code, Console.Out, Console.Error);
                 }
                 else
                 {
@@ -87,8 +86,8 @@ namespace ISB.Shell
 
         private static bool CompileToTextFormat(string fileName, string code, TextWriter output, TextWriter err)
         {
-            Engine engine = new Engine();
-            if (!engine.Compile(code, false))
+            Engine engine = new Engine(fileName);
+            if (!engine.Compile(code, true))
             {
                 ErrorReport.Report(code, engine.ErrorInfo, err);
                 return false;
@@ -101,6 +100,42 @@ namespace ISB.Shell
             output.WriteLine($"; See https://github.com/wixette/isb for more details.");
             output.WriteLine(commentLine);
             output.WriteLine(engine.AssemblyInTextFormat);
+            return true;
+        }
+
+        private static bool RunAssembly(string fileName, string code, TextWriter output, TextWriter err)
+        {
+            Engine engine = new Engine(fileName);
+            engine.ParseAssembly(code);
+            if (!engine.Run(true))
+            {
+                ErrorReport.Report(code, engine.ErrorInfo, err);
+                return false;
+            }
+            if (engine.StackCount > 0)
+            {
+                output.WriteLine(engine.StackTop.ToDisplayString());
+            }
+            return true;
+        }
+
+        private static bool RunProgram(string fileName, string code, TextWriter output, TextWriter err)
+        {
+            Engine engine = new Engine(fileName);
+            if (!engine.Compile(code, true))
+            {
+                ErrorReport.Report(code, engine.ErrorInfo, err);
+                return false;
+            }
+            if (!engine.Run(true))
+            {
+                ErrorReport.Report(code, engine.ErrorInfo, err);
+                return false;
+            }
+            if (engine.StackCount > 0)
+            {
+                output.WriteLine(engine.StackTop.ToDisplayString());
+            }
             return true;
         }
     }

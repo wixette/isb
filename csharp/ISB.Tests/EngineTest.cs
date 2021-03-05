@@ -8,7 +8,7 @@ namespace ISB.Tests
         [Fact]
         public void TestNop()
         {
-            Engine engine = new Engine();
+            Engine engine = new Engine("Program");
             engine.ParseAssembly(@"nop");
             Assert.Equal(0, engine.IP);
             Assert.Equal(0, engine.StackCount);
@@ -20,7 +20,7 @@ namespace ISB.Tests
         [Fact]
         public void TestPushValue()
         {
-            Engine engine = new Engine();
+            Engine engine = new Engine("Program");
             engine.ParseAssembly(@"push 3.14");
             engine.Run(true);
             Assert.False(engine.HasError);
@@ -41,7 +41,7 @@ namespace ISB.Tests
         [Fact]
         public void TestBranch()
         {
-            Engine engine = new Engine();
+            Engine engine = new Engine("Program");
             engine.ParseAssembly(@"br label2
             label1:
             br label3
@@ -71,7 +71,7 @@ namespace ISB.Tests
         [Fact]
         public void TestRegisters()
         {
-            Engine engine = new Engine();
+            Engine engine = new Engine("Program");
             engine.ParseAssembly(@"push 10
             set 0
             push 20
@@ -88,7 +88,7 @@ namespace ISB.Tests
         [Fact]
         public void TestMemoryVariables()
         {
-            Engine engine = new Engine();
+            Engine engine = new Engine("Program");
             engine.ParseAssembly(@"push 10
             store a
             push 20
@@ -105,7 +105,7 @@ namespace ISB.Tests
         [Fact]
         public void TestBinaryOprations()
         {
-            Engine engine = new Engine();
+            Engine engine = new Engine("Program");
             engine.ParseAssembly(@"push 120
             push 20
             push 30
@@ -132,7 +132,7 @@ namespace ISB.Tests
         [Fact]
         public void TestArrayOperations()
         {
-            Engine engine = new Engine();
+            Engine engine = new Engine("Program");
             engine.Compile(@"a[0] = 3
             a[1] = ""Hello""
             a[1]", true);
@@ -190,7 +190,7 @@ namespace ISB.Tests
                       Fib[i] = Fib[i - 1] + Fib[i - 2]
                   EndFor
                   Fib[20]";
-            Engine engine = new Engine();
+            Engine engine = new Engine("Program");
             engine.Compile(code, true);
             Assert.False(engine.HasError);
             engine.Run(true);
@@ -228,7 +228,7 @@ namespace ISB.Tests
                   endif
                   TheEnd:
                   IsPrime";
-            Engine engine = new Engine();
+            Engine engine = new Engine("Program");
             engine.Compile(code, true);
             Assert.False(engine.HasError);
             engine.Run(true);
@@ -247,7 +247,7 @@ namespace ISB.Tests
         @"Runtime error: Unexpected empty stack. (1:     add)")]
         public void TestRuntimeErrors(string code, string error)
         {
-            Engine engine = new Engine();
+            Engine engine = new Engine("Program");
             engine.ParseAssembly(code);
             engine.Run(true);
             Assert.True(engine.HasError);
