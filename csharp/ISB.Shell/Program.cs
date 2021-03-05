@@ -143,6 +143,7 @@ namespace ISB.Shell
 
         private class Evaluator : REPL.IEvaluator
         {
+            private string code;
             private Engine engine;
             public Evaluator()
             {
@@ -151,8 +152,23 @@ namespace ISB.Shell
 
             public REPL.EvalResult Eval(string line, out Task incompleteTask)
             {
+                this.code = line;
                 incompleteTask = null;
-                Console.WriteLine(line);
+
+                if (!engine.Compile(this.code, false))
+                {
+                    ErrorReport.Report(this.code, engine.ErrorInfo, Console.Error);
+                    return REPL.EvalResult.OK;
+                }
+                if (!engine.Run(true))
+                {
+                    ErrorReport.Report(this.code, engine.ErrorInfo, Console.Error);
+                    return REPL.EvalResult.OK;
+                }
+                if (engine.StackCount > 0)
+                {
+                    Console.WriteLine(engine.StackTop.ToDisplayString());
+                }
                 return REPL.EvalResult.OK;
             }
         }
