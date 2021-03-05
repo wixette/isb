@@ -140,15 +140,15 @@ namespace ISB.Shell
             return true;
         }
 
-        private static bool Evaluate(string line)
+        private static REPL.EvalResult Evaluate(string line)
         {
             Console.WriteLine(line);
-            return true;
+            return REPL.EvalResult.OK;
         }
 
         private static void StartREPL()
         {
-            REPL repl = new REPL("] ", Evaluate);
+            REPL repl = new REPL("] ", "> ", Evaluate);
             repl.Loop();
         }
     }
