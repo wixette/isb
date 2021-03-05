@@ -56,22 +56,22 @@ namespace ISB.Shell
                         {
                             using (StreamWriter output = new StreamWriter(opts.OutputFile))
                             {
-                                CompileToTextFormat(fileName, code, output, Console.Error);
+                                CompileToTextFormat(fileName, code, output);
                             }
                         }
                         else
                         {
-                            CompileToTextFormat(fileName, code, Console.Out, Console.Error);
+                            CompileToTextFormat(fileName, code, Console.Out);
                         }
                     }
                     else
                     {
-                        RunProgram(fileName, code, Console.Out, Console.Error);
+                        RunProgram(fileName, code);
                     }
                 }
                 else if (ext != null && ext.ToLower() == AssemblyExtension)
                 {
-                    RunAssembly(fileName, code, Console.Out, Console.Error);
+                    RunAssembly(fileName, code);
                 }
                 else
                 {
@@ -80,16 +80,17 @@ namespace ISB.Shell
             }
             else
             {
-                // Entering the interactive mode.
+                // Starts the interactive shell if not input file is provided.
+                StartREPL();
             }
         }
 
-        private static bool CompileToTextFormat(string fileName, string code, TextWriter output, TextWriter err)
+        private static bool CompileToTextFormat(string fileName, string code, TextWriter output)
         {
             Engine engine = new Engine(fileName);
             if (!engine.Compile(code, true))
             {
-                ErrorReport.Report(code, engine.ErrorInfo, err);
+                ErrorReport.Report(code, engine.ErrorInfo, Console.Error);
                 return false;
             }
 
@@ -103,40 +104,52 @@ namespace ISB.Shell
             return true;
         }
 
-        private static bool RunAssembly(string fileName, string code, TextWriter output, TextWriter err)
+        private static bool RunAssembly(string fileName, string code)
         {
             Engine engine = new Engine(fileName);
             engine.ParseAssembly(code);
             if (!engine.Run(true))
             {
-                ErrorReport.Report(code, engine.ErrorInfo, err);
+                ErrorReport.Report(code, engine.ErrorInfo, Console.Error);
                 return false;
             }
             if (engine.StackCount > 0)
             {
-                output.WriteLine(engine.StackTop.ToDisplayString());
+                Console.WriteLine(engine.StackTop.ToDisplayString());
             }
             return true;
         }
 
-        private static bool RunProgram(string fileName, string code, TextWriter output, TextWriter err)
+        private static bool RunProgram(string fileName, string code)
         {
             Engine engine = new Engine(fileName);
             if (!engine.Compile(code, true))
             {
-                ErrorReport.Report(code, engine.ErrorInfo, err);
+                ErrorReport.Report(code, engine.ErrorInfo, Console.Error);
                 return false;
             }
             if (!engine.Run(true))
             {
-                ErrorReport.Report(code, engine.ErrorInfo, err);
+                ErrorReport.Report(code, engine.ErrorInfo, Console.Error);
                 return false;
             }
             if (engine.StackCount > 0)
             {
-                output.WriteLine(engine.StackTop.ToDisplayString());
+                Console.WriteLine(engine.StackTop.ToDisplayString());
             }
             return true;
+        }
+
+        private static bool Evaluate(string line)
+        {
+            Console.WriteLine(line);
+            return true;
+        }
+
+        private static void StartREPL()
+        {
+            REPL repl = new REPL("] ", Evaluate);
+            repl.Loop();
         }
     }
 }
