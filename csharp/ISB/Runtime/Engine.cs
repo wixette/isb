@@ -41,9 +41,9 @@ namespace ISB.Runtime
         public BaseValue StackTop =>
             this.env.RuntimeStack.Count > 0 ? (BaseValue)this.env.RuntimeStack.Peek().Clone() : null;
 
-        public bool Compile(string code, bool init)
+        public bool Compile(string code, bool reset)
         {
-            if (!init)
+            if (reset)
             {
                 this.env.Reset();
                 this.assembly.Clear();
@@ -70,22 +70,6 @@ namespace ISB.Runtime
             return true;
         }
 
-        private static void MergeCodeLines(List<string> to, string[] from)
-        {
-            to.AddRange(from);
-        }
-
-        private static void MergeAssembly(Assembly to, Assembly from, int baseSourceLineNo)
-        {
-            to.Append(from, baseSourceLineNo);
-        }
-
-        private static void MergeSymbolSet(HashSet<string> to, HashSet<string> from)
-        {
-            foreach (var k in from)
-                to.Add(k);
-        }
-
         // Parsing assembly does not support incremental mode. Once a new assebmly is parsed, the existing instructions
         // and environment states are cleared.
         public void ParseAssembly(string assemblyCode)
@@ -96,9 +80,9 @@ namespace ISB.Runtime
             // TODO: reports errors.
         }
 
-        public bool Run(bool init)
+        public bool Run(bool reset)
         {
-            if (init)
+            if (reset)
             {
                 this.env.Reset();
             }
@@ -125,6 +109,22 @@ namespace ISB.Runtime
                 Instruction instruction = this.assembly.Instructions[this.env.IP];
                 ExecuteInstruction(instruction);
             }
+        }
+
+        private static void MergeCodeLines(List<string> to, string[] from)
+        {
+            to.AddRange(from);
+        }
+
+        private static void MergeAssembly(Assembly to, Assembly from, int baseSourceLineNo)
+        {
+            to.Append(from, baseSourceLineNo);
+        }
+
+        private static void MergeSymbolSet(HashSet<string> to, HashSet<string> from)
+        {
+            foreach (var k in from)
+                to.Add(k);
         }
 
         private void ReportRuntimeError(string description)

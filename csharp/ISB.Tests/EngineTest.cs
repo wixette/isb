@@ -259,5 +259,42 @@ namespace ISB.Tests
             Assert.Single(engine.ErrorInfo.Contents);
             Assert.Equal(error, engine.ErrorInfo.Contents[0].ToDisplayString());
         }
+
+        [Fact]
+        public void TestIncrementalExecution()
+        {
+            Engine engine = new Engine("Program");
+            Assert.Equal(0, engine.IP);
+            Assert.Equal(0, engine.StackCount);
+            Assert.Empty(engine.CodeLines);
+
+            Assert.True(engine.Compile("a = 10", true));
+            Assert.True(engine.Run(true));
+
+            Assert.Single(engine.CodeLines);
+            Assert.Equal(2, engine.IP);
+            Assert.Equal(0, engine.StackCount);
+
+            Assert.True(engine.Compile("b = 20", false));
+            Assert.True(engine.Compile(@"if a > b then
+  c = 100
+else
+  c = 200
+endif", false));
+            Assert.True(engine.Run(false));
+
+            Assert.Equal(7, engine.CodeLines.Count);
+            Assert.Equal(16, engine.IP);
+            Assert.Equal(0, engine.StackCount);
+
+            Assert.True(engine.Compile("c", false));
+            Assert.True(engine.Run(false));
+
+            Assert.Equal(8, engine.CodeLines.Count);
+            Assert.Equal(17, engine.IP);
+            Assert.Equal(1, engine.StackCount);
+
+            Assert.Equal(200, engine.StackTop.ToNumber());
+        }
     }
 }
