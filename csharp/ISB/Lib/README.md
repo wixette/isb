@@ -18,9 +18,12 @@ ISB standard libraries automatically. Do NOT put non-lib classes here.
 For a library definition class, all public methods that fulfill the following
 criteria are loaded as the functions of that library automatically:
 
+ * The method must not be an inherited method, i.e., it must not have the
+   `override` modifier.
  * The method must have zero or a definite number of arguments. The `params`
    keyword is not allowed.
  * The `out` parameter modifier is not allowed.
+ * Optional parameters are not allowed.
  * The type of all the arguments must be either `ISB.Runtime.BaseValue` or a
    derived class of `ISB.Runtime.BaseValue`, such as `ISB.Runtime.NumberValue`,
    `ISB.Runtime.StringValue` or `ISB.Runtime.ArrayValue`.

@@ -607,14 +607,14 @@ namespace ISB.Runtime
                 return;
             }
             var (libName, funcName) = this.GetLibNameAndMemberName(objectAccessNode);
-            if (!this.env.Libs.IsFuncExist(libName, funcName))
+            if (!this.env.Libs.IsFunctionExist(libName, funcName))
             {
                 // TODO: a separate diagnostic code for NoLibFuncDefined?
                 if (this.diagnostics != null)
                     this.diagnostics.Add(Diagnostic.ReportUnsupportedInvocationBaseExpression(objectAccessNode.Range));
                 return;
             }
-            int expectedArgumentNumber = this.env.Libs.GetFuncArgumentNumber(libName, funcName);
+            int expectedArgumentNumber = this.env.Libs.GetFunctionArgumentNumber(libName, funcName);
             if (argumentNumber != expectedArgumentNumber)
             {
                 // TODO: report this error once the Libraries class is ready.
