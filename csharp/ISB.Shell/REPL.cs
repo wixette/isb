@@ -27,6 +27,7 @@ namespace ISB.Shell
         string prompt;
         string secondLevelPrompt;
         IEvaluator evaluator;
+        bool secondLevel = false;
 
         public REPL(string prompt,
             string secondLevelPrompt,
@@ -41,7 +42,7 @@ namespace ISB.Shell
         {
             while (true)
             {
-                Console.Write(prompt);
+                Console.Write(secondLevel ? secondLevelPrompt : prompt);
                 string line = Console.ReadLine();
                 if (line == null)
                 {
@@ -52,6 +53,7 @@ namespace ISB.Shell
                 EvalResult result = this.evaluator.Eval(line, out Task incompleteTask);
                 if (result == EvalResult.OK)
                 {
+                    secondLevel = false;
                     continue;
                 }
                 else if (result == EvalResult.Exit)
@@ -60,11 +62,14 @@ namespace ISB.Shell
                 }
                 else if (result == EvalResult.NeedMoreLines)
                 {
-                    // TODO
+                    secondLevel = true;
+                    continue;
                 }
                 else if (result == EvalResult.Wait && incompleteTask != null)
                 {
                     // TODO
+                    secondLevel = false;
+                    continue;
                 }
             }
         }

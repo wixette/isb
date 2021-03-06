@@ -1,10 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
 using CommandLine;
 using CommandLine.Text;
 using ISB.Runtime;
+using ISB.Utilities;
 
 namespace ISB.Shell
 {
@@ -145,20 +147,36 @@ namespace ISB.Shell
         private class Evaluator : REPL.IEvaluator
         {
             private Engine engine;
+            private List<string> multiLineCode;
+
             public Evaluator()
             {
                 this.engine = new Engine("Program");
+                multiLineCode = new List<string>();
             }
 
             public REPL.EvalResult Eval(string line, out Task incompleteTask)
             {
                 Debug.Assert(line != null);
                 incompleteTask = null;
-                if (!engine.Compile(line, false))
+
+                string code = (multiLineCode.Count > 0) ? code = String.Join('\n', multiLineCode) + "\n" + line : line;
+
+                if (!engine.Compile(code, false))
                 {
-                    ErrorReport.Report(line, engine.ErrorInfo, Console.Error);
-                    return REPL.EvalResult.OK;
+                    if (engine.ErrorInfo.Contents.Count == 1 &&
+                        engine.ErrorInfo.Contents[0].Code == Diagnostic.ErrorCode.UnexpectedEndOfStream)
+                    {
+                        multiLineCode.Add(line);
+                        return REPL.EvalResult.NeedMoreLines;
+                    }
+                    else
+                    {
+                        ErrorReport.Report(line, engine.ErrorInfo, Console.Error);
+                        return REPL.EvalResult.OK;
+                    }
                 }
+                multiLineCode.Clear();
                 if (!engine.Run(false))
                 {
                     ErrorReport.Report(engine.CodeLines, engine.ErrorInfo, Console.Error);
