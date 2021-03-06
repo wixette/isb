@@ -36,14 +36,14 @@ namespace ISB.Shell
             this.prompt = prompt;
             this.secondLevelPrompt = secondLevelPrompt;
             this.evaluator = evaluator;
+            ReadLine.HistoryEnabled = true;
         }
 
         public void Loop()
         {
             while (true)
             {
-                Console.Write(secondLevel ? secondLevelPrompt : prompt);
-                string line = Console.ReadLine();
+                string line = ReadLine.Read(secondLevel ? secondLevelPrompt : prompt);
                 if (line == null)
                 {
                     Console.WriteLine();
