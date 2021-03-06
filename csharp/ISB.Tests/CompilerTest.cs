@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Xunit;
 using ISB.Scanning;
 using ISB.Parsing;
@@ -480,6 +481,182 @@ endsub";
                 ((5, 6), (5, 6)),
                 ((5, 2), (5, 6)),
                 ((0, 0), (6, 4))
+            };
+            for (int i = 0; i < instructions.Count; i++)
+            {
+                Assert.Equal(expectedSourceMap[i], instructions.LookupSourceMap(i));
+            }
+        }
+
+        void MergeSymbolSet(HashSet<string> to, HashSet<string> from)
+        {
+            foreach (var k in from)
+                to.Add(k);
+        }
+
+        [Fact]
+        public void TestIncrementalCompilation()
+        {
+            const string codeSeg1 = @"a = 10
+label1:";
+            const string codeSeg2 = @"if a < 10 then
+  goto label1
+endif";
+            const string codeSeg3 = @"label2:
+3 = 4";
+            const string codeSeg4 = @"label2:
+if a < 20 then
+  goto label1
+endif";
+            const string codeSeg5 = @"label1:";
+
+            Assembly instructions = new Assembly();
+            DiagnosticBag diagnostics = new DiagnosticBag();
+            Environment env = new Environment();
+
+            var tokens = Scanner.Scan(codeSeg1, diagnostics);
+            Assert.Empty(diagnostics.Contents);
+            SyntaxNode tree = Parser.Parse(tokens, diagnostics);
+            Assert.Empty(diagnostics.Contents);
+
+            Assembly assembly1 = Compiler.Compile(tree, env, "Program", diagnostics,
+                out HashSet<string> newLabels1, out HashSet<string> newSubNames1);
+            Assert.Empty(diagnostics.Contents);
+            Assert.Single(newLabels1);
+            Assert.Empty(newSubNames1);
+            instructions.Append(assembly1, 0);
+            MergeSymbolSet(env.CompileTimeLabels, newLabels1);
+            MergeSymbolSet(env.CompileTimeSubNames, newSubNames1);
+            Assert.Single(env.CompileTimeLabels);
+            Assert.Empty(env.CompileTimeSubNames);
+            Assert.Equal(@"    push 10
+    store a
+label1:
+    nop
+", instructions.ToTextFormat());
+
+            tokens = Scanner.Scan(codeSeg2, diagnostics);
+            Assert.Empty(diagnostics.Contents);
+            tree = Parser.Parse(tokens, diagnostics);
+            Assert.Empty(diagnostics.Contents);
+            Assembly assembly2 = Compiler.Compile(tree, env, "Program", diagnostics,
+                out HashSet<string> newLabels2, out HashSet<string> newSubNames2);
+            Assert.Empty(diagnostics.Contents);
+            Assert.Empty(newLabels2);
+            Assert.Empty(newSubNames2);
+            instructions.Append(assembly2, 2);
+            MergeSymbolSet(env.CompileTimeLabels, newLabels2);
+            MergeSymbolSet(env.CompileTimeSubNames, newSubNames2);
+            Assert.Equal(@"    push 10
+    store a
+label1:
+    nop
+    load a
+    push 10
+    lt
+    br_if __Program_1__ __Program_2__
+__Program_1__:
+    nop
+    br label1
+    br __Program_0__
+__Program_2__:
+    nop
+__Program_0__:
+    nop
+", instructions.ToTextFormat());
+
+            tokens = Scanner.Scan(codeSeg3, diagnostics);
+            Assert.Empty(diagnostics.Contents);
+            tree = Parser.Parse(tokens, diagnostics);
+            Assert.Empty(diagnostics.Contents);
+            Assembly assembly3 = Compiler.Compile(tree, env, "Program", diagnostics,
+                out HashSet<string> newLabels3, out HashSet<string> newSubNames3);
+            Assert.Single(diagnostics.Contents);
+            Assert.Equal(Diagnostic.ErrorCode.ExpectedALeftValue, diagnostics.Contents[0].Code);
+            // No merging here due to the error found.
+            diagnostics.Reset();
+
+            tokens = Scanner.Scan(codeSeg4, diagnostics);
+            Assert.Empty(diagnostics.Contents);
+            tree = Parser.Parse(tokens, diagnostics);
+            Assert.Empty(diagnostics.Contents);
+            Assembly assembly4 = Compiler.Compile(tree, env, "Program", diagnostics,
+                out HashSet<string> newLabels4, out HashSet<string> newSubNames4);
+            Assert.Empty(diagnostics.Contents);
+            Assert.Single(newLabels4);
+            Assert.Empty(newSubNames4);
+            instructions.Append(assembly4, 5);
+            MergeSymbolSet(env.CompileTimeLabels, newLabels4);
+            MergeSymbolSet(env.CompileTimeSubNames, newSubNames4);
+            Assert.Equal(2, env.CompileTimeLabels.Count);
+            Assert.Empty(env.CompileTimeSubNames);
+            Assert.Equal(@"    push 10
+    store a
+label1:
+    nop
+    load a
+    push 10
+    lt
+    br_if __Program_1__ __Program_2__
+__Program_1__:
+    nop
+    br label1
+    br __Program_0__
+__Program_2__:
+    nop
+__Program_0__:
+    nop
+label2:
+    nop
+    load a
+    push 20
+    lt
+    br_if __Program_4__ __Program_5__
+__Program_4__:
+    nop
+    br label1
+    br __Program_3__
+__Program_5__:
+    nop
+__Program_3__:
+    nop
+", instructions.ToTextFormat());
+
+            tokens = Scanner.Scan(codeSeg5, diagnostics);
+            Assert.Empty(diagnostics.Contents);
+            tree = Parser.Parse(tokens, diagnostics);
+            Assert.Empty(diagnostics.Contents);
+            Assembly assembly5 = Compiler.Compile(tree, env, "Program", diagnostics,
+                out HashSet<string> newLabels5, out HashSet<string> newSubNames5);
+            Assert.Single(diagnostics.Contents);
+            Assert.Equal(Diagnostic.ErrorCode.TwoLabelsWithTheSameName, diagnostics.Contents[0].Code);
+            // No merging here due to the error found.
+            diagnostics.Reset();
+
+            // Checks the merged source map.
+            TextRange[] expectedSourceMap = new TextRange[] {
+                ((0, 4), (0, 5)),
+                ((0, 0), (0, 5)),
+                ((1, 0), (1, 6)),
+                ((2, 3), (2, 3)),
+                ((2, 7), (2, 8)),
+                ((2, 3), (2, 8)),
+                ((2, 0), (3, 12)),
+                ((2, 0), (3, 12)),
+                ((3, 2), (3, 12)),
+                ((2, 0), (3, 12)),
+                ((2, 0), (3, 12)),
+                ((2, 0), (4, 4)),
+                ((5, 0), (5, 6)),
+                ((6, 3), (6, 3)),
+                ((6, 7), (6, 8)),
+                ((6, 3), (6, 8)),
+                ((6, 0), (7, 12)),
+                ((6, 0), (7, 12)),
+                ((7, 2), (7, 12)),
+                ((6, 0), (7, 12)),
+                ((6, 0), (7, 12)),
+                ((6, 0), (8, 4))
             };
             for (int i = 0; i < instructions.Count; i++)
             {

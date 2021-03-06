@@ -61,8 +61,8 @@ namespace ISB.Runtime
             {
                 return false;
             }
-            int baseLineNo = this.CodeLines.Count;
-            MergeAssembly(this.assembly, newAssembly, baseLineNo);
+            int baseSourceLineNo = this.CodeLines.Count;
+            MergeAssembly(this.assembly, newAssembly, baseSourceLineNo);
             string[] newCodeLines = code.Split(new string[] { "\r\n", "\r", "\n" }, System.StringSplitOptions.None);
             MergeCodeLines(this.CodeLines, newCodeLines);
             MergeSymbolSet(this.env.CompileTimeLabels, newCompileTimeLabels);
@@ -75,22 +75,9 @@ namespace ISB.Runtime
             to.AddRange(from);
         }
 
-        private static void MergeAssembly(Assembly to, Assembly from, int baseLineNo)
+        private static void MergeAssembly(Assembly to, Assembly from, int baseSourceLineNo)
         {
-            foreach (var i in from.Instructions)
-            {
-                to.Instructions.Add(i);
-            }
-            // The line numbers in the source map need to be updated
-            foreach (var i in from.SourceMap)
-            {
-                if (i != TextRange.None)
-                    to.SourceMap.Add(
-                        ((i.Start.Line + baseLineNo, i.Start.Column),
-                        (i.Start.Line + baseLineNo, i.Start.Column)));
-                else
-                    to.SourceMap.Add(i);
-            }
+            to.Append(from, baseSourceLineNo);
         }
 
         private static void MergeSymbolSet(HashSet<string> to, HashSet<string> from)

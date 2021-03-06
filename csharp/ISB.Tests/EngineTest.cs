@@ -257,7 +257,6 @@ namespace ISB.Tests
             engine.Run(true);
             Assert.True(engine.HasError);
             Assert.Single(engine.ErrorInfo.Contents);
-            System.Console.WriteLine(engine.ErrorInfo.Contents[0].ToDisplayString());
             Assert.Equal(error, engine.ErrorInfo.Contents[0].ToDisplayString());
         }
     }

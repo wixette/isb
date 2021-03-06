@@ -32,6 +32,24 @@ namespace ISB.Runtime
                 return TextRange.None;
         }
 
+        // For incremental compilation - mergine one assembly to another.
+        // baseSourceLineNo is the start line no of the mapped source lines.
+        public void Append(Assembly newAssembly, int baseSourceLineNo)
+        {
+            foreach (var i in newAssembly.Instructions)
+            {
+                this.Instructions.Add(i);
+            }
+            foreach (var i in newAssembly.SourceMap)
+            {
+                if (i != TextRange.None)
+                    this.SourceMap.Add(
+                        ((i.Start.Line + baseSourceLineNo, i.Start.Column),
+                        (i.End.Line + baseSourceLineNo, i.End.Column)));
+                else
+                    this.SourceMap.Add(i);
+            }
+        }
 
         IEnumerator IEnumerable.GetEnumerator()
         {
