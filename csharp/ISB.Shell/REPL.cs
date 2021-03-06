@@ -43,6 +43,12 @@ namespace ISB.Shell
             {
                 Console.Write(prompt);
                 string line = Console.ReadLine();
+                if (line == null)
+                {
+                    Console.WriteLine();
+                    break;
+                }
+
                 EvalResult result = this.evaluator.Eval(line, out Task incompleteTask);
                 if (result == EvalResult.OK)
                 {

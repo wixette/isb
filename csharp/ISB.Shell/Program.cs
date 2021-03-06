@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
 using CommandLine;
@@ -91,7 +92,7 @@ namespace ISB.Shell
             Engine engine = new Engine(fileName);
             if (!engine.Compile(code, true))
             {
-                ErrorReport.Report(engine.CodeLines, engine.ErrorInfo, Console.Error);
+                ErrorReport.Report(code, engine.ErrorInfo, Console.Error);
                 return false;
             }
 
@@ -111,7 +112,7 @@ namespace ISB.Shell
             engine.ParseAssembly(code);
             if (!engine.Run(true))
             {
-                ErrorReport.Report(engine.CodeLines, engine.ErrorInfo, Console.Error);
+                ErrorReport.Report(engine.ErrorInfo, Console.Error);
                 return false;
             }
             if (engine.StackCount > 0)
@@ -126,7 +127,7 @@ namespace ISB.Shell
             Engine engine = new Engine(fileName);
             if (!engine.Compile(code, true))
             {
-                ErrorReport.Report(engine.CodeLines, engine.ErrorInfo, Console.Error);
+                ErrorReport.Report(code, engine.ErrorInfo, Console.Error);
                 return false;
             }
             if (!engine.Run(true))
@@ -151,11 +152,11 @@ namespace ISB.Shell
 
             public REPL.EvalResult Eval(string line, out Task incompleteTask)
             {
+                Debug.Assert(line != null);
                 incompleteTask = null;
-
                 if (!engine.Compile(line, false))
                 {
-                    ErrorReport.Report(engine.CodeLines, engine.ErrorInfo, Console.Error);
+                    ErrorReport.Report(line, engine.ErrorInfo, Console.Error);
                     return REPL.EvalResult.OK;
                 }
                 if (!engine.Run(true))

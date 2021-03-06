@@ -33,6 +33,9 @@ namespace ISB.Scanning
             return tokens;
         }
 
+        public static string[] SplitCodeToLines(string text)
+            => text.Split(new string[] { "\r\n", "\r", "\n" }, System.StringSplitOptions.None);
+
         private void ScanInternal()
         {
             while (this.index < this.text.Length)

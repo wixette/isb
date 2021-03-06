@@ -47,6 +47,7 @@ namespace ISB.Runtime
             {
                 this.env.Reset();
                 this.assembly.Clear();
+                this.CodeLines.Clear();
             }
             this.diagnostics.Reset();
             var tokens = Scanner.Scan(code, diagnostics);
@@ -63,8 +64,7 @@ namespace ISB.Runtime
             }
             int baseSourceLineNo = this.CodeLines.Count;
             MergeAssembly(this.assembly, newAssembly, baseSourceLineNo);
-            string[] newCodeLines = code.Split(new string[] { "\r\n", "\r", "\n" }, System.StringSplitOptions.None);
-            MergeCodeLines(this.CodeLines, newCodeLines);
+            MergeCodeLines(this.CodeLines, Scanner.SplitCodeToLines(code));
             MergeSymbolSet(this.env.CompileTimeLabels, newCompileTimeLabels);
             MergeSymbolSet(this.env.CompileTimeSubNames, newCompileTimeSubNames);
             return true;
@@ -75,6 +75,7 @@ namespace ISB.Runtime
         public void ParseAssembly(string assemblyCode)
         {
             this.env.Reset();
+            this.CodeLines.Clear();
             this.diagnostics.Reset();
             this.assembly = Compiler.ParseAssembly(assemblyCode);
             // TODO: reports errors.

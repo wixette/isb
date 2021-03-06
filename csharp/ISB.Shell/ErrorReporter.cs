@@ -9,20 +9,42 @@ namespace ISB.Shell
 {
     internal sealed class ErrorReport
     {
-        public static void Report(List<string> codeLines, DiagnosticBag diagnostics, TextWriter err)
+        public static void Report(DiagnosticBag diagnostics,
+            TextWriter err)
+        {
+            Report(new string[] {}, diagnostics, err);
+        }
+
+        public static void Report(string code,
+            DiagnosticBag diagnostics,
+            TextWriter err)
+        {
+            Report(Scanner.SplitCodeToLines(code), diagnostics, err);
+        }
+
+        public static void Report(IReadOnlyList<string> codeLines,
+            DiagnosticBag diagnostics,
+            TextWriter err)
         {
             if (diagnostics == null || diagnostics.Contents.Count <= 0)
                 return;
             TextRange lastRange = TextRange.None;
             foreach (var diagnostic in diagnostics.Contents)
             {
-                bool showCode = diagnostic.Range != TextRange.None && diagnostic.Range != lastRange;
+                bool showCode =
+                    codeLines != null &&
+                    codeLines.Count >= 0 &&
+                    diagnostic.Range != TextRange.None &&
+                    diagnostic.Range != lastRange;
                 ReportDiagnostic(codeLines, diagnostic, showCode, err);
                 lastRange = diagnostic.Range;
             }
         }
 
-        private static void ReportDiagnostic(List<string> lines, Diagnostic diagnostic, bool showCode, TextWriter err)
+        private static void ReportDiagnostic(IReadOnlyList<string> lines,
+            Diagnostic diagnostic,
+            bool showCode,
+            TextWriter err)
         {
             if (showCode)
             {
