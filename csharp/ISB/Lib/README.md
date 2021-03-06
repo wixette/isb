@@ -24,8 +24,8 @@ criteria are loaded as the functions of that library automatically:
  * The type of all the arguments must be either `ISB.Runtime.BaseValue` or a
    derived class of `ISB.Runtime.BaseValue`, such as `ISB.Runtime.NumberValue`,
    `ISB.Runtime.StringValue` or `ISB.Runtime.ArrayValue`.
- * The return type of the functions must be either `ISB.Runtime.BaseValue` or a
-   derived class of `ISB.Runtime.BaseValue`.
+ * If the return type is not void, it must be either `ISB.Runtime.BaseValue` or
+   a derived class of `ISB.Runtime.BaseValue`.
 
 For example:
 
@@ -65,7 +65,7 @@ namespace ISB.Lib
 {
     public class Math
     {
-        public NumberValue Pi { public get; private init; }
+        public NumberValue Pi { get; private init; }
 
         public Math()
         {
