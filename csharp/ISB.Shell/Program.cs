@@ -159,7 +159,7 @@ namespace ISB.Shell
                     ErrorReport.Report(line, engine.ErrorInfo, Console.Error);
                     return REPL.EvalResult.OK;
                 }
-                if (!engine.Run(true))
+                if (!engine.Run(false))
                 {
                     ErrorReport.Report(engine.CodeLines, engine.ErrorInfo, Console.Error);
                     return REPL.EvalResult.OK;

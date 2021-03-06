@@ -100,7 +100,7 @@ namespace ISB.Runtime
                 var instruction = this.assembly.Instructions[i];
                 if (instruction.Label != null)
                 {
-                    this.env.RuntimeLabels.Add(instruction.Label, i);
+                    this.env.RuntimeLabels[instruction.Label] = i;
                 }
             }
 
