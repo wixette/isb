@@ -41,6 +41,9 @@ namespace ISB.Runtime
         public BaseValue StackTop =>
             this.env.RuntimeStack.Count > 0 ? (BaseValue)this.env.RuntimeStack.Peek().Clone() : null;
 
+        public BaseValue StackPop() =>
+            this.env.RuntimeStack.Count > 0 ? (BaseValue)this.env.RuntimeStack.Pop() : null;
+
         public bool Compile(string code, bool reset)
         {
             if (reset)

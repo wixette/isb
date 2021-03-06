@@ -184,7 +184,9 @@ namespace ISB.Shell
                 }
                 if (engine.StackCount > 0)
                 {
-                    Console.WriteLine(engine.StackTop.ToDisplayString());
+                    // Remaining results in the stack are always popped out in the interactive env.
+                    BaseValue value = engine.StackPop();
+                    Console.WriteLine(value.ToDisplayString());
                 }
                 return REPL.EvalResult.OK;
             }
