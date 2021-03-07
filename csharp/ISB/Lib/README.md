@@ -1,12 +1,18 @@
 # The ISB standard libraries.
 
- * Built-in library: functions and properties defined by `BuiltIn.cs`. The
-   functions and properties of the built-in library are accessed without
-   lib name by the BASIC code. E.g.: `Print(x+y)`, `Quit()`, etc.
- * Named libraries: each named library is defined by a C# code. The functions
-   and properties of the named libraries are accessed via `LibName.EntryName`.
-   E.g.: `Math.cs` defines all the math functions and properties. Thoes entries
-   can be accessed via `Math.Sin(x)`, `Math.Pi`, etc.
+A standard library is either a built-in library or a named library:
+
+ * Built-in library: the library defined by `BuiltIn.cs`. The functions
+   of the built-in library are accessed without lib name by the BASIC code.
+   E.g.: `Print(x+y)`, `Quit()`, etc. There is no properties defined in the
+   built-in library (to avoid ambiguity between variable names and property
+   names).
+ * Named library: each named library is defined by a separate C# class. The
+  functions and the properties of a named libraries are accessed via
+  `LibName.EntryName`. E.g.: `Math.Sin(x)`, `Math.Pi`, etc.
+
+The names of libraries, functions and propertis are case insensitive in BASIC
+code. E.g., `Math.Pi` is the same thing as `math.pi`, `Math.PI` or `MATH.PI`.
 
 ## Note
 

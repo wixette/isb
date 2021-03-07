@@ -530,7 +530,7 @@ namespace ISB.Runtime
             }
             else
             {
-                if (!this.env.Libs.IsPropertyExist(libName, propertyName))
+                if (!this.env.Libs.HasProperty(libName, propertyName))
                 {
                     if (this.diagnostics != null)
                         this.diagnostics.Add(Diagnostic.ReportLibraryMemberNotFound(node.Range, libName, propertyName));
@@ -607,14 +607,14 @@ namespace ISB.Runtime
                 return;
             }
             var (libName, funcName) = this.GetLibNameAndMemberName(objectAccessNode);
-            if (!this.env.Libs.IsFunctionExist(libName, funcName))
+            if (!this.env.Libs.HasFunction(libName, funcName))
             {
                 // TODO: a separate diagnostic code for NoLibFuncDefined?
                 if (this.diagnostics != null)
                     this.diagnostics.Add(Diagnostic.ReportUnsupportedInvocationBaseExpression(objectAccessNode.Range));
                 return;
             }
-            int expectedArgumentNumber = this.env.Libs.GetFunctionArgumentNumber(libName, funcName);
+            int expectedArgumentNumber = this.env.Libs.GetArgumentNumber(libName, funcName);
             if (argumentNumber != expectedArgumentNumber)
             {
                 // TODO: report this error once the Libraries class is ready.

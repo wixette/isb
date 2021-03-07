@@ -114,14 +114,13 @@ __Program_3__:
     store a
 ";
 
-        const string code12 = @"LibA.PropertyFoo = 3";
-        const string assembly12 = @"    push 3
-    store_lib LibA PropertyFoo
+        const string code12 = @"a = Math.Pi";
+        const string assembly12 = @"    load_lib Math Pi
+    store a
 ";
 
-        const string code13 = @"a = LibA.PropertyFoo";
-        const string assembly13 = @"    load_lib LibA PropertyFoo
-    store a
+        const string code13 = @"Math.Pi";
+        const string assembly13 = @"    load_lib Math Pi
 ";
 
         const string code14 = @"3 * (4 - 5 * (2 / (2)))";
@@ -176,12 +175,11 @@ __Program_1__:
     call foo
 ";
 
-        const string code20 = @"Math.Pow(x, y + 0.5)";
+        const string code20 = @"Math.Sin(y + 0.5)";
         const string assembly20 = @"    load y
     push 0.5
     add
-    load x
-    call_lib Math Pow
+    call_lib Math Sin
 ";
 
         const string code21 = @"If a = 3 Then
@@ -418,7 +416,7 @@ a:";
 endsub
 sub a
 endsub";
-        const string errInput4 = @"LibA.PropertyFoo.x = 3";
+        const string errInput4 = @"Math.Pi.x = 3";
 
         const string errInput5 = @"foo()";
 
