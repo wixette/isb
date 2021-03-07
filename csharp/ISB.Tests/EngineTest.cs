@@ -210,6 +210,25 @@ namespace ISB.Tests
         }
 
         [Fact]
+        public void TestLibFunction()
+        {
+            Engine engine = new Engine("Program");
+            engine.Compile(@"Print(3)", true);
+            Assert.False(engine.HasError);
+            engine.Run(true);
+            Assert.False(engine.HasError);
+            Assert.Equal(0, engine.StackCount);
+
+            engine.Compile(@"a = Math.Sin(3)
+            a", true);
+            Assert.False(engine.HasError);
+            engine.Run(true);
+            Assert.False(engine.HasError);
+            Assert.Equal(1, engine.StackCount);
+            Assert.Equal(0.14112m, engine.StackTop.ToNumber(), 4);
+        }
+
+        [Fact]
         public void TestFebonacci()
         {
             const string code =

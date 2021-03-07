@@ -124,22 +124,20 @@ namespace ISB.Runtime
 
         // Calls a function in an external lib.
         // It's the caller's duty to push arguments into the stack.
-        // It's the callee's duty to use ret <n> to clean the stack frame.
-        // It's the callee's duty to push the return value into the stack.
+        // It's the runtime engine's duty to pop out arguments from the stack.
+        // It's the runtime engine's duty to push the return value into the stack.
         //     push | pushs <argument(n-1)>
         //     push | pushs <argument(n-2)>
         //     ...
         //     push | pushs <argument(0)>
         //     call_lib <lib> <func>
         //
-        //   (1) Stack.Push(IP)
-        //   (2) Call(lib.func)
-        //   (3)   return_add := Stack.Pop()  ; Inside lib.func
-        //   (2)   for i in [0, n):
-        //   (3)     argument(i) := Stack.Pop()
-        //   (4)   Run(func.Body)
-        //   (5)   Stack.Push(return_value)
-        //   (6) IP := <return_add>  ; JumpTo(return_add)
+        //   (1) Call(lib.func)
+        //   (2)   return_add := Stack.Pop()
+        //   (3)   for i in [0, n):
+        //   (4)     argument(i) := Stack.Pop()
+        //   (5)   Run(func.Body)
+        //   (6)   Stack.Push(return_value)
         public const string CALL_LIB = "call_lib";
 
         // Stores a value to a lib's writable property.

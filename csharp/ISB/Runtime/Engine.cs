@@ -162,10 +162,22 @@ namespace ISB.Runtime
             this.ReportRuntimeError($"Division by zero.");
         }
 
-        private void ReportNoPropertyFound(string libName, string propertyName)
+        private void ReportNoLibPropertyFound(string libName, string propertyName)
         {
             // TODO: moves this message to Resources.
             this.ReportRuntimeError($"No lib property found, {libName}.{propertyName}");
+        }
+
+        private void ReportReadonlyLibProperty(string libName, string propertyName)
+        {
+            // TODO: moves this message to Resources.
+            this.ReportRuntimeError($"Lib property {libName}.{propertyName} is readonly.");
+        }
+
+        private void ReportNoLibFunctionFound(string libName, string functionName)
+        {
+            // TODO: moves this message to Resources.
+            this.ReportRuntimeError($"No lib method found, {libName}.{functionName}");
         }
 
         private void ExecuteInstruction(Instruction instruction)
@@ -341,7 +353,31 @@ namespace ISB.Runtime
 
                 case Instruction.CALL_LIB:
                 {
-                    // TODO
+                    string libName = instruction.Oprand1.ToString();
+                    string functionName = instruction.Oprand2.ToString();
+                    if (!this.env.Libs.HasFunction(libName, functionName))
+                    {
+                        this.ReportNoLibFunctionFound(libName, functionName);
+                        break;
+                    }
+                    int numArguments = env.Libs.GetArgumentNumber(libName, functionName);
+                    if (this.env.RuntimeStack.Count < numArguments)
+                    {
+                        this.ReportEmptyStack();
+                        break;
+                    }
+                    List<BaseValue> arguments = new List<BaseValue>();
+                    for (int i = 0; i < numArguments; i++)
+                    {
+                        arguments.Add(this.env.RuntimeStack.Pop());
+                    }
+                    BaseValue retValue = this.env.Libs.InvokeFunction(libName, functionName,
+                        numArguments > 0 ? arguments.ToArray() : null);
+                    if (this.env.Libs.HasReturnValue(libName, functionName) && retValue != null)
+                    {
+                        this.env.RuntimeStack.Push(retValue);
+                    }
+                    this.env.IP++;
                     break;
                 }
 
@@ -351,7 +387,12 @@ namespace ISB.Runtime
                     string propertyName = instruction.Oprand2.ToString();
                     if (!this.env.Libs.HasProperty(libName, propertyName))
                     {
-                        this.ReportNoPropertyFound(libName, propertyName);
+                        this.ReportNoLibPropertyFound(libName, propertyName);
+                        break;
+                    }
+                    if (!this.env.Libs.IsPropertyWritable(libName, propertyName))
+                    {
+                        this.ReportReadonlyLibProperty(libName, propertyName);
                         break;
                     }
                     if (this.env.RuntimeStack.Count <= 0)
@@ -371,7 +412,7 @@ namespace ISB.Runtime
                     string propertyName = instruction.Oprand2.ToString();
                     if (!this.env.Libs.HasProperty(libName, propertyName))
                     {
-                        this.ReportNoPropertyFound(libName, propertyName);
+                        this.ReportNoLibPropertyFound(libName, propertyName);
                         break;
                     }
                     BaseValue value = this.env.Libs.GetPropertyValue(libName, propertyName);
