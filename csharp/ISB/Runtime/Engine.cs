@@ -86,8 +86,8 @@ namespace ISB.Runtime
             this.env.Reset();
             this.CodeLines.Clear();
             this.diagnostics.Reset();
+            // TODO: checks and reports errors. (the current implementation simply ignores parsing errors.)
             this.assembly = Compiler.ParseAssembly(assemblyCode);
-            // TODO: reports errors.
         }
 
         public bool Run(bool reset)
