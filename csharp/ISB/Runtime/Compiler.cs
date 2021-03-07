@@ -594,12 +594,12 @@ namespace ISB.Runtime
             if (argumentGroupNode.Kind == SyntaxNodeKind.ArgumentGroupSyntax)
             {
                 argumentNumber = argumentGroupNode.Children.Count;
-            }
-            // Pushes arguments in reversed order.
-            for (int i = argumentGroupNode.Children.Count - 1; i >= 0; i--)
-            {
-                SyntaxNode argumentExpression = argumentGroupNode.Children[i].Children[0];
-                GenerateExpressionSyntax(argumentExpression, inExpressionStatement);
+                // Pushes arguments in reversed order.
+                for (int i = argumentGroupNode.Children.Count - 1; i >= 0; i--)
+                {
+                    SyntaxNode argumentExpression = argumentGroupNode.Children[i].Children[0];
+                    GenerateExpressionSyntax(argumentExpression, inExpressionStatement);
+                }
             }
 
             string libName, functionName;
