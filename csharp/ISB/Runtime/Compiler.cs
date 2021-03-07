@@ -126,9 +126,10 @@ namespace ISB.Runtime
         }
 
         private string NewLabel()
-        {
-            return String.Format("__{0}_{1}__", this.moduleName, this.env.NextAutoLabelNo);
-        }
+            => $"__{this.moduleName}_{this.env.NextAutoLabelNo}__";
+
+        private string RuntimeSubLabel(string subName)
+            => $"__Sub_{subName}__";
 
         private void AddInstruction(TextRange sourceRange, string label, string name, string oprand1, string oprand2)
         {
@@ -189,7 +190,7 @@ namespace ISB.Runtime
             Token name = node.Children[1].Terminator;
             SyntaxNode body = node.Children[2];
             // Sub modules are implemented as 0-argument 0-return functions.
-            string subLabel = this.NewLabel();
+            string subLabel = this.RuntimeSubLabel(name.Text);
             string endSubLabel = this.NewLabel();
             this.AddInstruction(node.Range, null, Instruction.BR, endSubLabel, null);
             this.AddInstruction(node.Range, subLabel, Instruction.NOP, null, null);
@@ -573,7 +574,8 @@ namespace ISB.Runtime
                         argumentGroupNode.Range, argumentGroupNode.Children.Count, 0));
                 return;
             }
-            this.AddInstruction(node.Range, null, Instruction.CALL, subName, null);
+            string subLabel = this.RuntimeSubLabel(subName);
+            this.AddInstruction(node.Range, null, Instruction.CALL, subLabel, null);
         }
 
         private void GenerateCallLib(SyntaxNode node, bool isBuiltInFunction, bool inExpressionStatement)

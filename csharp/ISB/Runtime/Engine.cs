@@ -306,13 +306,30 @@ namespace ISB.Runtime
 
                 case Instruction.CALL:
                 {
-                    // TODO
+                    string subLabel = instruction.Oprand1.ToString();
+                    int targetIP = this.env.RuntimeLabelToIP(subLabel);
+                    if (targetIP < 0)
+                    {
+                        this.ReportUndefinedAssemblyLabel(subLabel);
+                        break;
+                    }
+                    this.env.RuntimeStack.Push(new NumberValue(this.env.IP + 1));
+                    this.env.IP = targetIP;
                     break;
                 }
 
                 case Instruction.RET:
                 {
-                    // TODO
+                    int numArguments = (int)(instruction.Oprand1.ToNumber());
+                    if (this.env.RuntimeStack.Count < numArguments + 1)
+                    {
+                        this.ReportEmptyStack();
+                        break;
+                    }
+                    int targetIP = (int)(this.env.RuntimeStack.Pop().ToNumber());
+                    for (int i = 0; i < numArguments; i++)
+                        this.env.RuntimeStack.Pop();
+                    this.env.IP = targetIP;
                     break;
                 }
 

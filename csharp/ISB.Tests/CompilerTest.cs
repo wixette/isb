@@ -35,11 +35,11 @@ goto a";
 
         const string code5 = @"sub a
 endsub";
-        const string assembly5 = @"    br __Program_1__
-__Program_0__:
+        const string assembly5 = @"    br __Program_0__
+__Sub_a__:
     nop
     ret 0
-__Program_1__:
+__Program_0__:
     nop
 ";
 
@@ -167,13 +167,13 @@ __Program_3__:
         const string code19 = @"sub foo
 endsub
 foo()";
-        const string assembly19 = @"    br __Program_1__
-__Program_0__:
+        const string assembly19 = @"    br __Program_0__
+__Sub_foo__:
     nop
     ret 0
-__Program_1__:
+__Program_0__:
     nop
-    call foo
+    call __Sub_foo__
 ";
 
         const string code20 = @"Math.Sin(y + 0.5)";

@@ -180,6 +180,24 @@ namespace ISB.Tests
         }
 
         [Fact]
+        public void TestSubInvocation()
+        {
+            Engine engine = new Engine("Program");
+            engine.Compile(@"a = 10
+            b = 20
+            abc()
+            sub abc
+              c = a + b
+            endsub
+            c", true);
+            Assert.False(engine.HasError);
+            engine.Run(true);
+            Assert.False(engine.HasError);
+            Assert.Equal(1, engine.StackCount);
+            Assert.Equal("30", engine.StackTop.ToString());
+        }
+
+        [Fact]
         public void TestFebonacci()
         {
             const string code =
