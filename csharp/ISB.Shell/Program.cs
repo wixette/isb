@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Threading.Tasks;
 using CommandLine;
 using CommandLine.Text;
 using ISB.Runtime;
@@ -155,10 +154,9 @@ namespace ISB.Shell
                 multiLineCode = new List<string>();
             }
 
-            public REPL.EvalResult Eval(string line, out Task incompleteTask)
+            public REPL.EvalResult Eval(string line)
             {
                 Debug.Assert(line != null);
-                incompleteTask = null;
 
                 string code = (multiLineCode.Count > 0) ? code = String.Join('\n', multiLineCode) + "\n" + line : line;
 

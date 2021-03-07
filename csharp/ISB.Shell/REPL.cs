@@ -1,5 +1,4 @@
 using System;
-using System.Threading.Tasks;
 
 namespace ISB.Shell
 {
@@ -15,13 +14,12 @@ namespace ISB.Shell
         {
             OK,
             Exit,
-            NeedMoreLines,
-            Wait
+            NeedMoreLines
         }
 
         public interface IEvaluator
         {
-            public EvalResult Eval(string line, out Task incompleteTask);
+            public EvalResult Eval(string line);
         }
 
         string prompt;
@@ -50,7 +48,7 @@ namespace ISB.Shell
                     break;
                 }
 
-                EvalResult result = this.evaluator.Eval(line, out Task incompleteTask);
+                EvalResult result = this.evaluator.Eval(line);
                 if (result == EvalResult.OK)
                 {
                     secondLevel = false;
@@ -63,12 +61,6 @@ namespace ISB.Shell
                 else if (result == EvalResult.NeedMoreLines)
                 {
                     secondLevel = true;
-                    continue;
-                }
-                else if (result == EvalResult.Wait && incompleteTask != null)
-                {
-                    // TODO
-                    secondLevel = false;
                     continue;
                 }
             }
