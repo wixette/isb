@@ -24,9 +24,6 @@ namespace ISB.Runtime
         // Does nothing.
         public const string NOP = "nop";
 
-        // Pauses the execution for debugging.
-        public const string PAUSE = "pause";
-
         // Unconditional jump.
         //   br <label>
         public const string BR = "br";
@@ -265,7 +262,6 @@ namespace ISB.Runtime
             new Dictionary<string, (OprandKind, OprandKind)>()
         {
             { NOP, (OprandKind.None, OprandKind.None) },
-            { PAUSE, (OprandKind.None, OprandKind.None) },
             { BR, (OprandKind.Label, OprandKind.None) },
             { BR_IF, (OprandKind.Label, OprandKind.Label) },
             { SET, (OprandKind.Integer, OprandKind.None) },

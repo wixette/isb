@@ -173,12 +173,6 @@ namespace ISB.Runtime
                     break;
                 }
 
-                case Instruction.PAUSE:
-                {
-                    // TODO
-                    break;
-                }
-
                 case Instruction.BR:
                 {
                     string label = instruction.Oprand1.ToString();
