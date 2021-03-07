@@ -230,9 +230,6 @@ namespace ISB.Runtime
             //
             // For case (2), the final value of the expression will be left on the stack top
             // since no one consumes it.
-            //
-            // TODO: review this logic when implementing the interactive shell. It could be the
-            // shell's duty to consume the value of standalone expressions.
             this.GenerateExpressionSyntax(node.Children[0], true);
         }
 
@@ -546,19 +543,15 @@ namespace ISB.Runtime
             {
                 case SyntaxNodeKind.IdentifierExpressionSyntax:
                     string subName = node.Children[0].Terminator.Text;
-                    if (!this.HasSubName(subName))
-                    {
-                        // TODO:
-                        //  (1) forwardly check if the sub name is defined?
-                        //  (2) a separate diagnostic code for NoSubModuleDefined?
-                        if (this.diagnostics != null)
-                            this.diagnostics.Add(Diagnostic.ReportUnsupportedInvocationBaseExpression(node.Range));
-                        return;
-                    }
-                    this.GenerateCallSub(node);
+                    if (this.HasSubName(subName))
+                        this.GenerateCallSub(node);
+                    else if (this.env.Libs.HasBuiltInFunction(subName))
+                        this.GenerateCallLib(node, true, inExpressionStatement);
+                    else if (this.diagnostics != null)
+                        this.diagnostics.Add(Diagnostic.ReportUnsupportedInvocationBaseExpression(node.Range));
                     break;
                 case SyntaxNodeKind.ObjectAccessExpressionSyntax:
-                    this.GenerateCallLib(node, inExpressionStatement);
+                    this.GenerateCallLib(node, false, inExpressionStatement);
                     break;
                 default:
                     // Embedded InvocationExpressionSyntax like "a()()" is not supported.
@@ -583,11 +576,18 @@ namespace ISB.Runtime
             this.AddInstruction(node.Range, null, Instruction.CALL, subName, null);
         }
 
-        private void GenerateCallLib(SyntaxNode node, bool inExpressionStatement)
+        private void GenerateCallLib(SyntaxNode node, bool isBuiltInFunction, bool inExpressionStatement)
         {
-            SyntaxNode objectAccessNode = node.Children[0];
-            SyntaxNode argumentGroupNode = node.Children[2];
+            if (!isBuiltInFunction &&
+                node.Children[0].Children[0].Kind != SyntaxNodeKind.IdentifierExpressionSyntax)
+            {
+                // Embeded ObjectAccessExpressionSyntax like "a.b.c()" is not supported.
+                if (this.diagnostics != null)
+                    this.diagnostics.Add(Diagnostic.ReportUnsupportedDotBaseExpression(node.Children[0].Range));
+                return;
+            }
 
+            SyntaxNode argumentGroupNode = node.Children[2];
             int argumentNumber = 0;
             if (argumentGroupNode.Kind == SyntaxNodeKind.ArgumentGroupSyntax)
             {
@@ -599,30 +599,35 @@ namespace ISB.Runtime
                 SyntaxNode argumentExpression = argumentGroupNode.Children[i].Children[0];
                 GenerateExpressionSyntax(argumentExpression, inExpressionStatement);
             }
-            if (objectAccessNode.Children[0].Kind != SyntaxNodeKind.IdentifierExpressionSyntax)
+
+            string libName, functionName;
+            if (isBuiltInFunction)
             {
-                // Embeded ObjectAccessExpressionSyntax like "a.b.c()" is not supported.
+                libName = Libraries.BuiltInLibName;
+                functionName = node.Children[0].Terminator.Text;
+            }
+            else
+            {
+                (libName, functionName) = this.GetLibNameAndMemberName(node.Children[0]);
+            }
+
+            if (!this.env.Libs.HasFunction(libName, functionName))
+            {
                 if (this.diagnostics != null)
-                    this.diagnostics.Add(Diagnostic.ReportUnsupportedDotBaseExpression(objectAccessNode.Range));
+                    this.diagnostics.Add(Diagnostic.ReportUnsupportedInvocationBaseExpression(node.Children[0].Range));
                 return;
             }
-            var (libName, funcName) = this.GetLibNameAndMemberName(objectAccessNode);
-            if (!this.env.Libs.HasFunction(libName, funcName))
-            {
-                // TODO: a separate diagnostic code for NoLibFuncDefined?
-                if (this.diagnostics != null)
-                    this.diagnostics.Add(Diagnostic.ReportUnsupportedInvocationBaseExpression(objectAccessNode.Range));
-                return;
-            }
-            int expectedArgumentNumber = this.env.Libs.GetArgumentNumber(libName, funcName);
+
+            int expectedArgumentNumber = isBuiltInFunction ?
+                this.env.Libs.GetArgumentNumber(functionName) :
+                this.env.Libs.GetArgumentNumber(libName, functionName);
             if (argumentNumber != expectedArgumentNumber)
             {
-                // TODO: report this error once the Libraries class is ready.
-                // if (this.diagnostics != null)
-                //     this.diagnostics.Add(Diagnostic.ReportUnexpectedArgumentsCount)(
-                //        objectAccessNode.Range, argumentNumber, expectedArgumentNumber);
+                if (this.diagnostics != null)
+                    this.diagnostics.Add(Diagnostic.ReportUnexpectedArgumentsCount(
+                        node.Children[0].Range, argumentNumber, expectedArgumentNumber));
             }
-            this.AddInstruction(node.Range, null, Instruction.CALL_LIB, libName, funcName);
+            this.AddInstruction(node.Range, null, Instruction.CALL_LIB, libName, functionName);
         }
 
         private void GenerateIfStatementSyntax(SyntaxNode node)

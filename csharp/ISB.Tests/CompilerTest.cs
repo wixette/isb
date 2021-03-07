@@ -119,8 +119,9 @@ __Program_3__:
     store a
 ";
 
-        const string code13 = @"Math.Pi";
-        const string assembly13 = @"    load_lib Math Pi
+        const string code13 = @"Print(333)";
+        const string assembly13 = @"    push 333
+    call_lib BuiltIn Print
 ";
 
         const string code14 = @"3 * (4 - 5 * (2 / (2)))";

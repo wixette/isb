@@ -39,7 +39,8 @@ namespace ISB.Runtime
         }
 
         private Dictionary<string, Lib> Libs { get; init; }
-        private string builtInLibName = typeof(ISB.Lib.BuiltIn).Name;
+
+        public static string BuiltInLibName = typeof(ISB.Lib.BuiltIn).Name;
 
         public Libraries()
         {
@@ -60,21 +61,21 @@ namespace ISB.Runtime
                 this.Libs[libName.ToLower()].Functions.ContainsKey(functionName.ToLower());
 
         public bool HasBuiltInFunction(string functionName)
-            => this.HasFunction(this.builtInLibName, functionName);
+            => this.HasFunction(BuiltInLibName, functionName);
 
         public int GetArgumentNumber(string libName, string functionName)
             => this.HasFunction(libName, functionName) ?
                 this.GetFunction(libName, functionName).GetParameters().Length : 0;
 
         public int GetArgumentNumber(string functionName)
-            => this.GetArgumentNumber(this.builtInLibName, functionName);
+            => this.GetArgumentNumber(BuiltInLibName, functionName);
 
         public bool HasReturnValue(string libName, string functionName)
             => this.HasFunction(libName, functionName) ?
                 !this.GetFunction(libName, functionName).ReturnType.Equals(typeof(void)) : false;
 
         public bool HasReturnValue(string functionName)
-            => this.HasReturnValue(this.builtInLibName, functionName);
+            => this.HasReturnValue(BuiltInLibName, functionName);
 
         public BaseValue GetPropertyValue(string libName, string propertyName)
             => this.HasProperty(libName, propertyName) ?
@@ -93,7 +94,7 @@ namespace ISB.Runtime
                 null;
 
         public BaseValue InvokeFunction(string functionName, object[] parameters)
-            => this.InvokeFunction(this.builtInLibName, functionName, parameters);
+            => this.InvokeFunction(BuiltInLibName, functionName, parameters);
 
         private PropertyInfo GetProperty(string libName, string propertyName)
             => this.Libs[libName.ToLower()].Properties[propertyName.ToLower()];
