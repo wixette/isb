@@ -44,13 +44,19 @@ namespace ISB.Runtime
         public BaseValue StackPop() =>
             this.env.RuntimeStack.Count > 0 ? (BaseValue)this.env.RuntimeStack.Pop() : null;
 
+        public void Reset()
+        {
+            this.env.Reset();
+            this.assembly.Clear();
+            this.CodeLines.Clear();
+        }
+
         public bool Compile(string code, bool reset)
         {
             if (reset)
             {
-                this.env.Reset();
-                this.assembly.Clear();
-                this.CodeLines.Clear();
+                // A full reset for the compilation.
+                this.Reset();
             }
             this.diagnostics.Reset();
             var tokens = Scanner.Scan(code, diagnostics);
@@ -88,6 +94,7 @@ namespace ISB.Runtime
         {
             if (reset)
             {
+                // The env is reset while the compilation result (assembly, codelines) is kept.
                 this.env.Reset();
             }
             this.diagnostics.Reset();

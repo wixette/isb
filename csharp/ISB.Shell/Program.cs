@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Text.RegularExpressions;
 using CommandLine;
 using CommandLine.Text;
@@ -148,8 +149,18 @@ namespace ISB.Shell
         {
             private Engine engine;
             private List<string> multiLineCode;
+
+            private const string emptyPattern = @"^\s*$";
+            private Regex emptyRegex = new Regex(emptyPattern);
+
             private const string exitCommandPattern = @"^\s*[Qq][Uu][Ii][Tt]\s*(\(\s*\))*\s*$";
             private Regex exitCommandRegex = new Regex(exitCommandPattern);
+
+            private const string listCommandPattern = @"^\s*[Ll][Ii][Ss][Tt]\s*(\(\s*\))*\s*$";
+            private Regex listCommandRegex = new Regex(listCommandPattern);
+
+            private const string clearCommandPattern = @"^\s*[Cc][Ll][Ee][Aa][Rr]\s*(\(\s*\))*\s*$";
+            private Regex clearCommandRegex = new Regex(clearCommandPattern);
 
             public Evaluator()
             {
@@ -161,16 +172,33 @@ namespace ISB.Shell
             {
                 Debug.Assert(line != null);
 
+                if (emptyRegex.IsMatch(line))
+                {
+                    return REPL.EvalResult.OK;
+                }
+
                 if (exitCommandRegex.IsMatch(line))
                 {
                     return REPL.EvalResult.Exit;
                 }
 
+                if (listCommandRegex.IsMatch(line))
+                {
+                    Console.WriteLine(String.Join('\n', engine.CodeLines));
+                    return REPL.EvalResult.OK;
+                }
+
+                if (clearCommandRegex.IsMatch(line))
+                {
+                    engine.Reset();
+                    return REPL.EvalResult.OK;
+                }
+
                 string code = (multiLineCode.Count > 0) ? code = String.Join('\n', multiLineCode) + "\n" + line : line;
                 if (!engine.Compile(code, false))
                 {
-                    if (engine.ErrorInfo.Contents.Count == 1 &&
-                        engine.ErrorInfo.Contents[0].Code == Diagnostic.ErrorCode.UnexpectedEndOfStream)
+                    if (engine.ErrorInfo.Contents.Count > 0 &&
+                        engine.ErrorInfo.Contents.Last().Code == Diagnostic.ErrorCode.UnexpectedEndOfStream)
                     {
                         multiLineCode.Add(line);
                         return REPL.EvalResult.NeedMoreLines;
@@ -203,7 +231,7 @@ namespace ISB.Shell
         {
             Evaluator evaluator = new Evaluator();
             REPL repl = new REPL("] ", "> ", evaluator);
-            Console.WriteLine("Type \"Quit()\" to exit.");
+            Console.WriteLine("Type \"quit\" to exit, \"list\" to show the code, \"clear\" to clear the code.");
             repl.Loop();
         }
     }
