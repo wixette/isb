@@ -198,6 +198,18 @@ namespace ISB.Tests
         }
 
         [Fact]
+        public void TestLibProperty()
+        {
+            Engine engine = new Engine("Program");
+            engine.Compile(@"Math.Pi", true);
+            Assert.False(engine.HasError);
+            engine.Run(true);
+            Assert.False(engine.HasError);
+            Assert.Equal(1, engine.StackCount);
+            Assert.Equal(3.14159m, engine.StackTop.ToNumber(), 4);
+        }
+
+        [Fact]
         public void TestFebonacci()
         {
             const string code =

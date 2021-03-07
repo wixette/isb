@@ -162,6 +162,12 @@ namespace ISB.Runtime
             this.ReportRuntimeError($"Division by zero.");
         }
 
+        private void ReportNoPropertyFound(string libName, string propertyName)
+        {
+            // TODO: moves this message to Resources.
+            this.ReportRuntimeError($"No lib property found, {libName}.{propertyName}");
+        }
+
         private void ExecuteInstruction(Instruction instruction)
         {
             switch (instruction.Name)
@@ -347,7 +353,15 @@ namespace ISB.Runtime
 
                 case Instruction.LOAD_LIB:
                 {
-                    // TODO
+                    string libName = instruction.Oprand1.ToString();
+                    string propertyName = instruction.Oprand2.ToString();
+                    if (!this.env.Libs.HasProperty(libName, propertyName))
+                    {
+                        this.ReportNoPropertyFound(libName, propertyName);
+                    }
+                    BaseValue value = this.env.Libs.GetPropertyValue(libName, propertyName);
+                    this.env.RuntimeStack.Push(value);
+                    this.env.IP++;
                     break;
                 }
 
