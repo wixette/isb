@@ -177,7 +177,7 @@ namespace ISB.Shell
                     }
                     else
                     {
-                        ErrorReport.Report(line, engine.ErrorInfo, Console.Error);
+                        ErrorReport.Report(code, engine.ErrorInfo, Console.Error);
                         return REPL.EvalResult.OK;
                     }
                 }
