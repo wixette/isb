@@ -347,7 +347,21 @@ namespace ISB.Runtime
 
                 case Instruction.STORE_LIB:
                 {
-                    // TODO
+                    string libName = instruction.Oprand1.ToString();
+                    string propertyName = instruction.Oprand2.ToString();
+                    if (!this.env.Libs.HasProperty(libName, propertyName))
+                    {
+                        this.ReportNoPropertyFound(libName, propertyName);
+                        break;
+                    }
+                    if (this.env.RuntimeStack.Count <= 0)
+                    {
+                        this.ReportEmptyStack();
+                        break;
+                    }
+                    BaseValue value = this.env.RuntimeStack.Pop();
+                    this.env.Libs.SetPropertyValue(libName, propertyName, value);
+                    this.env.IP++;
                     break;
                 }
 
@@ -358,6 +372,7 @@ namespace ISB.Runtime
                     if (!this.env.Libs.HasProperty(libName, propertyName))
                     {
                         this.ReportNoPropertyFound(libName, propertyName);
+                        break;
                     }
                     BaseValue value = this.env.Libs.GetPropertyValue(libName, propertyName);
                     this.env.RuntimeStack.Push(value);
