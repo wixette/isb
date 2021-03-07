@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Text.RegularExpressions;
 using CommandLine;
 using CommandLine.Text;
 using ISB.Runtime;
@@ -147,6 +148,8 @@ namespace ISB.Shell
         {
             private Engine engine;
             private List<string> multiLineCode;
+            private const string exitCommandPattern = @"^\s*[Qq][Uu][Ii][Tt]\s*(\(\s*\))*\s*$";
+            private Regex exitCommandRegex = new Regex(exitCommandPattern);
 
             public Evaluator()
             {
@@ -158,8 +161,12 @@ namespace ISB.Shell
             {
                 Debug.Assert(line != null);
 
-                string code = (multiLineCode.Count > 0) ? code = String.Join('\n', multiLineCode) + "\n" + line : line;
+                if (exitCommandRegex.IsMatch(line))
+                {
+                    return REPL.EvalResult.Exit;
+                }
 
+                string code = (multiLineCode.Count > 0) ? code = String.Join('\n', multiLineCode) + "\n" + line : line;
                 if (!engine.Compile(code, false))
                 {
                     if (engine.ErrorInfo.Contents.Count == 1 &&
@@ -174,6 +181,7 @@ namespace ISB.Shell
                         return REPL.EvalResult.OK;
                     }
                 }
+
                 multiLineCode.Clear();
                 if (!engine.Run(false))
                 {
@@ -186,6 +194,7 @@ namespace ISB.Shell
                     BaseValue value = engine.StackPop();
                     Console.WriteLine(value.ToDisplayString());
                 }
+
                 return REPL.EvalResult.OK;
             }
         }
@@ -194,6 +203,7 @@ namespace ISB.Shell
         {
             Evaluator evaluator = new Evaluator();
             REPL repl = new REPL("] ", "> ", evaluator);
+            Console.WriteLine("Type \"Quit()\" to exit.");
             repl.Loop();
         }
     }

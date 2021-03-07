@@ -4,7 +4,7 @@ A standard library is either a built-in library or a named library:
 
  * Built-in library: the library defined by `BuiltIn.cs`. The functions
    of the built-in library are accessed without lib name by the BASIC code.
-   E.g.: `Print(x+y)`, `Quit()`, etc. There is no properties defined in the
+   E.g.: `Print(x+y)`, etc. There is no properties defined in the
    built-in library (to avoid ambiguity between variable names and property
    names).
  * Named library: each named library is defined by a separate C# class. The
