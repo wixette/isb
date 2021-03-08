@@ -406,7 +406,7 @@ __Program_0__:
             // System.Console.WriteLine(code);
             // System.Console.WriteLine(compiler.Instructions.ToTextFormat());
 
-            Assert.Equal(assembly, instructions.ToTextFormat());
+            Assert.Equal(assembly, instructions.ToTextFormat(), ignoreLineEndingDifferences: true);
         }
 
         const string errInput1 = @"a:
@@ -532,7 +532,7 @@ endif";
     store a
 label1:
     nop
-", instructions.ToTextFormat());
+", instructions.ToTextFormat(), ignoreLineEndingDifferences: true);
 
             tokens = Scanner.Scan(codeSeg2, diagnostics);
             Assert.Empty(diagnostics.Contents);
@@ -562,7 +562,7 @@ __Program_2__:
     nop
 __Program_0__:
     nop
-", instructions.ToTextFormat());
+", instructions.ToTextFormat(), ignoreLineEndingDifferences: true);
 
             tokens = Scanner.Scan(codeSeg3, diagnostics);
             Assert.Empty(diagnostics.Contents);
@@ -619,7 +619,7 @@ __Program_5__:
     nop
 __Program_3__:
     nop
-", instructions.ToTextFormat());
+", instructions.ToTextFormat(), ignoreLineEndingDifferences: true);
 
             tokens = Scanner.Scan(codeSeg5, diagnostics);
             Assert.Empty(diagnostics.Contents);
