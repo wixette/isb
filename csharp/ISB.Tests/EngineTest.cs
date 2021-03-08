@@ -130,6 +130,25 @@ namespace ISB.Tests
         }
 
         [Fact]
+        public void TestStringConcatenation()
+        {
+            Engine engine = new Engine("Program");
+            engine.Compile(@"""Hello, "" + ""World!""", true);
+            Assert.False(engine.HasError);
+            engine.Run(true);
+            Assert.False(engine.HasError);
+            Assert.Equal(1, engine.StackCount);
+            Assert.Equal("Hello, World!", engine.StackTop.ToString());
+
+            engine.Compile(@"""Hello "" + 233", true);
+            Assert.False(engine.HasError);
+            engine.Run(true);
+            Assert.False(engine.HasError);
+            Assert.Equal(1, engine.StackCount);
+            Assert.Equal("Hello 233", engine.StackTop.ToString());
+        }
+
+        [Fact]
         public void TestArrayOperations()
         {
             Engine engine = new Engine("Program");
@@ -213,7 +232,7 @@ namespace ISB.Tests
         public void TestLibFunction()
         {
             Engine engine = new Engine("Program");
-            engine.Compile(@"Print(3)", true);
+            engine.Compile(@"Print(""Testing the built-in function Print()"")", true);
             Assert.False(engine.HasError);
             engine.Run(true);
             Assert.False(engine.HasError);

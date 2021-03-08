@@ -450,7 +450,7 @@ namespace ISB.Runtime
 
                 case Instruction.ADD:
                 {
-                    if (this.BinaryOperation((op1, op2) => op1 + op2, false))
+                    if (this.BinaryAddOrStringConcat())
                         this.env.IP++;
                     break;
                 }
@@ -580,6 +580,28 @@ namespace ISB.Runtime
             decimal op1 = this.env.RuntimeStack.Pop().ToNumber();
             bool result = operation(op1, op2);
             this.env.RuntimeStack.Push(new BooleanValue(result));
+            return true;
+        }
+
+        private bool BinaryAddOrStringConcat()
+        {
+            if (this.env.RuntimeStack.Count < 2)
+            {
+                this.ReportEmptyStack();
+                return false;
+            }
+            BaseValue op2 = this.env.RuntimeStack.Pop();
+            BaseValue op1 = this.env.RuntimeStack.Pop();
+            if (op1 is NumberValue && op2 is NumberValue)
+            {
+                var result = op1.ToNumber() + op2.ToNumber();
+                this.env.RuntimeStack.Push(new NumberValue(result));
+            }
+            else
+            {
+                var result = op1.ToDisplayString() + op2.ToDisplayString();
+                this.env.RuntimeStack.Push(new StringValue(result));
+            }
             return true;
         }
     }
