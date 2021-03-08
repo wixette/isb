@@ -206,6 +206,7 @@ namespace ISB.Shell
                     else
                     {
                         ErrorReport.Report(code, engine.ErrorInfo, Console.Error);
+                        multiLineCode.Clear();
                         return REPL.EvalResult.OK;
                     }
                 }
