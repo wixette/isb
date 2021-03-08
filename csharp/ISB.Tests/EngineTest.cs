@@ -226,6 +226,22 @@ namespace ISB.Tests
             Assert.False(engine.HasError);
             Assert.Equal(1, engine.StackCount);
             Assert.Equal(0.14112m, engine.StackTop.ToNumber(), 4);
+
+            engine.Compile(@"a = Math.Sin(""3"")
+            a", true);
+            Assert.False(engine.HasError);
+            engine.Run(true);
+            Assert.False(engine.HasError);
+            Assert.Equal(1, engine.StackCount);
+            Assert.Equal(0.14112m, engine.StackTop.ToNumber(), 4);
+
+            engine.Compile(@"a = Math.Sin(""invalid_number, to_be_taken_as_zero"")
+            a", true);
+            Assert.False(engine.HasError);
+            engine.Run(true);
+            Assert.False(engine.HasError);
+            Assert.Equal(1, engine.StackCount);
+            Assert.Equal(0m, engine.StackTop.ToNumber(), 4);
         }
 
         [Fact]

@@ -35,7 +35,7 @@ namespace ISB.Tests
             Assert.Equal(1, libs.GetArgumentNumber("math", "sin"));
 
             BaseValue[] parameters = new BaseValue[] { new NumberValue(3) };
-            BaseValue ret = libs.InvokeFunction("math", "sin", parameters);
+            Assert.True(libs.InvokeFunction("math", "sin", parameters, out BaseValue ret));
             Assert.Equal(0.14112m, ret.ToNumber(), 4);
         }
     }

@@ -181,10 +181,22 @@ namespace ISB.Runtime
             this.ReportRuntimeError($"Lib property {libName}.{propertyName} is readonly.");
         }
 
+        private void ReportFailedToSetLibProperty(string libName, string propertyName)
+        {
+            // TODO: moves this message to Resources.
+            this.ReportRuntimeError($"Failed to set lib property, {libName}.{propertyName}");
+        }
+
         private void ReportNoLibFunctionFound(string libName, string functionName)
         {
             // TODO: moves this message to Resources.
             this.ReportRuntimeError($"No lib method found, {libName}.{functionName}");
+        }
+
+        private void ReportFailedToCallLibFunction(string libName, string functionName)
+        {
+            // TODO: moves this message to Resources.
+            this.ReportRuntimeError($"Failed to call lib function, {libName}.{functionName}");
         }
 
         private void ExecuteInstruction(Instruction instruction)
@@ -378,8 +390,12 @@ namespace ISB.Runtime
                     {
                         arguments.Add(this.env.RuntimeStack.Pop());
                     }
-                    BaseValue retValue = this.env.Libs.InvokeFunction(libName, functionName,
-                        numArguments > 0 ? arguments.ToArray() : null);
+                    if (!this.env.Libs.InvokeFunction(libName, functionName,
+                        numArguments > 0 ? arguments.ToArray() : null,
+                        out BaseValue retValue))
+                    {
+                        this.ReportFailedToCallLibFunction(libName, functionName);
+                    }
                     if (this.env.Libs.HasReturnValue(libName, functionName) && retValue != null)
                     {
                         this.env.RuntimeStack.Push(retValue);
@@ -408,7 +424,11 @@ namespace ISB.Runtime
                         break;
                     }
                     BaseValue value = this.env.RuntimeStack.Pop();
-                    this.env.Libs.SetPropertyValue(libName, propertyName, value);
+                    if (!this.env.Libs.SetPropertyValue(libName, propertyName, value))
+                    {
+                        this.ReportFailedToSetLibProperty(libName, propertyName);
+                        break;
+                    }
                     this.env.IP++;
                     break;
                 }

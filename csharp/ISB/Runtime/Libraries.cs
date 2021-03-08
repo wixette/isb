@@ -82,19 +82,43 @@ namespace ISB.Runtime
                 (BaseValue)this.GetProperty(libName, propertyName).GetValue(this.GetInstance(libName)) :
                 StringValue.Empty;
 
-        public void SetPropertyValue(string libName, string propertyName, BaseValue value)
+        public bool SetPropertyValue(string libName, string propertyName, BaseValue value)
         {
-            if (this.HasProperty(libName, propertyName))
-                this.GetProperty(libName, propertyName).SetValue(this.GetInstance(libName), value);
+            if (!this.HasProperty(libName, propertyName))
+                return false;
+
+            var property = this.GetProperty(libName, propertyName);
+            var castValue = ConvertBaseValueTo(value, property.PropertyType);
+            if (castValue == null)
+                return false;
+            property.SetValue(this.GetInstance(libName), value);
+            return true;
         }
 
-        public BaseValue InvokeFunction(string libName, string functionName, object[] parameters)
-            => this.HasFunction(libName, functionName) ?
-                (BaseValue)this.GetFunction(libName, functionName).Invoke(this.GetInstance(libName), parameters) :
-                null;
+        public bool InvokeFunction(string functionName, object[] parameters, out BaseValue retValue)
+            => this.InvokeFunction(BuiltInLibName, functionName, parameters, out retValue);
 
-        public BaseValue InvokeFunction(string functionName, object[] parameters)
-            => this.InvokeFunction(BuiltInLibName, functionName, parameters);
+        public bool InvokeFunction(string libName, string functionName, object[] parameters, out BaseValue retValue)
+        {
+            retValue = null;
+            if (!this.HasFunction(libName, functionName))
+                return false;
+
+            var function = this.GetFunction(libName, functionName);
+            var parameterDefs = function.GetParameters();
+            if (parameterDefs.Length != parameters.Length)
+                return false;
+            List<BaseValue> castParameters = new List<BaseValue>();
+            for (int i = 0; i < parameters.Length; i++)
+            {
+                var castValue = ConvertBaseValueTo((BaseValue)parameters[i], parameterDefs[i].ParameterType);
+                if (castValue == null)
+                    return false;
+                castParameters.Add(castValue);
+            }
+            retValue = (BaseValue)function.Invoke(this.GetInstance(libName), castParameters.ToArray());
+            return true;
+        }
 
         private PropertyInfo GetProperty(string libName, string propertyName)
             => this.Libs[libName.ToLower()].Properties[propertyName.ToLower()];
@@ -110,6 +134,31 @@ namespace ISB.Runtime
 
         private static bool IsDerivedTypeOfBaseValue(Type t)
             => t.Equals(typeof(ISB.Runtime.BaseValue)) || t.IsSubclassOf(typeof(ISB.Runtime.BaseValue));
+
+        private static BaseValue ConvertBaseValueTo(BaseValue value, Type targetType)
+        {
+            if (targetType.Equals(typeof(BaseValue)) || value.GetType().Equals(targetType))
+                return value;
+
+            if (targetType.Equals(typeof(NumberValue)))
+            {
+                return new NumberValue(value.ToNumber());
+            }
+            else if (targetType.Equals(typeof(StringValue)))
+            {
+                return new StringValue(value.ToDisplayString());
+            }
+            else if (targetType.Equals(typeof(BooleanValue)))
+            {
+                return new BooleanValue(value.ToBoolean());
+            }
+            else
+            {
+                // Returns null if the lib function/property accepts an ArrayValue but an object of other
+                // value types is passed in.
+                return null;
+            }
+        }
 
         private static bool IsAcceptableMethod(MethodInfo m)
         {
