@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Reflection;
 using ISB.Scanning;
 using ISB.Parsing;
 using ISB.Utilities;
@@ -118,7 +119,25 @@ namespace ISB.Runtime
             while (this.env.IP < this.assembly.Instructions.Count && !this.HasError)
             {
                 Instruction instruction = this.assembly.Instructions[this.env.IP];
-                ExecuteInstruction(instruction);
+                try
+                {
+                    ExecuteInstruction(instruction);
+                }
+                catch (TargetInvocationException e)
+                {
+                    if (e.InnerException is OverflowException)
+                        this.ReportOverflow(e.Message);
+                    else
+                        this.ReportRuntimeError(e.InnerException.Message);
+                }
+                catch (OverflowException e)
+                {
+                    this.ReportOverflow(e.Message);
+                }
+                catch (StackOverflowException e)
+                {
+                    this.ReportStackOverflow(e.Message);
+                }
             }
         }
 
@@ -197,6 +216,18 @@ namespace ISB.Runtime
         {
             // TODO: moves this message to Resources.
             this.ReportRuntimeError($"Failed to call lib function, {libName}.{functionName}");
+        }
+
+        private void ReportOverflow(string description)
+        {
+            // TODO: moves this message to Resources.
+            this.ReportRuntimeError($"Overflow: {description}");
+        }
+
+        private void ReportStackOverflow(string description)
+        {
+            // TODO: moves this message to Resources.
+            this.ReportRuntimeError($"Stack overflow: {description}");
         }
 
         private void ExecuteInstruction(Instruction instruction)
@@ -395,6 +426,7 @@ namespace ISB.Runtime
                         out BaseValue retValue))
                     {
                         this.ReportFailedToCallLibFunction(libName, functionName);
+                        break;
                     }
                     if (this.env.Libs.HasReturnValue(libName, functionName) && retValue != null)
                     {
