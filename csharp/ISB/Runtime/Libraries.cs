@@ -105,18 +105,25 @@ namespace ISB.Runtime
                 return false;
 
             var function = this.GetFunction(libName, functionName);
-            var parameterDefs = function.GetParameters();
-            if (parameterDefs.Length != parameters.Length)
-                return false;
-            List<BaseValue> castParameters = new List<BaseValue>();
-            for (int i = 0; i < parameters.Length; i++)
+            if (parameters != null && parameters.Length > 0)
             {
-                var castValue = ConvertBaseValueTo((BaseValue)parameters[i], parameterDefs[i].ParameterType);
-                if (castValue == null)
+                var parameterDefs = function.GetParameters();
+                if (parameterDefs.Length != parameters.Length)
                     return false;
-                castParameters.Add(castValue);
+                List<BaseValue> castParameters = new List<BaseValue>();
+                for (int i = 0; i < parameters.Length; i++)
+                {
+                    var castValue = ConvertBaseValueTo((BaseValue)parameters[i], parameterDefs[i].ParameterType);
+                    if (castValue == null)
+                        return false;
+                    castParameters.Add(castValue);
+                }
+                retValue = (BaseValue)function.Invoke(this.GetInstance(libName), castParameters.ToArray());
             }
-            retValue = (BaseValue)function.Invoke(this.GetInstance(libName), castParameters.ToArray());
+            else
+            {
+                retValue = (BaseValue)function.Invoke(this.GetInstance(libName), null);
+            }
             return true;
         }
 
