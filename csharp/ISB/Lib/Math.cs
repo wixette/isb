@@ -78,6 +78,18 @@ namespace ISB.Lib
             return new NumberValue((decimal)ret);
         }
 
+        public NumberValue Random()
+        {
+            return new NumberValue((decimal)new Random().NextDouble());
+        }
+
+        public NumberValue RandomInt(NumberValue max)
+        {
+            int maxValue = (int)System.Math.Floor((double)max.ToNumber());
+            if (maxValue < 0) maxValue = 0;
+            return new NumberValue(new Random().Next(maxValue));
+        }
+
         public NumberValue Round(NumberValue x) {
             double ret = System.Math.Round((double)x.ToNumber());
             return new NumberValue((decimal)ret);
