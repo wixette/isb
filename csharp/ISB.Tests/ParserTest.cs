@@ -457,7 +457,7 @@ const string code21 = @"a()()";
             // System.Console.WriteLine(input);
             // System.Console.WriteLine(treeDump);
 
-            Assert.Equal(expected, treeDump);
+            Assert.Equal(expected, treeDump, ignoreLineEndingDifferences: true);
         }
 
         const string errInput1 = @"Sub a";

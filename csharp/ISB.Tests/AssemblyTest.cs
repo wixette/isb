@@ -1,4 +1,4 @@
-﻿using Xunit;
+using Xunit;
 using ISB.Scanning;
 using ISB.Runtime;
 
@@ -31,7 +31,7 @@ label3:
     store_arr a 2
     push 1
     pushs ""Say \""Hello, World!\""""
-", asm);
+", asm, ignoreLineEndingDifferences: true);
 
             Assembly assembly2 = Assembly.Parse(asm);
             Assert.Equal(8, assembly2.Instructions.Count);
