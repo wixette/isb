@@ -5,6 +5,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Text;
+using ISB.Utilities;
 
 namespace ISB.Runtime
 {
@@ -16,18 +18,18 @@ namespace ISB.Runtime
             public bool IsBuiltInLib => this.Type.Equals(typeof(ISB.Lib.BuiltIn));
             public object Instance { get; private init; }
 
-            public Dictionary<string, MethodInfo> Functions { get; private init; }
-            public Dictionary<string, PropertyInfo> Properties { get; private init; }
+            public SortedDictionary<string, MethodInfo> Functions { get; private init; }
+            public SortedDictionary<string, PropertyInfo> Properties { get; private init; }
 
             public Lib(Type libClass)
             {
                 this.Type = libClass;
                 this.Instance = Activator.CreateInstance(libClass);
-                this.Functions = new Dictionary<string, MethodInfo>();
-                this.Properties = new Dictionary<string, PropertyInfo>();
+                this.Functions = new SortedDictionary<string, MethodInfo>();
+                this.Properties = new SortedDictionary<string, PropertyInfo>();
             }
 
-            public void AddFunc(MethodInfo f)
+            public void AddFunction(MethodInfo f)
             {
                 this.Functions[f.Name.ToLower()] = f;
             }
@@ -36,16 +38,68 @@ namespace ISB.Runtime
             {
                 this.Properties[p.Name.ToLower()] = p;
             }
+
+            public string GetHelpStringOfFunction(string functionName)
+            {
+                MethodInfo function = this.Functions[functionName];
+                string fullName = this.IsBuiltInLib ? function.Name : $"{this.Type.Name}.{function.Name}";
+                var parameterDefs = function.GetParameters();
+                List<string> parameterDesc = new List<string>();
+                foreach (var parameter in parameterDefs)
+                {
+                    parameterDesc.Add($"{parameter.Name}");
+                }
+                string parametersDesc = parameterDesc.Count > 0 ? String.Join(", ", parameterDesc) : "";
+                Doc attr = (Doc)function.GetCustomAttribute(typeof(Doc));
+                string doc = attr == null ? "" : $" : {attr.Content}";
+                return $" * {fullName}({parametersDesc}){doc}";
+            }
+
+            public string GetHelpStringOfProperty(string propertyName)
+            {
+                PropertyInfo property = this.Properties[propertyName];
+                string fullName = $"{this.Type.Name}.{property.Name}";
+                Doc attr = (Doc)property.GetCustomAttribute(typeof(Doc));
+                string doc = attr == null ? "" : $" : {attr.Content}";
+                return $" * {fullName}{doc}";
+            }
+
+            public string GetHelpString()
+            {
+                StringBuilder sb = new StringBuilder();
+                sb.Append($"\n# {this.Type.Name}\n\n");
+                foreach (string functionName in this.Functions.Keys)
+                {
+                    sb.Append(GetHelpStringOfFunction(functionName));
+                    sb.Append('\n');
+                }
+                foreach (string propertyName in this.Properties.Keys)
+                {
+                    sb.Append(GetHelpStringOfProperty(propertyName));
+                    sb.Append('\n');
+                }
+                return sb.ToString();
+            }
         }
 
-        private Dictionary<string, Lib> Libs { get; init; }
+        private SortedDictionary<string, Lib> Libs { get; init; }
 
         public static string BuiltInLibName = typeof(ISB.Lib.BuiltIn).Name;
 
         public Libraries()
         {
-            this.Libs = new Dictionary<string, Lib>();
+            this.Libs = new SortedDictionary<string, Lib>();
             this.AutoLoadStandardLibs();
+        }
+
+        public string GetHelpString()
+        {
+            StringBuilder sb = new StringBuilder();
+            foreach (KeyValuePair<string, Lib> kvp in this.Libs)
+            {
+                sb.Append(kvp.Value.GetHelpString());
+            }
+            return sb.ToString();
         }
 
         public bool HasProperty(string libName, string propertyName)
@@ -204,7 +258,7 @@ namespace ISB.Runtime
                 foreach (var m in methodQuery.ToList())
                 {
                     if (IsAcceptableMethod(m))
-                        lib.AddFunc(m);
+                        lib.AddFunction(m);
                 }
 
                 // The built-in library has no properties.

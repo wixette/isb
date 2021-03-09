@@ -45,6 +45,8 @@ namespace ISB.Runtime
         public BaseValue StackPop() =>
             this.env.RuntimeStack.Count > 0 ? (BaseValue)this.env.RuntimeStack.Pop() : null;
 
+        public string LibsHelpString => this.env.Libs.GetHelpString();
+
         public void Reset()
         {
             this.env.Reset();

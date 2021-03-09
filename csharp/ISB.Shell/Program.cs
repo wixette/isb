@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Text.RegularExpressions;
 using CommandLine;
 using CommandLine.Text;
 using ISB.Runtime;
@@ -149,49 +148,43 @@ namespace ISB.Shell
         {
             private Engine engine;
             private List<string> multiLineCode;
-
-            private const string emptyPattern = @"^\s*$";
-            private Regex emptyRegex = new Regex(emptyPattern);
-
-            private const string exitCommandPattern = @"^\s*[Qq][Uu][Ii][Tt]\s*(\(\s*\))*\s*$";
-            private Regex exitCommandRegex = new Regex(exitCommandPattern);
-
-            private const string listCommandPattern = @"^\s*[Ll][Ii][Ss][Tt]\s*(\(\s*\))*\s*$";
-            private Regex listCommandRegex = new Regex(listCommandPattern);
-
-            private const string clearCommandPattern = @"^\s*[Cc][Ll][Ee][Aa][Rr]\s*(\(\s*\))*\s*$";
-            private Regex clearCommandRegex = new Regex(clearCommandPattern);
+            private List<(string cmd, Func<REPL.EvalResult> f)> shellCommands;
 
             public Evaluator()
             {
                 this.engine = new Engine("Program");
-                multiLineCode = new List<string>();
+                this.multiLineCode = new List<string>();
+                this.shellCommands = new List<(string cmd, Func<REPL.EvalResult> f)>()
+                {
+                    ("quit", () => REPL.EvalResult.Exit),
+                    ("list", () => {
+                        Console.WriteLine(String.Join('\n', engine.CodeLines));
+                        return REPL.EvalResult.OK;
+                    }),
+                    ("clear", () => {
+                        engine.Reset();
+                        return REPL.EvalResult.OK;
+                    }),
+                    ("help", () => {
+                        Console.WriteLine(this.engine.LibsHelpString);
+                        return REPL.EvalResult.OK;
+                    })
+                };
             }
 
             public REPL.EvalResult Eval(string line)
             {
                 Debug.Assert(line != null);
 
-                if (emptyRegex.IsMatch(line))
+                if (line.Trim().Length <= 0)
                 {
                     return REPL.EvalResult.OK;
                 }
 
-                if (exitCommandRegex.IsMatch(line))
+                foreach (var shellCommand in shellCommands)
                 {
-                    return REPL.EvalResult.Exit;
-                }
-
-                if (listCommandRegex.IsMatch(line))
-                {
-                    Console.WriteLine(String.Join('\n', engine.CodeLines));
-                    return REPL.EvalResult.OK;
-                }
-
-                if (clearCommandRegex.IsMatch(line))
-                {
-                    engine.Reset();
-                    return REPL.EvalResult.OK;
+                    if (line.Trim().ToLower() == shellCommand.cmd)
+                        return shellCommand.f();
                 }
 
                 string code = (multiLineCode.Count > 0) ? code = String.Join('\n', multiLineCode) + "\n" + line : line;
@@ -232,7 +225,7 @@ namespace ISB.Shell
         {
             Evaluator evaluator = new Evaluator();
             REPL repl = new REPL("] ", "> ", evaluator);
-            Console.WriteLine("Type \"quit\" to exit, \"list\" to show the code, \"clear\" to clear the code.");
+            Console.WriteLine("Type \"quit\" to exit, \"list\" to show the code, \"clear\" to clear the code, \"help\" to list available libraries.");
             repl.Loop();
         }
     }
