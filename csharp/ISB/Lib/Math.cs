@@ -12,7 +12,7 @@ namespace ISB.Lib
             this.E = new NumberValue(2.7182818284590451m);
         }
 
-        [Doc("The constant π")]
+        [Doc("The constant π.")]
         public NumberValue Pi { get; private init; }
 
         [Doc("The natural logarithmic base.")]
