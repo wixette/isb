@@ -1,20 +1,27 @@
 # Interactive Small Basic (ISB)
 
-Interactive Small Basic (ISB) is a simple scripting language derived from [Microsoft Small Basic](https://github.com/sb).
+Interactive Small Basic (ISB) is a simple scripting language derived from
+[Microsoft Small Basic](https://github.com/sb).
 
 I implemented ISB to support the following scenarios mainly:
 
  * As an in-game scripting language, to be embedded in Unity games.
- * As a shell scripting language, to provide a command-line interface where simple code pieces can be executed to control the host system. 
+ * As a shell scripting language, to provide a command-line interface where simple code pieces can be executed to
+   control the host system.
 
-The first implementation of ISB is written in C# (as the original Microsoft Small Basic does) since C# is Unity's recommended scripting language.
+The first implementation of ISB is written in C# (as the original Microsoft Small Basic does) since C# is Unity's
+recommended scripting language.
 
 Compared to the original Microsoft Small Basic, ISB has the following updates:
 
- * The compiler and the runtime support incremental invocations. Code pieces can be passed into the system one by one without losing internal states.
- * The client program can access some internal states, such as the stack top, to provide an interactive experience. E.g., it's easy to build a read-evaluate-print loop on top of ISB to implement a command-line calculator.
- * I simplified most of the XML-data-driven logic. I also used the reflection feature to support a way more straightforward structure to add and maintain library functions and properties.
- * I implemented an IR (intermediate representation) to split the compiler into a front-end and a back-end. The IR is a simple assembly language, which looks a little bit similar to WebAssembly.
+ * The compiler and the runtime support incremental invocations. Code pieces can be passed into the system one by one
+   without losing internal states.
+ * The client program can access some internal states, such as the stack top, to provide an interactive experience.
+   E.g., it's easy to build a read-evaluate-print loop on top of ISB to implement a command-line calculator.
+ * I simplified most of the XML-data-driven logic. I also used the reflection feature to support a way more
+   straightforward structure to add and maintain library functions and properties.
+ * I implemented an IR (intermediate representation) to split the compiler into a front-end and a back-end. The IR
+   is a simple assembly language, which looks a little bit similar to WebAssembly.
  * Other trivial updates such as the "mod" operator.
 
 ## Usage
@@ -62,7 +69,8 @@ $ dotnet run -p ISB.Shell -- --help
 ISB.Shell ...
 Copyright (C) ...
 
-  -i, --input      BASIC file (*.bas) to run/compile, or ISB assembly file (*.asm) to run. If not set, the interactive shell mode will start.
+  -i, --input      BASIC file (*.bas) to run/compile, or ISB assembly file (*.asm) to run. If not set, the interactive
+                   shell mode will start.
 
   -c, --compile    Compile BASIC code to ISB assembly, without running it.
 
