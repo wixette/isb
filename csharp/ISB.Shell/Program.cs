@@ -150,6 +150,8 @@ namespace ISB.Shell
             private List<string> multiLineCode;
             private List<(string cmd, Func<REPL.EvalResult> f)> shellCommands;
 
+            private bool InMultilineMode { get => multiLineCode.Count > 0; }
+
             public Evaluator()
             {
                 this.engine = new Engine("Program");
@@ -176,18 +178,21 @@ namespace ISB.Shell
             {
                 Debug.Assert(line != null);
 
-                if (line.Trim().Length <= 0)
+                if (!InMultilineMode)
                 {
-                    return REPL.EvalResult.OK;
+                    if (line.Trim().Length <= 0)
+                    {
+                        return REPL.EvalResult.OK;
+                    }
+
+                    foreach (var shellCommand in shellCommands)
+                    {
+                        if (line.Trim().ToLower() == shellCommand.cmd)
+                            return shellCommand.f();
+                    }
                 }
 
-                foreach (var shellCommand in shellCommands)
-                {
-                    if (line.Trim().ToLower() == shellCommand.cmd)
-                        return shellCommand.f();
-                }
-
-                string code = (multiLineCode.Count > 0) ? code = String.Join('\n', multiLineCode) + "\n" + line : line;
+                string code = InMultilineMode ? String.Join('\n', multiLineCode) + "\n" + line : line;
                 if (!engine.Compile(code, false))
                 {
                     if (engine.ErrorInfo.Contents.Count > 0 &&
