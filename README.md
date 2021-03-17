@@ -30,6 +30,7 @@ Build and test:
 
 ```
 $ cd csharp
+$ dotnet restore
 $ dotnet build
 $ dotnet test
 ```
