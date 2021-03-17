@@ -18,6 +18,8 @@ namespace ISB.Tests
             Assert.Equal("    store_arr a 2", i.ToDisplayString());
             i = Instruction.Create(null, Instruction.PUSHS, "\"abc\"", null);
             Assert.Equal("    pushs \"\\\"abc\\\"\"", i.ToDisplayString());
+            i = Instruction.Create(null, Instruction.PUSHS, "", null);
+            Assert.Equal("    pushs \"\"", i.ToDisplayString());
         }
 
         [Fact]
@@ -29,7 +31,6 @@ namespace ISB.Tests
             Assert.Null(Instruction.Create(null, Instruction.BR, null, null));
             Assert.Null(Instruction.Create(null, Instruction.BR_IF, null, "x"));
             Assert.Null(Instruction.Create(null, Instruction.LOAD_ARR, "a", ""));
-            Assert.Null(Instruction.Create(null, Instruction.PUSHS, "", null));
         }
     }
 }

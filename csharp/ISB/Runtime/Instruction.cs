@@ -354,7 +354,7 @@ namespace ISB.Runtime
                     oprandValue = NumberValue.Parse(oprand);
                     break;
                 case OprandKind.String:
-                    if (oprand == null || oprand.Length <= 0)
+                    if (oprand == null || oprand.Length < 0)
                         return false;
                     oprandValue = new StringValue(oprand);
                     break;

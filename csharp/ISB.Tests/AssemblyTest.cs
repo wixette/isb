@@ -18,6 +18,7 @@ namespace ISB.Tests
             assembly1.Add(TextRange.None, null, Instruction.STORE_ARR, "a", "2");
             assembly1.Add(TextRange.None, null, Instruction.PUSH, Instruction.TrueLiteral, null);
             assembly1.Add(TextRange.None, null, Instruction.PUSHS, "Say \"Hello, World!\"", null);
+            assembly1.Add(TextRange.None, null, Instruction.PUSHS, "", null);
 
             string asm = assembly1.ToTextFormat();
             Assert.Equal(@"    nop
@@ -31,6 +32,7 @@ label3:
     store_arr a 2
     push 1
     pushs ""Say \""Hello, World!\""""
+    pushs """"
 ", asm, ignoreLineEndingDifferences: true);
 
             Assembly assembly2 = Assembly.Parse(asm);
