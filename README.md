@@ -3,6 +3,8 @@
 Interactive Small Basic (ISB) is a simple scripting language derived from
 [Microsoft Small Basic](https://github.com/sb).
 
+## Background
+
 I implemented ISB to support the following scenarios mainly:
 
  * As an in-game scripting language, to be embedded in Unity games.
@@ -82,12 +84,12 @@ Copyright (C) ...
   --version        Display version information.
 ```
 
-## How to integrate ISB compiler and runtime into Unity games
+## Unity In-Game Scripting: How to integrate ISB compiler and runtime with Unity projects
 
 ### Create a Unity project
 
-Initiate the scene and the game objects in Unity. Typically, we need a multi-line input field to input BASIC code, and
-a button to trigger the code execution.
+Initiate the scene and the game objects in Unity. Typically, we need a multi-line input field to type BASIC code, and
+a button to trigger the execution.
 
 ![](screenshots/01.png)
 
@@ -95,11 +97,11 @@ a button to trigger the code execution.
 
 Makes a `Scripts` dir under `Asserts` of the Unity project.
 
-Copy `csharp/ISB/bin/Debug/netstandard2.0/ISB.dll` into the `Scripts` folder.
+Copy the ISB assembly `csharp/ISB/bin/Debug/netstandard2.0/ISB.dll` into the `Scripts` folder.
 
 ### Connect Unity and ISB with C# code
 
-Create `Game.cs` under `Asserts/Scripts'. The class defined in `Game.cs` will be registered as an ISB external lib
+Create `Game.cs` under `Asserts/Scripts`. The class defined in `Game.cs` will be registered as an ISB external lib
 by the main program.
 
 ```
@@ -129,7 +131,8 @@ location specified by the function's arguments.
 
 In-game BASIC code can invoke `AddBall(x, y, z)` to put balls onto the scene.
 
-Then, creates an empty GameObject in Unity to host the main program `Program.cs`.
+Then, creates an empty GameObject in Unity to host the main program `Program.cs`. Link the button and the input
+field to the members of the `Program` class via Unity.
 
 ```
 // Program.cs
@@ -173,15 +176,15 @@ public class Program : MonoBehaviour
 }
 ```
 
-The code line `Engine engine = new Engine("Unity", new Type[] { typeof(Game) });` registers the class `Game` into
+The code `Engine engine = new Engine("Unity", new Type[] { typeof(Game) });` registers the class `Game` into
 the ISB engine.
 
-The click event handler of the button reads the input BASIC code from the input field then compiles and runs the code
+The click event handler of the button reads the BASIC code from the input field then compiles and runs it
 with the ISB engine. Error messages got from the ISB engine will be reported to Unity's `Debug.Log`.
 
-### Start the game and execute BASIC code in game
+### Start the game and execute BASIC code
 
-Start the Unity game. Type the following example code into the input field:
+Start the Unity game. Type the following example code in the input field:
 
 ```
 For x = -3 To 3
