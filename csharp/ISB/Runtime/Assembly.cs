@@ -11,8 +11,8 @@ namespace ISB.Runtime
 {
     public sealed class Assembly : IEnumerable<Instruction>
     {
-        public List<Instruction> Instructions { get; private init; }
-        public List<TextRange> SourceMap { get; private init; }
+        public List<Instruction> Instructions { get; private set; }
+        public List<TextRange> SourceMap { get; private set; }
 
         public Assembly()
         {
@@ -107,11 +107,11 @@ namespace ISB.Runtime
             foreach (string line in lines)
             {
                 string s = line.Trim();
-                if (s.StartsWith(';'))
+                if (s.StartsWith(";"))
                 {
                     // Ignores comments.
                 }
-                else if (s.EndsWith(':'))
+                else if (s.EndsWith(":"))
                 {
                     label = s.Substring(0, s.Length - 1);
                 }

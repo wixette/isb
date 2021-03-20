@@ -5,6 +5,6 @@ namespace ISB.Parsing
 {
     internal interface ISyntaxNodeVisitor
     {
-        public void VisitNode(SyntaxNode node, int level);
+        void VisitNode(SyntaxNode node, int level);
     }
 }

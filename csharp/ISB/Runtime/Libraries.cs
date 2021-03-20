@@ -14,12 +14,12 @@ namespace ISB.Runtime
     {
         private sealed class Lib
         {
-            public Type Type { get; private init; }
+            public Type Type { get; private set; }
             public bool IsBuiltInLib => this.Type.Equals(typeof(ISB.Lib.BuiltIn));
-            public object Instance { get; private init; }
+            public object Instance { get; private set; }
 
-            public SortedDictionary<string, MethodInfo> Functions { get; private init; }
-            public SortedDictionary<string, PropertyInfo> Properties { get; private init; }
+            public SortedDictionary<string, MethodInfo> Functions { get; private set; }
+            public SortedDictionary<string, PropertyInfo> Properties { get; private set; }
 
             public Lib(Type libClass)
             {
@@ -82,7 +82,7 @@ namespace ISB.Runtime
             }
         }
 
-        private SortedDictionary<string, Lib> Libs { get; init; }
+        private SortedDictionary<string, Lib> Libs { get; set; }
 
         public static string BuiltInLibName = typeof(ISB.Lib.BuiltIn).Name;
 

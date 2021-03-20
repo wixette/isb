@@ -8,7 +8,7 @@ namespace ISB.Utilities
     [System.AttributeUsage(AttributeTargets.Method | AttributeTargets.Property)]
     public class Doc : Attribute
     {
-        public string Content { get; private init; }
+        public string Content { get; private set; }
         public Doc(string content)
         {
             this.Content = content;

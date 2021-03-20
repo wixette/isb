@@ -13,10 +13,10 @@ namespace ISB.Lib
         }
 
         [Doc("The constant π.")]
-        public NumberValue Pi { get; private init; }
+        public NumberValue Pi { get; private set; }
 
         [Doc("The natural logarithmic base.")]
-        public NumberValue E { get; private init; }
+        public NumberValue E { get; private set; }
 
         [Doc("Returns the absolute value of a specified number.")]
         public NumberValue Abs(NumberValue x) {
