@@ -33,8 +33,11 @@ namespace ISB.Runtime
             }
         }
 
-        public Environment()
+        private IEnumerable<Type> externalLibClasses;
+
+        public Environment(IEnumerable<Type> externalLibClasses)
         {
+            this.externalLibClasses = externalLibClasses;
             this.Reset();
         }
 
@@ -44,7 +47,7 @@ namespace ISB.Runtime
             this.CompileTimeSubNames = new HashSet<string>();
             this.RuntimeLabels = new Dictionary<string, int>();
             this.RuntimeStack = new Stack<BaseValue>();
-            this.Libs = new Libraries();
+            this.Libs = new Libraries(this.externalLibClasses);
             this.Registers = new Dictionary<int, BaseValue>();
             this.Memory = new ArrayValue();
             this.IP = 0;

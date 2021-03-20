@@ -399,7 +399,7 @@ __Program_0__:
             Assert.Empty(diagnostics.Contents);
             SyntaxNode tree = Parser.Parse(tokens, diagnostics);
             Assert.Empty(diagnostics.Contents);
-            Environment env = new Environment();
+            Environment env = new Environment(null);
             Assembly instructions = Compiler.Compile(tree, env, "Program", diagnostics, out _, out _);
             Assert.Empty(diagnostics.Contents);
 
@@ -434,7 +434,7 @@ endsub";
             Assert.Empty(diagnostics.Contents);
             SyntaxNode tree = Parser.Parse(tokens, diagnostics);
             Assert.Empty(diagnostics.Contents);
-            Environment env = new Environment();
+            Environment env = new Environment(null);
             Assembly instructions = Compiler.Compile(tree, env, "Program", diagnostics, out _, out _);
             Assert.Equal(errDiagnostics.Length, diagnostics.Contents.Count);
             for (int i = 0; i < errDiagnostics.Length; i++)
@@ -451,7 +451,7 @@ endsub";
             Assert.Empty(diagnostics.Contents);
             SyntaxNode tree = Parser.Parse(tokens, diagnostics);
             Assert.Empty(diagnostics.Contents);
-            Environment env = new Environment();
+            Environment env = new Environment(null);
             Assembly instructions = Compiler.Compile(tree, env, "Program", diagnostics, out _, out _);
             Assert.Empty(diagnostics.Contents);
 
@@ -511,7 +511,7 @@ endif";
 
             Assembly instructions = new Assembly();
             DiagnosticBag diagnostics = new DiagnosticBag();
-            Environment env = new Environment();
+            Environment env = new Environment(null);
 
             var tokens = Scanner.Scan(codeSeg1, diagnostics);
             Assert.Empty(diagnostics.Contents);

@@ -86,10 +86,10 @@ namespace ISB.Runtime
 
         public static string BuiltInLibName = typeof(ISB.Lib.BuiltIn).Name;
 
-        public Libraries()
+        public Libraries(IEnumerable<Type> externalLibClasses)
         {
             this.Libs = new SortedDictionary<string, Lib>();
-            this.AutoLoadStandardLibs();
+            this.AutoLoadStandardLibs(externalLibClasses);
         }
 
         public string GetHelpString()
@@ -238,17 +238,22 @@ namespace ISB.Runtime
         private static bool IsAcceptableProperty(PropertyInfo p)
             => IsDerivedTypeOfBaseValue(p.PropertyType);
 
-        private void AutoLoadStandardLibs()
+        private void AutoLoadStandardLibs(IEnumerable<Type> externalLibClasses)
         {
+            // Searches for internal lib classes first.
             Type builtInClass = typeof(ISB.Lib.BuiltIn);
             var classQuery = builtInClass.Assembly.GetTypes()
                 .Where(t => t.IsClass && t.IsPublic && t.Namespace == builtInClass.Namespace);
             var libClasses = classQuery.ToList();
+            // Adds external lib classes if any.
+            if (externalLibClasses != null)
+                libClasses.AddRange(externalLibClasses);
 
             HashSet<string> excludedNames = new HashSet<string>(
                 new string[] { "GetType" }
             );
 
+            // Searches and adds method and properties.
             foreach (var libClass in libClasses)
             {
                 Lib lib = new Lib(libClass);

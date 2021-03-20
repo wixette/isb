@@ -1,14 +1,23 @@
+using System;
 using Xunit;
 using ISB.Runtime;
 
 namespace ISB.Tests
 {
+    class Foo
+    {
+        public NumberValue Bar()
+        {
+            return new NumberValue(3);
+        }
+    }
+
     public class LibrariesTest
     {
         [Fact]
         void TestProperties()
         {
-            Libraries libs = new Libraries();
+            Libraries libs = new Libraries(null);
             Assert.True(libs.HasProperty("Math", "Pi"));
             Assert.True(libs.HasProperty("Math", "PI"));
             Assert.True(libs.HasProperty("math", "pi"));
@@ -22,7 +31,7 @@ namespace ISB.Tests
         [Fact]
         void TestFunctions()
         {
-            Libraries libs = new Libraries();
+            Libraries libs = new Libraries(null);
             Assert.True(libs.HasBuiltInFunction("Print"));
             Assert.True(libs.HasBuiltInFunction("PRINT"));
             Assert.True(libs.HasBuiltInFunction("PRINT"));
@@ -40,6 +49,17 @@ namespace ISB.Tests
 
             Assert.True(libs.InvokeFunction("math", "random", null, out BaseValue ret2));
             Assert.True(0 <= ret2.ToNumber() && ret2.ToNumber() < 1);
+        }
+
+        [Fact]
+        void TestExternalLibClasses()
+        {
+            Libraries libs = new Libraries(new Type[] { typeof(Foo) });
+            Assert.True(libs.HasBuiltInFunction("Print"));
+            Assert.True(libs.HasFunction("Math", "Sin"));
+            Assert.True(libs.HasFunction("Foo", "Bar"));
+            Assert.True(libs.InvokeFunction("foo", "bar", null, out BaseValue ret));
+            Assert.Equal(3, ret.ToNumber());
         }
     }
 }

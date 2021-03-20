@@ -18,9 +18,9 @@ namespace ISB.Runtime
         private DiagnosticBag diagnostics;
         private Assembly assembly;
 
-        public Engine(string moduleName)
+        public Engine(string moduleName, IEnumerable<Type> externalLibClasses=null)
         {
-            this.env = new Environment();
+            this.env = new Environment(externalLibClasses);
             this.moduleName = moduleName;
             this.diagnostics = new DiagnosticBag();
             this.assembly = new Assembly();
