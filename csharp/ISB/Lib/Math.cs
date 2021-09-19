@@ -6,6 +6,8 @@ namespace ISB.Lib
 {
     public class Math
     {
+        private readonly Random _random = new Random();
+
         public Math()
         {
             this.Pi = new NumberValue(3.1415926535897931m);
@@ -97,7 +99,7 @@ namespace ISB.Lib
         [Doc("Returns a random floating-point number that is greater than or equal to 0.0, and less than 1.0.")]
         public NumberValue Random()
         {
-            return new NumberValue((decimal)new Random().NextDouble());
+            return new NumberValue((decimal)_random.NextDouble());
         }
 
         [Doc("Returns a non-negative random integer that is less than the specified maximum.")]
@@ -105,7 +107,7 @@ namespace ISB.Lib
         {
             int maxValue = (int)System.Math.Floor((double)max.ToNumber());
             if (maxValue < 0) maxValue = 0;
-            return new NumberValue(new Random().Next(maxValue));
+            return new NumberValue(_random.Next(maxValue));
         }
 
         [Doc("Rounds a value to the nearest integer or to the specified number of fractional digits.")]
