@@ -179,9 +179,12 @@ namespace ISB.Runtime
 
         private void GenerateStatementBlockSyntax(SyntaxNode node)
         {
-            foreach (var child in node.Children)
+            if (!node.IsEmpty)
             {
-                this.GenerateSyntax(child);
+                foreach (var child in node.Children)
+                {
+                    this.GenerateSyntax(child);
+                }
             }
         }
 

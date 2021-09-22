@@ -4,7 +4,7 @@
 // The original parser of Microsoft Small Basic uses a generated class hierarchy
 // to represent the tree structure of all kinds of syntax nodes. See
 // https://github.com/sb/smallbasic-editor/tree/master/Source/SmallBasic.Generators/Parsing
-// for the generating logic. Meanwhile, the parser itself has to uderstand the
+// for the generating logic. Meanwhile, the parser itself has to understand the
 // tree structure for going through a simple top-down algorithm. There is an
 // obvious duplicate between the generated class hierarchy and the parser code.
 

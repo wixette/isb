@@ -365,6 +365,21 @@ __Program_0__:
     nop
 ";
 
+        const string code27 = @"If a = 3 Then
+EndIf";
+        const string assembly27 = @"    load a
+    push 3
+    eq
+    br_if __Program_1__ __Program_2__
+__Program_1__:
+    nop
+    br __Program_0__
+__Program_2__:
+    nop
+__Program_0__:
+    nop
+";
+
         [Theory]
         [InlineData (code1, assembly1)]
         [InlineData (code2, assembly2)]
@@ -392,6 +407,7 @@ __Program_0__:
         [InlineData (code24, assembly24)]
         [InlineData (code25, assembly25)]
         [InlineData (code26, assembly26)]
+        [InlineData (code27, assembly27)]
         public void TestFormatAndParse(string code, string assembly)
         {
             DiagnosticBag diagnostics = new DiagnosticBag();
