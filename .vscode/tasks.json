@@ -71,6 +71,22 @@
             "problemMatcher": "$msCompile"
         },
         {
+            "label": "Run Benchmarks",
+            "group": "test",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "run",
+                "-p",
+                "${workspaceFolder}/csharp/ISB.Benchmark/ISB.Benchmark.csproj",
+                "/property:GenerateFullPaths=true",
+                "/consoleloggerparameters:NoSummary",
+                "-c",
+                "Release"
+            ],
+            "problemMatcher": "$msCompile"
+        },
+        {
             "label": "watch",
             "command": "dotnet",
             "type": "process",
