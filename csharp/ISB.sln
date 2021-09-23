@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ISB.Tests", "ISB.Tests\ISB.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ISB.Shell", "ISB.Shell\ISB.Shell.csproj", "{F92724DB-F26C-47C3-8DF9-D6BFA4870D38}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ISB.Benchmark", "ISB.Benchmark\ISB.Benchmark.csproj", "{27A01DBE-8DB2-47EB-9257-6707B810F08E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -58,5 +60,17 @@ Global
 		{F92724DB-F26C-47C3-8DF9-D6BFA4870D38}.Release|x64.Build.0 = Release|Any CPU
 		{F92724DB-F26C-47C3-8DF9-D6BFA4870D38}.Release|x86.ActiveCfg = Release|Any CPU
 		{F92724DB-F26C-47C3-8DF9-D6BFA4870D38}.Release|x86.Build.0 = Release|Any CPU
+		{27A01DBE-8DB2-47EB-9257-6707B810F08E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{27A01DBE-8DB2-47EB-9257-6707B810F08E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{27A01DBE-8DB2-47EB-9257-6707B810F08E}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{27A01DBE-8DB2-47EB-9257-6707B810F08E}.Debug|x64.Build.0 = Debug|Any CPU
+		{27A01DBE-8DB2-47EB-9257-6707B810F08E}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{27A01DBE-8DB2-47EB-9257-6707B810F08E}.Debug|x86.Build.0 = Debug|Any CPU
+		{27A01DBE-8DB2-47EB-9257-6707B810F08E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{27A01DBE-8DB2-47EB-9257-6707B810F08E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{27A01DBE-8DB2-47EB-9257-6707B810F08E}.Release|x64.ActiveCfg = Release|Any CPU
+		{27A01DBE-8DB2-47EB-9257-6707B810F08E}.Release|x64.Build.0 = Release|Any CPU
+		{27A01DBE-8DB2-47EB-9257-6707B810F08E}.Release|x86.ActiveCfg = Release|Any CPU
+		{27A01DBE-8DB2-47EB-9257-6707B810F08E}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

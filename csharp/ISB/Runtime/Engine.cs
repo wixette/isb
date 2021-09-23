@@ -82,8 +82,8 @@ namespace ISB.Runtime
             return true;
         }
 
-        // Parsing assembly does not support incremental mode. Once a new assebmly is parsed, the existing instructions
-        // and environment states are cleared.
+        // Parsing assembly does not support incremental mode. Once a new assembly is parsed, the
+        // existing instructions and environment states are cleared.
         public void ParseAssembly(string assemblyCode)
         {
             this.env.Reset();
