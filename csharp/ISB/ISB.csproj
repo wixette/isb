@@ -1,16 +1,15 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <AssemblyTitle>ISB</AssemblyTitle>
-    <AssemblyVersion>0.0.1.0</AssemblyVersion>
-    <Company>wixette</Company>
-    <Copyright>Copyright (C) 2021 wixette</Copyright>
-    <Description>Iteractive Small Basic (ISB)</Description>
-    <FileVersion>0.0.1</FileVersion>
-    <InformationalVersion>0.0.1</InformationalVersion>
+    <PackageId>ISB</PackageId>
+    <Version>0.1.0</Version>
+    <Authors>wixette</Authors>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <RepositoryUrl>https://github.com/wixette/isb</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <Description>The Programming Shell of Iteractive Small Basic (ISB)</Description>
     <OutputType>Library</OutputType>
-    <Product>ISB</Product>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFrameworks>net5.0;netstandard2.0</TargetFrameworks>
   </PropertyGroup>
 
   <ItemGroup>
