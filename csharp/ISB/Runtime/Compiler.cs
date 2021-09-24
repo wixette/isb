@@ -513,7 +513,7 @@ namespace ISB.Runtime
         {
             if (node.Children[0].Kind != SyntaxNodeKind.IdentifierExpressionSyntax)
             {
-                // Embeded ObjectAccessExpressionSyntax like "a.b.c = 0" is not supported.
+                // Embedded ObjectAccessExpressionSyntax like "a.b.c = 0" is not supported.
                 if (this.diagnostics != null)
                     this.diagnostics.Add(Diagnostic.ReportUnsupportedDotBaseExpression(node.Range));
                 return;
@@ -521,6 +521,12 @@ namespace ISB.Runtime
             var (libName, propertyName) = this.GetLibNameAndMemberName(node);
             if (forLeftValue)
             {
+                if (!this.env.Libs.HasProperty(libName, propertyName))
+                {
+                    if (this.diagnostics != null)
+                        this.diagnostics.Add(Diagnostic.ReportLibraryMemberNotFound(node.Range, libName, propertyName));
+                    return;
+                }
                 if (!this.env.Libs.IsPropertyWritable(libName, propertyName))
                 {
                     if (this.diagnostics != null)

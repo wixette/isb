@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -18,15 +19,15 @@ namespace ISB.Runtime
             public bool IsBuiltInLib => this.Type.Equals(typeof(ISB.Lib.BuiltIn));
             public object Instance { get; private set; }
 
-            public SortedDictionary<string, MethodInfo> Functions { get; private set; }
-            public SortedDictionary<string, PropertyInfo> Properties { get; private set; }
+            public Dictionary<string, MethodInfo> Functions { get; private set; }
+            public Dictionary<string, PropertyInfo> Properties { get; private set; }
 
             public Lib(Type libClass)
             {
                 this.Type = libClass;
                 this.Instance = Activator.CreateInstance(libClass);
-                this.Functions = new SortedDictionary<string, MethodInfo>();
-                this.Properties = new SortedDictionary<string, PropertyInfo>();
+                this.Functions = new Dictionary<string, MethodInfo>();
+                this.Properties = new Dictionary<string, PropertyInfo>();
             }
 
             public void AddFunction(MethodInfo f)
@@ -68,12 +69,16 @@ namespace ISB.Runtime
             {
                 StringBuilder sb = new StringBuilder();
                 sb.Append($"\n# {this.Type.Name}\n\n");
-                foreach (string functionName in this.Functions.Keys)
+                var functionList = new List<string>(this.Functions.Keys);
+                functionList.Sort();
+                foreach (string functionName in functionList)
                 {
                     sb.Append(GetHelpStringOfFunction(functionName));
                     sb.Append('\n');
                 }
-                foreach (string propertyName in this.Properties.Keys)
+                var propertyList = new List<string>(this.Properties.Keys);
+                propertyList.Sort();
+                foreach (string propertyName in propertyList)
                 {
                     sb.Append(GetHelpStringOfProperty(propertyName));
                     sb.Append('\n');
@@ -82,13 +87,12 @@ namespace ISB.Runtime
             }
         }
 
-        private SortedDictionary<string, Lib> Libs { get; set; }
+        private Dictionary<string, Lib> Libs { get; } = new Dictionary<string, Lib>();
 
         public static string BuiltInLibName = typeof(ISB.Lib.BuiltIn).Name;
 
         public Libraries(IEnumerable<Type> externalLibClasses)
         {
-            this.Libs = new SortedDictionary<string, Lib>();
             this.AutoLoadStandardLibs(externalLibClasses);
         }
 
@@ -107,8 +111,10 @@ namespace ISB.Runtime
                 this.Libs[libName.ToLower()].Properties.ContainsKey(propertyName.ToLower());
 
         public bool IsPropertyWritable(string libName, string propertyName)
-            => this.HasProperty(libName, propertyName) &&
-                this.GetProperty(libName, propertyName).SetMethod.IsPublic;
+        {
+            Debug.Assert(this.HasProperty(libName, propertyName));
+            return this.GetProperty(libName, propertyName).SetMethod.IsPublic;
+        }
 
         public bool HasFunction(string libName, string functionName)
             => this.Libs.ContainsKey(libName.ToLower()) &&
@@ -118,29 +124,32 @@ namespace ISB.Runtime
             => this.HasFunction(BuiltInLibName, functionName);
 
         public int GetArgumentNumber(string libName, string functionName)
-            => this.HasFunction(libName, functionName) ?
-                this.GetFunction(libName, functionName).GetParameters().Length : 0;
+        {
+            Debug.Assert(this.HasFunction(libName, functionName));
+            return this.GetFunction(libName, functionName).GetParameters().Length;
+        }
 
         public int GetArgumentNumber(string functionName)
             => this.GetArgumentNumber(BuiltInLibName, functionName);
 
         public bool HasReturnValue(string libName, string functionName)
-            => this.HasFunction(libName, functionName) ?
-                !this.GetFunction(libName, functionName).ReturnType.Equals(typeof(void)) : false;
+        {
+            Debug.Assert(this.HasFunction(libName, functionName));
+            return !this.GetFunction(libName, functionName).ReturnType.Equals(typeof(void));
+        }
 
         public bool HasReturnValue(string functionName)
             => this.HasReturnValue(BuiltInLibName, functionName);
 
         public BaseValue GetPropertyValue(string libName, string propertyName)
-            => this.HasProperty(libName, propertyName) ?
-                (BaseValue)this.GetProperty(libName, propertyName).GetValue(this.GetInstance(libName)) :
-                StringValue.Empty;
+        {
+            Debug.Assert(this.HasProperty(libName, propertyName));
+            return (BaseValue)this.GetProperty(libName, propertyName).GetValue(this.GetInstance(libName));
+        }
 
         public bool SetPropertyValue(string libName, string propertyName, BaseValue value)
         {
-            if (!this.HasProperty(libName, propertyName))
-                return false;
-
+            Debug.Assert(this.HasProperty(libName, propertyName));
             var property = this.GetProperty(libName, propertyName);
             var castValue = ConvertBaseValueTo(value, property.PropertyType);
             if (castValue == null)
@@ -155,15 +164,17 @@ namespace ISB.Runtime
         public bool InvokeFunction(string libName, string functionName, object[] parameters, out BaseValue retValue)
         {
             retValue = null;
-            if (!this.HasFunction(libName, functionName))
-                return false;
+            Debug.Assert(this.HasFunction(libName, functionName));
 
             var function = this.GetFunction(libName, functionName);
-            if (parameters != null && parameters.Length > 0)
+            if (parameters is null || parameters.Length <= 0)
+            {
+                retValue = (BaseValue)function.Invoke(this.GetInstance(libName), null);
+            }
+            else
             {
                 var parameterDefs = function.GetParameters();
-                if (parameterDefs.Length != parameters.Length)
-                    return false;
+                Debug.Assert(parameterDefs.Length == parameters.Length);
                 List<BaseValue> castParameters = new List<BaseValue>();
                 for (int i = 0; i < parameters.Length; i++)
                 {
@@ -174,10 +185,7 @@ namespace ISB.Runtime
                 }
                 retValue = (BaseValue)function.Invoke(this.GetInstance(libName), castParameters.ToArray());
             }
-            else
-            {
-                retValue = (BaseValue)function.Invoke(this.GetInstance(libName), null);
-            }
+
             return true;
         }
 
@@ -199,7 +207,9 @@ namespace ISB.Runtime
         private static BaseValue ConvertBaseValueTo(BaseValue value, Type targetType)
         {
             if (targetType.Equals(typeof(BaseValue)) || value.GetType().Equals(targetType))
+            {
                 return value;
+            }
 
             if (targetType.Equals(typeof(NumberValue)))
             {
