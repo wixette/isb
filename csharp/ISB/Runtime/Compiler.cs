@@ -1,7 +1,6 @@
 // This is a derived work of Microsoft Small Basic (https://github.com/sb).
 // The original code is licensed under the MIT License.
 
-using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 
@@ -131,9 +130,9 @@ namespace ISB.Runtime
         private string RuntimeSubLabel(string subName)
             => $"__Sub_{subName}__";
 
-        private void AddInstruction(TextRange sourceRange, string label, string name, string oprand1, string oprand2)
+        private void AddInstruction(TextRange sourceRange, string label, string name, string operand1, string operand2)
         {
-            this.assembly.Add(sourceRange, label, name, oprand1, oprand2);
+            this.assembly.Add(sourceRange, label, name, operand1, operand2);
         }
 
         private void GenerateSyntax(SyntaxNode node)
@@ -304,7 +303,7 @@ namespace ISB.Runtime
                     this.AddInstruction(node.Range, null, Instruction.SUB, null, null);
                     break;
                 default:
-                    Debug.Fail("Unkonwn unary operator.");
+                    Debug.Fail("Unknown unary operator.");
                     break;
             }
         }
@@ -337,7 +336,7 @@ namespace ISB.Runtime
                 // are supported.
                 if (left.Kind == SyntaxNodeKind.IdentifierExpressionSyntax)
                 {
-                    this.GenerateAssgnToVariableExpressionSyntax(node, inExpressionStatement);
+                    this.GenerateAssignToVariableExpressionSyntax(node, inExpressionStatement);
                 }
                 else if (left.Kind == SyntaxNodeKind.ArrayAccessExpressionSyntax)
                 {
@@ -356,7 +355,7 @@ namespace ISB.Runtime
             }
             else
             {
-                // Evaluates and pushes left oprand then right oprand.
+                // Evaluates and pushes left operand then right operand.
                 this.GenerateExpressionSyntax(left, inExpressionStatement);
                 this.GenerateExpressionSyntax(right, inExpressionStatement);
                 string instructionName = null;
@@ -396,7 +395,7 @@ namespace ISB.Runtime
                         instructionName = Instruction.GE;
                         break;
                     default:
-                        Debug.Fail("Unkonwn binary operator.");
+                        Debug.Fail("Unknown binary operator.");
                         break;
                 }
                 this.AddInstruction(node.Range, null, instructionName, null, null);
@@ -449,7 +448,7 @@ namespace ISB.Runtime
             this.AddInstruction(node.Range, labelDone, Instruction.NOP, null, null);
         }
 
-        private void GenerateAssgnToVariableExpressionSyntax(SyntaxNode node, bool inExpressionStatement)
+        private void GenerateAssignToVariableExpressionSyntax(SyntaxNode node, bool inExpressionStatement)
         {
             SyntaxNode left = node.Children[0];
             SyntaxNode right = node.Children[2];
@@ -592,7 +591,7 @@ namespace ISB.Runtime
             if (!isBuiltInFunction &&
                 node.Children[0].Children[0].Kind != SyntaxNodeKind.IdentifierExpressionSyntax)
             {
-                // Embeded ObjectAccessExpressionSyntax like "a.b.c()" is not supported.
+                // Embedded ObjectAccessExpressionSyntax like "a.b.c()" is not supported.
                 if (this.diagnostics != null)
                     this.diagnostics.Add(Diagnostic.ReportUnsupportedDotBaseExpression(node.Children[0].Range));
                 return;
@@ -754,7 +753,7 @@ namespace ISB.Runtime
             this.AddInstruction(node.Range, null, Instruction.BR_IF, leCompareLabel, geCompareLabel);
 
             // (1) Checks if the loop variabel is less than or equal to the To value.
-            // Continues the for loop if ture, breaks the for loop otherwise.
+            // Continues the for loop if true, breaks the for loop otherwise.
             this.AddInstruction(node.Range, leCompareLabel, Instruction.NOP, null, null);
             this.AddInstruction(node.Range, null, Instruction.LOAD, loopVariableName, null);
             this.GenerateExpressionSyntax(toExpressionNode, false);
@@ -762,7 +761,7 @@ namespace ISB.Runtime
             this.AddInstruction(node.Range, null, Instruction.BR_IF, startLabel, endLabel);
 
             // (2) Checks if the loop variabel is greater than or equal to the To value.
-            // Continues the for loop if ture, breaks the for loop otherwise.
+            // Continues the for loop if true, breaks the for loop otherwise.
             this.AddInstruction(node.Range, geCompareLabel, Instruction.NOP, null, null);
             this.AddInstruction(node.Range, null, Instruction.LOAD, loopVariableName, null);
             this.GenerateExpressionSyntax(toExpressionNode, false);

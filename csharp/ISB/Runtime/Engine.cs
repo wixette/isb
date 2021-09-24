@@ -245,7 +245,7 @@ namespace ISB.Runtime
 
                 case Instruction.BR:
                 {
-                    string label = instruction.Oprand1.ToString();
+                    string label = instruction.Operand1.ToString();
                     int target = this.env.RuntimeLabelToIP(label);
                     if (target >= 0)
                     {
@@ -260,9 +260,9 @@ namespace ISB.Runtime
 
                 case Instruction.BR_IF:
                 {
-                    string label1 = instruction.Oprand1.ToString();
+                    string label1 = instruction.Operand1.ToString();
                     int target1 = this.env.RuntimeLabelToIP(label1);
-                    string label2 = instruction.Oprand2.ToString();
+                    string label2 = instruction.Operand2.ToString();
                     int target2 = this.env.RuntimeLabelToIP(label2);
                     if (target1 >= 0 && target2 >= 0)
                     {
@@ -284,7 +284,7 @@ namespace ISB.Runtime
                     if (this.env.RuntimeStack.Count > 0)
                     {
                         var value = this.env.RuntimeStack.Pop();
-                        this.env.SetRegister(instruction.Oprand1, value);
+                        this.env.SetRegister(instruction.Operand1, value);
                         this.env.IP++;
                     }
                     else
@@ -296,7 +296,7 @@ namespace ISB.Runtime
 
                 case Instruction.GET:
                 {
-                    var value = this.env.GetRegister(instruction.Oprand1);
+                    var value = this.env.GetRegister(instruction.Operand1);
                     this.env.RuntimeStack.Push(value);
                     this.env.IP++;
                     break;
@@ -307,7 +307,7 @@ namespace ISB.Runtime
                     if (this.env.RuntimeStack.Count > 0)
                     {
                         var value = this.env.RuntimeStack.Pop();
-                        this.env.SetMemory(instruction.Oprand1, value);
+                        this.env.SetMemory(instruction.Operand1, value);
                         this.env.IP++;
                     }
                     else
@@ -319,7 +319,7 @@ namespace ISB.Runtime
 
                 case Instruction.LOAD:
                 {
-                    var value = this.env.GetMemory(instruction.Oprand1);
+                    var value = this.env.GetMemory(instruction.Operand1);
                     this.env.RuntimeStack.Push(value);
                     this.env.IP++;
                     break;
@@ -358,7 +358,7 @@ namespace ISB.Runtime
 
                 case Instruction.PUSH:
                 {
-                    var value = instruction.Oprand1;
+                    var value = instruction.Operand1;
                     Debug.Assert(value is NumberValue);
                     this.env.RuntimeStack.Push(value);
                     this.env.IP++;
@@ -367,7 +367,7 @@ namespace ISB.Runtime
 
                 case Instruction.PUSHS:
                 {
-                    var value = instruction.Oprand1;
+                    var value = instruction.Operand1;
                     Debug.Assert(value is StringValue);
                     this.env.RuntimeStack.Push(value);
                     this.env.IP++;
@@ -376,7 +376,7 @@ namespace ISB.Runtime
 
                 case Instruction.CALL:
                 {
-                    string subLabel = instruction.Oprand1.ToString();
+                    string subLabel = instruction.Operand1.ToString();
                     int targetIP = this.env.RuntimeLabelToIP(subLabel);
                     if (targetIP < 0)
                     {
@@ -390,7 +390,7 @@ namespace ISB.Runtime
 
                 case Instruction.RET:
                 {
-                    int numArguments = (int)(instruction.Oprand1.ToNumber());
+                    int numArguments = (int)(instruction.Operand1.ToNumber());
                     if (this.env.RuntimeStack.Count < numArguments + 1)
                     {
                         this.ReportEmptyStack();
@@ -405,8 +405,8 @@ namespace ISB.Runtime
 
                 case Instruction.CALL_LIB:
                 {
-                    string libName = instruction.Oprand1.ToString();
-                    string functionName = instruction.Oprand2.ToString();
+                    string libName = instruction.Operand1.ToString();
+                    string functionName = instruction.Operand2.ToString();
                     if (!this.env.Libs.HasFunction(libName, functionName))
                     {
                         this.ReportNoLibFunctionFound(libName, functionName);
@@ -440,8 +440,8 @@ namespace ISB.Runtime
 
                 case Instruction.STORE_LIB:
                 {
-                    string libName = instruction.Oprand1.ToString();
-                    string propertyName = instruction.Oprand2.ToString();
+                    string libName = instruction.Operand1.ToString();
+                    string propertyName = instruction.Operand2.ToString();
                     if (!this.env.Libs.HasProperty(libName, propertyName))
                     {
                         this.ReportNoLibPropertyFound(libName, propertyName);
@@ -469,8 +469,8 @@ namespace ISB.Runtime
 
                 case Instruction.LOAD_LIB:
                 {
-                    string libName = instruction.Oprand1.ToString();
-                    string propertyName = instruction.Oprand2.ToString();
+                    string libName = instruction.Operand1.ToString();
+                    string propertyName = instruction.Operand2.ToString();
                     if (!this.env.Libs.HasProperty(libName, propertyName))
                     {
                         this.ReportNoLibPropertyFound(libName, propertyName);
@@ -563,7 +563,7 @@ namespace ISB.Runtime
 
         private bool PrepareArrayNameAndIndices(Instruction instruction, out BaseValue[] arrayNameAndIndices)
         {
-            int dimension = (int)Math.Floor(instruction.Oprand2.ToNumber());
+            int dimension = (int)Math.Floor(instruction.Operand2.ToNumber());
             if (dimension <= 0)
             {
                 this.ReportInvalidValue(dimension.ToString());
@@ -571,7 +571,7 @@ namespace ISB.Runtime
                 return false;
             }
             arrayNameAndIndices = new BaseValue[dimension + 1];
-            arrayNameAndIndices[0] = instruction.Oprand1;
+            arrayNameAndIndices[0] = instruction.Operand1;
             for (int i = 1; i < dimension + 1; i++)
             {
                 if (this.env.RuntimeStack.Count <= 0)

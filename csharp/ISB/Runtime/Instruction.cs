@@ -11,7 +11,7 @@ namespace ISB.Runtime
     [DebuggerDisplay("{ToDisplayString()}")]
     public sealed class Instruction
     {
-        public enum OprandKind
+        public enum OperandKind
         {
             None = 0,
             Label,
@@ -153,7 +153,7 @@ namespace ISB.Runtime
         //   (1) Stack.Push(lib.property)
         public const string LOAD_LIB = "load_lib";
 
-        // Adds two oprands.
+        // Adds two operands.
         //   add
         //
         //   (1) value2 := Stack.Pop()
@@ -162,7 +162,7 @@ namespace ISB.Runtime
         //   (4) Stack.Push(result)
         public const string ADD = "add";
 
-        // Substracts two oprands.
+        // Substracts two operands.
         //   sub
         //
         //   (1) value2 := Stack.Pop()
@@ -171,7 +171,7 @@ namespace ISB.Runtime
         //   (4) Stack.Push(result)
         public const string SUB = "sub";
 
-        // Times two oprands.
+        // Times two operands.
         //   mul
         //
         //   (1) value2 := Stack.Pop()
@@ -180,7 +180,7 @@ namespace ISB.Runtime
         //   (4) Stack.Push(result)
         public const string MUL = "mul";
 
-        // Divides an oprand by another.
+        // Divides an operand by another.
         //   div
         //
         //   (1) value2 := Stack.Pop()
@@ -189,7 +189,7 @@ namespace ISB.Runtime
         //   (4) Stack.Push(result)
         public const string DIV = "div";
 
-        // Modulo. Divides an oprand by another and returns the reminder.
+        // Modulo. Divides an operand by another and returns the reminder.
         //   mod
         //
         //   (1) value2 := Stack.Pop()
@@ -198,7 +198,7 @@ namespace ISB.Runtime
         //   (4) Stack.Push(result)
         public const string MOD = "mod";
 
-        // Determinates if two values are equal.
+        // Determines if two values are equal.
         //   eq
         //
         //   (1) value2 := Stack.Pop()
@@ -207,7 +207,7 @@ namespace ISB.Runtime
         //   (4) Stack.Push(result)
         public const string EQ = "eq";
 
-        // Determinates if two values are not equal.
+        // Determines if two values are not equal.
         //   ne
         //
         //   (1) value2 := Stack.Pop()
@@ -256,58 +256,58 @@ namespace ISB.Runtime
         public const string TrueLiteral = "1";
         public const string FalseLiteral = "0";
 
-        private static readonly Dictionary<string, (OprandKind, OprandKind)> instructionSet =
-            new Dictionary<string, (OprandKind, OprandKind)>()
+        private static readonly Dictionary<string, (OperandKind, OperandKind)> instructionSet =
+            new Dictionary<string, (OperandKind, OperandKind)>()
         {
-            { NOP, (OprandKind.None, OprandKind.None) },
-            { BR, (OprandKind.Label, OprandKind.None) },
-            { BR_IF, (OprandKind.Label, OprandKind.Label) },
-            { SET, (OprandKind.Integer, OprandKind.None) },
-            { GET, (OprandKind.Integer, OprandKind.None) },
-            { STORE, (OprandKind.Identifier, OprandKind.None) },
-            { LOAD, (OprandKind.Identifier, OprandKind.None) },
-            { STORE_ARR, (OprandKind.Identifier, OprandKind.Integer) },
-            { LOAD_ARR, (OprandKind.Identifier, OprandKind.Integer) },
-            { PUSH, (OprandKind.Number, OprandKind.None) },
-            { PUSHS, (OprandKind.String, OprandKind.None) },
-            { CALL, (OprandKind.Label, OprandKind.None) },
-            { RET, (OprandKind.Integer, OprandKind.None) },
-            { CALL_LIB, (OprandKind.Label, OprandKind.Label) },
-            { STORE_LIB, (OprandKind.Label, OprandKind.Label) },
-            { LOAD_LIB, (OprandKind.Label, OprandKind.Label) },
-            { ADD, (OprandKind.None, OprandKind.None) },
-            { SUB, (OprandKind.None, OprandKind.None) },
-            { MUL, (OprandKind.None, OprandKind.None) },
-            { DIV, (OprandKind.None, OprandKind.None) },
-            { MOD, (OprandKind.None, OprandKind.None) },
-            { EQ, (OprandKind.None, OprandKind.None) },
-            { NE, (OprandKind.None, OprandKind.None) },
-            { LT, (OprandKind.None, OprandKind.None) },
-            { GT, (OprandKind.None, OprandKind.None) },
-            { LE, (OprandKind.None, OprandKind.None) },
-            { GE, (OprandKind.None, OprandKind.None) },
+            { NOP, (OperandKind.None, OperandKind.None) },
+            { BR, (OperandKind.Label, OperandKind.None) },
+            { BR_IF, (OperandKind.Label, OperandKind.Label) },
+            { SET, (OperandKind.Integer, OperandKind.None) },
+            { GET, (OperandKind.Integer, OperandKind.None) },
+            { STORE, (OperandKind.Identifier, OperandKind.None) },
+            { LOAD, (OperandKind.Identifier, OperandKind.None) },
+            { STORE_ARR, (OperandKind.Identifier, OperandKind.Integer) },
+            { LOAD_ARR, (OperandKind.Identifier, OperandKind.Integer) },
+            { PUSH, (OperandKind.Number, OperandKind.None) },
+            { PUSHS, (OperandKind.String, OperandKind.None) },
+            { CALL, (OperandKind.Label, OperandKind.None) },
+            { RET, (OperandKind.Integer, OperandKind.None) },
+            { CALL_LIB, (OperandKind.Label, OperandKind.Label) },
+            { STORE_LIB, (OperandKind.Label, OperandKind.Label) },
+            { LOAD_LIB, (OperandKind.Label, OperandKind.Label) },
+            { ADD, (OperandKind.None, OperandKind.None) },
+            { SUB, (OperandKind.None, OperandKind.None) },
+            { MUL, (OperandKind.None, OperandKind.None) },
+            { DIV, (OperandKind.None, OperandKind.None) },
+            { MOD, (OperandKind.None, OperandKind.None) },
+            { EQ, (OperandKind.None, OperandKind.None) },
+            { NE, (OperandKind.None, OperandKind.None) },
+            { LT, (OperandKind.None, OperandKind.None) },
+            { GT, (OperandKind.None, OperandKind.None) },
+            { LE, (OperandKind.None, OperandKind.None) },
+            { GE, (OperandKind.None, OperandKind.None) },
         };
 
-        public static Dictionary<string, (OprandKind, OprandKind)> InstructionSet { get => instructionSet; }
+        public static Dictionary<string, (OperandKind, OperandKind)> InstructionSet { get => instructionSet; }
 
         public string Label { get; }
         public string Name { get; }
-        public BaseValue Oprand1 { get; }
-        public BaseValue Oprand2 { get; }
+        public BaseValue Operand1 { get; }
+        public BaseValue Operand2 { get; }
 
-        private Instruction(string label, string name, BaseValue oprand1, BaseValue oprand2)
+        private Instruction(string label, string name, BaseValue operand1, BaseValue operand2)
         {
             this.Label = label;
             this.Name = name;
-            this.Oprand1 = oprand1;
-            this.Oprand2 = oprand2;
+            this.Operand1 = operand1;
+            this.Operand2 = operand2;
         }
 
-        public static Instruction Create(string label, string name, string oprand1, string oprand2)
+        public static Instruction Create(string label, string name, string operand1, string operand2)
         {
-            if (IsValid(name, oprand1, oprand2, out BaseValue oprand1Value, out BaseValue oprand2Value))
+            if (IsValid(name, operand1, operand2, out BaseValue operand1Value, out BaseValue operand2Value))
             {
-                return new Instruction(label, name, oprand1Value, oprand2Value);
+                return new Instruction(label, name, operand1Value, operand2Value);
             }
             else
             {
@@ -315,48 +315,48 @@ namespace ISB.Runtime
             }
         }
 
-        private static bool IsValid(string name, string oprand1, string oprand2, out BaseValue oprand1Value, out BaseValue oprand2Value)
+        private static bool IsValid(string name, string operand1, string operand2, out BaseValue operand1Value, out BaseValue operand2Value)
         {
-            oprand1Value = null;
-            oprand2Value = null;
+            operand1Value = null;
+            operand2Value = null;
             if (name == null || !Instruction.InstructionSet.ContainsKey(name))
                 return false;
-            var (oprand1Kind, oprand2Kind) = InstructionSet[name];
-            bool ret = IsValidOprandKind(oprand1Kind, oprand1, out oprand1Value)
-                && IsValidOprandKind(oprand2Kind, oprand2, out oprand2Value);
+            var (operand1Kind, operand2Kind) = InstructionSet[name];
+            bool ret = IsValidOperandKind(operand1Kind, operand1, out operand1Value)
+                && IsValidOperandKind(operand2Kind, operand2, out operand2Value);
             return ret;
         }
 
-        private static bool IsValidOprandKind(OprandKind kind, string oprand, out BaseValue oprandValue)
+        private static bool IsValidOperandKind(OperandKind kind, string operand, out BaseValue operandValue)
         {
-            oprandValue = null;
+            operandValue = null;
             switch (kind)
             {
-                case OprandKind.None:
-                    if (oprand != null)
+                case OperandKind.None:
+                    if (operand != null)
                         return false;
                     break;
-                case OprandKind.Identifier:
-                case OprandKind.Label:
-                    if (oprand == null || oprand.Length <= 0)
+                case OperandKind.Identifier:
+                case OperandKind.Label:
+                    if (operand == null || operand.Length <= 0)
                         return false;
-                    oprandValue = new StringValue(oprand);
+                    operandValue = new StringValue(operand);
                     break;
-                case OprandKind.Integer:
-                    if (oprand == null || oprand.Length <= 0)
+                case OperandKind.Integer:
+                    if (operand == null || operand.Length <= 0)
                         return false;
-                    var n = NumberValue.Parse(oprand);
-                    oprandValue = new NumberValue(Math.Floor(n.Value));
+                    var n = NumberValue.Parse(operand);
+                    operandValue = new NumberValue(Math.Floor(n.Value));
                     break;
-                case OprandKind.Number:
-                    if (oprand == null || oprand.Length <= 0)
+                case OperandKind.Number:
+                    if (operand == null || operand.Length <= 0)
                         return false;
-                    oprandValue = NumberValue.Parse(oprand);
+                    operandValue = NumberValue.Parse(operand);
                     break;
-                case OprandKind.String:
-                    if (oprand == null || oprand.Length < 0)
+                case OperandKind.String:
+                    if (operand == null || operand.Length < 0)
                         return false;
-                    oprandValue = new StringValue(oprand);
+                    operandValue = new StringValue(operand);
                     break;
 
             }
@@ -374,33 +374,33 @@ namespace ISB.Runtime
             }
             sb.Append(new String(' ', 4));
             sb.Append(this.Name);
-            var (oprand1Kind, oprand2Kind) = InstructionSet[this.Name];
+            var (operand1Kind, operand2Kind) = InstructionSet[this.Name];
 
-            if (oprand1Kind != OprandKind.None)
+            if (operand1Kind != OperandKind.None)
             {
                 sb.Append(' ');
-                sb.Append(FormatOprand(oprand1Kind, this.Oprand1));
+                sb.Append(FormatOperand(operand1Kind, this.Operand1));
             }
-            if (oprand2Kind != OprandKind.None)
+            if (operand2Kind != OperandKind.None)
             {
                 sb.Append(' ');
-                sb.Append(FormatOprand(oprand2Kind, this.Oprand2));
+                sb.Append(FormatOperand(operand2Kind, this.Operand2));
             }
             return sb.ToString();
         }
 
-        private static string FormatOprand(OprandKind kind, BaseValue oprand)
+        private static string FormatOperand(OperandKind kind, BaseValue operand)
         {
             switch (kind)
             {
-                case OprandKind.Identifier:
-                case OprandKind.Label:
-                case OprandKind.Number:
-                    return oprand.ToDisplayString();
-                case OprandKind.String:
-                    return "\"" + StringValue.Escape(oprand.ToString()) + "\"";
-                case OprandKind.Integer:
-                    return ((int)oprand.ToNumber()).ToString();
+                case OperandKind.Identifier:
+                case OperandKind.Label:
+                case OperandKind.Number:
+                    return operand.ToDisplayString();
+                case OperandKind.String:
+                    return "\"" + StringValue.Escape(operand.ToString()) + "\"";
+                case OperandKind.Integer:
+                    return ((int)operand.ToNumber()).ToString();
                 default:
                     return null;
             }

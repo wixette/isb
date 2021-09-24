@@ -32,7 +32,7 @@ namespace ISB.Runtime
                 return TextRange.None;
         }
 
-        // For incremental compilation - mergine one assembly to another.
+        // For incremental compilation - merge one assembly to another.
         // baseSourceLineNo is the start line no of the mapped source lines.
         public void Append(Assembly newAssembly, int baseSourceLineNo)
         {
@@ -77,9 +77,9 @@ namespace ISB.Runtime
             }
         }
 
-        public void Add(TextRange sourceRange, string label, string name, string oprand1, string oprand2)
+        public void Add(TextRange sourceRange, string label, string name, string operand1, string operand2)
         {
-            this.Add(sourceRange, Instruction.Create(label, name, oprand1, oprand2));
+            this.Add(sourceRange, Instruction.Create(label, name, operand1, operand2));
         }
 
         public string ToDisplayString()
@@ -119,9 +119,9 @@ namespace ISB.Runtime
                 {
                     string[] tokens = TokenizeAsmLine(s);
                     string name = tokens.Length > 0 ? tokens[0] : null;
-                    string oprand1Token = tokens.Length > 1 ? tokens[1] : null;
-                    string oprand2Token = tokens.Length > 2 ? tokens[2] : null;
-                    var instruction = Instruction.Create(label, name, oprand1Token, oprand2Token);
+                    string operand1Token = tokens.Length > 1 ? tokens[1] : null;
+                    string operand2Token = tokens.Length > 2 ? tokens[2] : null;
+                    var instruction = Instruction.Create(label, name, operand1Token, operand2Token);
                     if (instruction != null)
                     {
                         assembly.Add(TextRange.None, instruction);

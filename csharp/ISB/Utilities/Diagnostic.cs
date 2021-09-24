@@ -19,7 +19,7 @@ namespace ISB.Utilities
         // (2) Add or remove messages in Properties/Resources.resx.
         // (3) Open the project in Visual Studio (since VS Code doesn't support auto Designer class generation) and
         //    use the IDE to auto update Properties/Resources.Designer.cs.
-        // (4) Add or remove "public static Diagnostic Report..." method in this class. Please mkae sure the Report...
+        // (4) Add or remove "public static Diagnostic Report..." method in this class. Please make sure the Report...
         //    methods are listed in the alphabetic order.
         public enum ErrorCode
         {

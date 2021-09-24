@@ -48,15 +48,15 @@ label3:
             Assert.Equal(Instruction.PUSHS, assembly2.Instructions[7].Name);
 
             Assert.Equal("label1", assembly2.Instructions[1].Label);
-            Assert.Equal("label2", assembly2.Instructions[4].Oprand1.ToString());
-            Assert.Equal("label3", assembly2.Instructions[4].Oprand2.ToString());
+            Assert.Equal("label2", assembly2.Instructions[4].Operand1.ToString());
+            Assert.Equal("label3", assembly2.Instructions[4].Operand2.ToString());
 
-            Assert.True(assembly2.Instructions[5].Oprand1 is StringValue);
-            Assert.Equal("a", assembly2.Instructions[5].Oprand1.ToString());
-            Assert.True(assembly2.Instructions[5].Oprand2 is NumberValue);
-            Assert.Equal("2", assembly2.Instructions[5].Oprand2.ToString());
+            Assert.True(assembly2.Instructions[5].Operand1 is StringValue);
+            Assert.Equal("a", assembly2.Instructions[5].Operand1.ToString());
+            Assert.True(assembly2.Instructions[5].Operand2 is NumberValue);
+            Assert.Equal("2", assembly2.Instructions[5].Operand2.ToString());
 
-            Assert.Equal("Say \"Hello, World!\"", assembly2.Instructions[7].Oprand1.ToString());
+            Assert.Equal("Say \"Hello, World!\"", assembly2.Instructions[7].Operand1.ToString());
         }
     }
 }

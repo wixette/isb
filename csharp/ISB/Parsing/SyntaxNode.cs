@@ -42,7 +42,7 @@ namespace ISB.Parsing
         {
             Debug.Assert(kind != SyntaxNodeKind.EmptySyntax);
             Debug.Assert(children != null && children.Count > 0,
-                "Non-terminal nodes alwyas have children.");
+                "Non-terminal nodes always have children.");
             this.Kind = kind;
             this.Children = new List<SyntaxNode>(children);
             this.Parent = null;

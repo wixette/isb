@@ -103,7 +103,7 @@ namespace ISB.Tests
         }
 
         [Fact]
-        public void TestBinaryOprations()
+        public void TestBinaryOperations()
         {
             Engine engine = new Engine("Program");
             engine.ParseAssembly(@"push 120
@@ -264,7 +264,7 @@ namespace ISB.Tests
         }
 
         [Fact]
-        public void TestFebonacci()
+        public void TestFibonacci()
         {
             const string code =
                 @"NUM = 20

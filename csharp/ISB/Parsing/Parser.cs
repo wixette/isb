@@ -199,7 +199,7 @@ namespace ISB.Parsing
                 // "I didn't expect to see 'string' here."
                 // "I was expecting the start of a new statement."
                 //
-                // An interactive scripting language environemnt need support
+                // An interactive scripting language environment need support
                 // standalone expression statements to make itself a quick
                 // "calculator".
                 case TokenKind.Minus:
