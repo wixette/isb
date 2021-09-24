@@ -23,3 +23,8 @@ else
   IsPrime = 1
 endif
 TheEnd:
+if IsPrime = 1 then
+  print(n + " is a prime number")
+else
+  print(n + " is not a prime number")
+endif

@@ -10,80 +10,80 @@
     load n
     push 3
     le
-    br_if __Program_1__ __Program_2__
-__Program_1__:
+    br_if __isprime.bas_1__ __isprime.bas_2__
+__isprime.bas_1__:
     nop
     load n
     push 1
     gt
-    br_if __Program_4__ __Program_5__
-__Program_4__:
+    br_if __isprime.bas_4__ __isprime.bas_5__
+__isprime.bas_4__:
     nop
     push 1
     store IsPrime
     br TheEnd
-    br __Program_3__
-__Program_5__:
+    br __isprime.bas_3__
+__isprime.bas_5__:
     nop
     push 0
     store IsPrime
     br TheEnd
-__Program_3__:
+__isprime.bas_3__:
     nop
-    br __Program_0__
-__Program_2__:
+    br __isprime.bas_0__
+__isprime.bas_2__:
     nop
     load n
     push 2
     mod
     push 0
     eq
-    br_if __Program_9__ __Program_8__
-__Program_8__:
+    br_if __isprime.bas_9__ __isprime.bas_8__
+__isprime.bas_8__:
     nop
     load n
     push 3
     mod
     push 0
     eq
-    br_if __Program_9__ __Program_10__
-__Program_9__:
+    br_if __isprime.bas_9__ __isprime.bas_10__
+__isprime.bas_9__:
     nop
     push 1
-    br __Program_11__
-__Program_10__:
+    br __isprime.bas_11__
+__isprime.bas_10__:
     nop
     push 0
-__Program_11__:
+__isprime.bas_11__:
     nop
-    br_if __Program_6__ __Program_7__
-__Program_6__:
+    br_if __isprime.bas_6__ __isprime.bas_7__
+__isprime.bas_6__:
     nop
     push 0
     store IsPrime
     br TheEnd
-    br __Program_0__
-__Program_7__:
+    br __isprime.bas_0__
+__isprime.bas_7__:
     nop
     push 5
     store i
-__Program_12__:
+__isprime.bas_12__:
     nop
     load i
     load i
     mul
     load n
     le
-    br_if __Program_13__ __Program_14__
-__Program_13__:
+    br_if __isprime.bas_13__ __isprime.bas_14__
+__isprime.bas_13__:
     nop
     load n
     load i
     mod
     push 0
     eq
-    br_if __Program_19__ __Program_18__
-__Program_18__:
+    br_if __isprime.bas_19__ __isprime.bas_18__
+__isprime.bas_18__:
     nop
     load n
     load i
@@ -92,38 +92,57 @@ __Program_18__:
     mod
     push 0
     eq
-    br_if __Program_19__ __Program_20__
-__Program_19__:
+    br_if __isprime.bas_19__ __isprime.bas_20__
+__isprime.bas_19__:
     nop
     push 1
-    br __Program_21__
-__Program_20__:
+    br __isprime.bas_21__
+__isprime.bas_20__:
     nop
     push 0
-__Program_21__:
+__isprime.bas_21__:
     nop
-    br_if __Program_16__ __Program_17__
-__Program_16__:
+    br_if __isprime.bas_16__ __isprime.bas_17__
+__isprime.bas_16__:
     nop
     push 0
     store IsPrime
     br TheEnd
-    br __Program_15__
-__Program_17__:
+    br __isprime.bas_15__
+__isprime.bas_17__:
     nop
-__Program_15__:
+__isprime.bas_15__:
     nop
     load i
     push 6
     add
     store i
-    br __Program_12__
-__Program_14__:
+    br __isprime.bas_12__
+__isprime.bas_14__:
     nop
     push 1
     store IsPrime
-__Program_0__:
+__isprime.bas_0__:
     nop
 TheEnd:
+    nop
+    load IsPrime
+    push 1
+    eq
+    br_if __isprime.bas_23__ __isprime.bas_24__
+__isprime.bas_23__:
+    nop
+    load n
+    pushs " is a prime number"
+    add
+    call_lib BuiltIn print
+    br __isprime.bas_22__
+__isprime.bas_24__:
+    nop
+    load n
+    pushs " is not a prime number"
+    add
+    call_lib BuiltIn print
+__isprime.bas_22__:
     nop
 
