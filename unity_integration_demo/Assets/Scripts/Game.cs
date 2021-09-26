@@ -1,6 +1,7 @@
 using ISB.Runtime;
 using ISB.Utilities;
 using UnityEngine;
+using UnityEngine.Scripting;
 
 // Example BASIC code that invokes Game.AddBall.
 //
@@ -10,9 +11,11 @@ using UnityEngine;
 //   EndFor
 // EndFor
 
+[Preserve]
 public class Game
 {
     [Doc("Example lib function to access Unity objects.")]
+    [Preserve]
     public void AddBall(NumberValue x, NumberValue y, NumberValue z)
     {
         GameObject prefab = Resources.Load<GameObject>("Prefabs/Sphere");
