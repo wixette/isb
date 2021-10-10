@@ -29,7 +29,6 @@ c:
         const string code4 = @"a:
 goto a";
         const string assembly4 = @"a:
-    nop
     br a
 ";
 
@@ -37,7 +36,6 @@ goto a";
 endsub";
         const string assembly5 = @"    br __Program_0__
 __Sub_a__:
-    nop
     ret 0
 __Program_0__:
     nop
@@ -71,17 +69,14 @@ __Program_0__:
     gt
     br_if __Program_0__ __Program_2__
 __Program_0__:
-    nop
     load a
     push 3
     lt
     br_if __Program_1__ __Program_2__
 __Program_1__:
-    nop
     push 1
     br __Program_3__
 __Program_2__:
-    nop
     push 0
 __Program_3__:
     nop
@@ -93,17 +88,14 @@ __Program_3__:
     ge
     br_if __Program_1__ __Program_0__
 __Program_0__:
-    nop
     load b
     push 3
     le
     br_if __Program_1__ __Program_2__
 __Program_1__:
-    nop
     push 1
     br __Program_3__
 __Program_2__:
-    nop
     push 0
 __Program_3__:
     nop
@@ -169,10 +161,8 @@ endsub
 foo()";
         const string assembly19 = @"    br __Program_0__
 __Sub_foo__:
-    nop
     ret 0
 __Program_0__:
-    nop
     call __Sub_foo__
 ";
 
@@ -191,7 +181,6 @@ EndIf";
     eq
     br_if __Program_1__ __Program_2__
 __Program_1__:
-    nop
     push 4
     store b
     br __Program_0__
@@ -213,23 +202,19 @@ EndIf";
     eq
     br_if __Program_1__ __Program_2__
 __Program_1__:
-    nop
     push 4
     store b
     br __Program_0__
 __Program_2__:
-    nop
     load a
     push 4
     eq
     br_if __Program_3__ __Program_4__
 __Program_3__:
-    nop
     push 5
     store b
     br __Program_0__
 __Program_4__:
-    nop
     push 6
     store b
 __Program_0__:
@@ -240,13 +225,11 @@ __Program_0__:
   i = i + 1
 EndWhile";
         const string assembly23 = @"__Program_0__:
-    nop
     load i
     push 10
     lt
     br_if __Program_1__ __Program_2__
 __Program_1__:
-    nop
     load i
     push 1
     add
@@ -261,7 +244,6 @@ EndFor";
         const string assembly24 = @"    push 1
     store i
 __Program_0__:
-    nop
     push 1
     set 0
     load i
@@ -273,13 +255,11 @@ __Program_0__:
     ge
     br_if __Program_2__ __Program_3__
 __Program_2__:
-    nop
     load i
     push 5
     le
     br_if __Program_0__ __Program_1__
 __Program_3__:
-    nop
     load i
     push 5
     ge
@@ -294,7 +274,6 @@ EndFor";
         const string assembly25 = @"    push 10
     store i
 __Program_0__:
-    nop
     load a
     load i
     add
@@ -312,13 +291,11 @@ __Program_0__:
     ge
     br_if __Program_2__ __Program_3__
 __Program_2__:
-    nop
     load i
     push 1
     le
     br_if __Program_0__ __Program_1__
 __Program_3__:
-    nop
     load i
     push 1
     ge
@@ -337,7 +314,6 @@ endif";
     eq
     br_if __Program_4__ __Program_3__
 __Program_3__:
-    nop
     load a
     push 3
     mod
@@ -345,17 +321,13 @@ __Program_3__:
     eq
     br_if __Program_4__ __Program_5__
 __Program_4__:
-    nop
     push 1
     br __Program_6__
 __Program_5__:
-    nop
     push 0
 __Program_6__:
-    nop
     br_if __Program_1__ __Program_2__
 __Program_1__:
-    nop
     push 0
     store x
     br __Program_0__
@@ -372,7 +344,6 @@ EndIf";
     eq
     br_if __Program_1__ __Program_2__
 __Program_1__:
-    nop
     br __Program_0__
 __Program_2__:
     nop
@@ -479,19 +450,15 @@ endsub";
                 ((0, 7), (0, 7)),
                 ((0, 3), (0, 7)),
                 ((0, 0), (1, 6)),
-                ((0, 0), (1, 6)),
                 ((1, 6), (1, 6)),
                 ((1, 2), (1, 6)),
-                ((0, 0), (1, 6)),
                 ((0, 0), (1, 6)),
                 ((2, 7), (2, 7)),
                 ((2, 11), (2, 11)),
                 ((2, 7), (2, 11)),
                 ((2, 0), (3, 6)),
-                ((2, 0), (3, 6)),
                 ((3, 6), (3, 6)),
                 ((3, 2), (3, 6)),
-                ((2, 0), (3, 6)),
                 ((2, 0), (3, 6)),
                 ((5, 6), (5, 6)),
                 ((5, 2), (5, 6)),
@@ -571,7 +538,6 @@ label1:
     lt
     br_if __Program_1__ __Program_2__
 __Program_1__:
-    nop
     br label1
     br __Program_0__
 __Program_2__:
@@ -614,7 +580,6 @@ label1:
     lt
     br_if __Program_1__ __Program_2__
 __Program_1__:
-    nop
     br label1
     br __Program_0__
 __Program_2__:
@@ -622,13 +587,11 @@ __Program_2__:
 __Program_0__:
     nop
 label2:
-    nop
     load a
     push 20
     lt
     br_if __Program_4__ __Program_5__
 __Program_4__:
-    nop
     br label1
     br __Program_3__
 __Program_5__:
@@ -657,16 +620,13 @@ __Program_3__:
                 ((2, 7), (2, 8)),
                 ((2, 3), (2, 8)),
                 ((2, 0), (3, 12)),
-                ((2, 0), (3, 12)),
                 ((3, 2), (3, 12)),
                 ((2, 0), (3, 12)),
                 ((2, 0), (3, 12)),
                 ((2, 0), (4, 4)),
-                ((5, 0), (5, 6)),
                 ((6, 3), (6, 3)),
                 ((6, 7), (6, 8)),
                 ((6, 3), (6, 8)),
-                ((6, 0), (7, 12)),
                 ((6, 0), (7, 12)),
                 ((7, 2), (7, 12)),
                 ((6, 0), (7, 12)),

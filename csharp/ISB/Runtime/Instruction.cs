@@ -290,7 +290,7 @@ namespace ISB.Runtime
 
         public static Dictionary<string, (OperandKind, OperandKind)> InstructionSet { get => instructionSet; }
 
-        public string Label { get; }
+        public string Label { get; set; }
         public string Name { get; }
         public BaseValue Operand1 { get; }
         public BaseValue Operand2 { get; }

@@ -14,7 +14,6 @@
     push 2
     store i
 __fibonacci.bas_0__:
-    nop
     load i
     push 1
     sub
@@ -37,23 +36,19 @@ __fibonacci.bas_0__:
     ge
     br_if __fibonacci.bas_2__ __fibonacci.bas_3__
 __fibonacci.bas_2__:
-    nop
     load i
     load NUM
     le
     br_if __fibonacci.bas_0__ __fibonacci.bas_1__
 __fibonacci.bas_3__:
-    nop
     load i
     load NUM
     ge
     br_if __fibonacci.bas_0__ __fibonacci.bas_1__
 __fibonacci.bas_1__:
-    nop
     push 0
     store i
 __fibonacci.bas_4__:
-    nop
     load i
     load_arr Fib 1
     call_lib BuiltIn print
@@ -68,13 +63,11 @@ __fibonacci.bas_4__:
     ge
     br_if __fibonacci.bas_6__ __fibonacci.bas_7__
 __fibonacci.bas_6__:
-    nop
     load i
     load NUM
     le
     br_if __fibonacci.bas_4__ __fibonacci.bas_5__
 __fibonacci.bas_7__:
-    nop
     load i
     load NUM
     ge

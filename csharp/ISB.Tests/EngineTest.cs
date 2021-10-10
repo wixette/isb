@@ -368,14 +368,14 @@ endif", false));
             Assert.True(engine.Run(false));
 
             Assert.Equal(7, engine.CodeLines.Count);
-            Assert.Equal(16, engine.IP);
+            Assert.Equal(14, engine.IP);
             Assert.Equal(0, engine.StackCount);
 
             Assert.True(engine.Compile("c", false));
             Assert.True(engine.Run(false));
 
             Assert.Equal(8, engine.CodeLines.Count);
-            Assert.Equal(17, engine.IP);
+            Assert.Equal(15, engine.IP);
             Assert.Equal(1, engine.StackCount);
 
             Assert.Equal(200, engine.StackTop.ToNumber());

@@ -20,7 +20,7 @@ namespace ISB.Runtime
             this.SourceMap = new List<TextRange>();
         }
 
-        public int Count { get=> Instructions.Count; }
+        public int Count => Instructions.Count;
 
         public Instruction this[int index] => this.Instructions[index];
 
