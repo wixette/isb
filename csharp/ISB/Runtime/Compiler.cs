@@ -33,6 +33,7 @@ namespace ISB.Runtime
             Compiler compiler = new Compiler(env, moduleName, diagnostics, assembly, newLabels, newSubNames);
             compiler.CollectLabelsAndSubNames(syntaxTree);
             compiler.GenerateSyntax(syntaxTree);
+            compiler.ClearNopPlaceholders();
             return compiler.assembly;
         }
 
@@ -174,6 +175,37 @@ namespace ISB.Runtime
                     this.GenerateExpressionStatementSyntax(node);
                     break;
             }
+        }
+
+        private void ClearNopPlaceholders()
+        {
+            var newAssembly = new Assembly();
+            int i = 0;
+            while (i < this.assembly.Count - 1)
+            {
+                var currentInstruction = this.assembly[i];
+                var currentNodeRange = this.assembly.SourceMap[i];
+                var nextInstruction = this.assembly[i + 1];
+                var nextNodeRange = this.assembly.SourceMap[i + 1];
+                if (currentInstruction.Name == Instruction.NOP &&
+                    !string.IsNullOrEmpty(currentInstruction.Label) &&
+                    string.IsNullOrEmpty(nextInstruction.Label))
+                {
+                    // Merges the current NOP instruction with the next instruction.
+                    nextInstruction.Label = currentInstruction.Label;
+                    newAssembly.Add(nextNodeRange, nextInstruction);
+                    i += 2;
+                }
+                else
+                {
+                    newAssembly.Add(currentNodeRange, currentInstruction);
+                    i++;
+                }
+            }
+            if (i < this.assembly.Count) {
+                newAssembly.Add(this.assembly.SourceMap[i], this.assembly[i]);
+            }
+            this.assembly = newAssembly;
         }
 
         private void GenerateStatementBlockSyntax(SyntaxNode node)
