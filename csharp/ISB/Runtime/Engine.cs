@@ -264,17 +264,24 @@ namespace ISB.Runtime
                     int target1 = this.env.RuntimeLabelToIP(label1);
                     string label2 = instruction.Operand2.ToString();
                     int target2 = this.env.RuntimeLabelToIP(label2);
-                    if (target1 >= 0 && target2 >= 0)
+                    if (target1 < 0)
+                    {
+                        this.ReportUndefinedAssemblyLabel(label1);
+                        break;
+                    }
+                    if (target2 < 0)
+                    {
+                        this.ReportUndefinedAssemblyLabel(label2);
+                        break;
+                    }
+                    if (this.env.RuntimeStack.Count > 0)
                     {
                         var value = this.env.RuntimeStack.Pop();
                         this.env.IP = value.ToBoolean() ? target1 : target2;
                     }
                     else
                     {
-                        if (target1 < 0)
-                            this.ReportUndefinedAssemblyLabel(label1);
-                        if (target2 < 0)
-                            this.ReportUndefinedAssemblyLabel(label2);
+                        this.ReportEmptyStack();
                     }
                     break;
                 }
