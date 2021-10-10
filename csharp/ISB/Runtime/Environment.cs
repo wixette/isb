@@ -56,10 +56,14 @@ namespace ISB.Runtime
 
         public int RuntimeLabelToIP(string label)
         {
-            if (!this.RuntimeLabels.ContainsKey(label))
-                return -1;
-            else
+            try
+            {
                 return this.RuntimeLabels[label];
+            }
+            catch (KeyNotFoundException)
+            {
+                return -1;
+            }
         }
 
         private int GetRegisterIndex(BaseValue registerNo)
