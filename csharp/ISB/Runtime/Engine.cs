@@ -17,6 +17,7 @@ namespace ISB.Runtime
         private string moduleName;
         private DiagnosticBag diagnostics;
         private Assembly assembly;
+        private Stack<int> stackFrameBases = new Stack<int>();
 
         public Engine(string moduleName, IEnumerable<Type> externalLibClasses=null)
         {
@@ -99,6 +100,7 @@ namespace ISB.Runtime
             {
                 // The env is reset while the compilation result (assembly, codelines) is kept.
                 this.env.Reset();
+                this.stackFrameBases.Clear();
             }
             this.diagnostics.Reset();
             this.ExecuteAssembly();
@@ -390,6 +392,8 @@ namespace ISB.Runtime
                         this.ReportUndefinedAssemblyLabel(subLabel);
                         break;
                     }
+                    // Records the base of the stack frame before the subroutine invocation.
+                    this.stackFrameBases.Push(this.env.RuntimeStack.Count);
                     this.env.RuntimeStack.Push(new NumberValue(this.env.IP + 1));
                     this.env.IP = targetIP;
                     break;
@@ -402,6 +406,11 @@ namespace ISB.Runtime
                     {
                         this.ReportEmptyStack();
                         break;
+                    }
+                    // Pops up intermediate values before getting the return address.
+                    int stackFrameBase = this.stackFrameBases.Pop();
+                    while (this.env.RuntimeStack.Count > stackFrameBase + 1) {
+                        this.env.RuntimeStack.Pop();
                     }
                     int targetIP = (int)(this.env.RuntimeStack.Pop().ToNumber());
                     for (int i = 0; i < numArguments; i++)
