@@ -49,7 +49,8 @@ public class Program : MonoBehaviour
         }
     }
 
-    private void PrintDebugInfo(string message) {
+    private void PrintDebugInfo(string message)
+    {
         if (string.IsNullOrEmpty(message))
         {
             DebugInfo.text = "";

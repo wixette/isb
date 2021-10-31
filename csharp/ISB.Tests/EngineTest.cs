@@ -217,6 +217,53 @@ namespace ISB.Tests
         }
 
         [Fact]
+        public void TestSubInvocationWithIntermediateValuesInStack()
+        {
+            Engine engine = new Engine("Program");
+            engine.Compile(@"sub x
+            ""test""
+            endsub
+            x()", true);
+            Assert.False(engine.HasError);
+            engine.Run(true);
+            Assert.False(engine.HasError);
+            Assert.Equal(0, engine.StackCount);
+
+            engine.Reset();
+            engine.Compile(@"sub x
+            ""test""
+            3 + 4
+            String.ToLower(""ABC"")
+            endsub
+            x()", true);
+            Assert.False(engine.HasError);
+            engine.Run(true);
+            Assert.False(engine.HasError);
+            Assert.Equal(0, engine.StackCount);
+
+            engine.Reset();
+            engine.Compile(@"sub x
+            ""test""
+            endsub
+            sub y
+            x()
+            endsub
+            sub z
+            ""test""
+            ""test""
+            y()
+            ret = String.ToLower(""TEST"")
+            endsub
+            z()
+            ret", true);
+            Assert.False(engine.HasError);
+            engine.Run(true);
+            Assert.False(engine.HasError);
+            Assert.Equal(1, engine.StackCount);
+            Assert.Equal("test", engine.StackTop.ToString());
+        }
+
+        [Fact]
         public void TestLibProperty()
         {
             Engine engine = new Engine("Program");
