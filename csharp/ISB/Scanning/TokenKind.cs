@@ -44,6 +44,7 @@ namespace ISB.Scanning
         Identifier,
         NumberLiteral,
         StringLiteral,
+        BooleanLiteral,
         Comment,
         Unrecognized,
     }
@@ -91,6 +92,7 @@ namespace ISB.Scanning
                 case TokenKind.Identifier: return "identifier";
                 case TokenKind.NumberLiteral: return "number";
                 case TokenKind.StringLiteral: return "string";
+                case TokenKind.BooleanLiteral: return "boolean";
                 case TokenKind.Comment: return "comment";
                 case TokenKind.Unrecognized: return "unrecognized";
                 default: throw ExceptionUtilities.UnexpectedEnumValue(kind);

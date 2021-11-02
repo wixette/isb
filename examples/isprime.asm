@@ -42,10 +42,10 @@ __isprime.bas_8__:
     eq
     br_if __isprime.bas_9__ __isprime.bas_10__
 __isprime.bas_9__:
-    push 1
+    pushb True
     br __isprime.bas_11__
 __isprime.bas_10__:
-    push 0
+    pushb False
 __isprime.bas_11__:
     br_if __isprime.bas_6__ __isprime.bas_7__
 __isprime.bas_6__:
@@ -80,10 +80,10 @@ __isprime.bas_18__:
     eq
     br_if __isprime.bas_19__ __isprime.bas_20__
 __isprime.bas_19__:
-    push 1
+    pushb True
     br __isprime.bas_21__
 __isprime.bas_20__:
-    push 0
+    pushb False
 __isprime.bas_21__:
     br_if __isprime.bas_16__ __isprime.bas_17__
 __isprime.bas_16__:

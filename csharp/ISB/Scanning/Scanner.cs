@@ -227,6 +227,8 @@ namespace ISB.Scanning
                 case "or": this.AddToken(word, TokenKind.Or); return;
                 case "and": this.AddToken(word, TokenKind.And); return;
                 case "mod": this.AddToken(word, TokenKind.Mod); return;
+                case "true": this.AddToken(word, TokenKind.BooleanLiteral); return;
+                case "false": this.AddToken(word, TokenKind.BooleanLiteral); return;
                 default: this.AddToken(word, TokenKind.Identifier); return;
             }
         }

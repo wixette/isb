@@ -160,8 +160,8 @@ namespace ISB.Runtime
                 {
                     if (c == '"')
                     {
+                        if (buffer.Length > 0 || inQuote) result.Add(buffer.ToString());
                         inQuote = !inQuote;
-                        if (buffer.Length > 0) result.Add(buffer.ToString());
                         buffer.Clear();
                     }
                     else if (c == '\\')

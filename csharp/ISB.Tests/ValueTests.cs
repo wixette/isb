@@ -58,11 +58,12 @@ namespace ISB.Tests
             Assert.Equal((decimal)0.3, NumberValue.Parse("0.3").Value);
             Assert.Equal((decimal)0, NumberValue.Parse("abc").Value);
 
-            Assert.True(BooleanValue.Parse("true").Value);
-            Assert.True(BooleanValue.Parse("True").Value);
-            Assert.False(BooleanValue.Parse("false").Value);
-            Assert.False(BooleanValue.Parse("").Value);
-            Assert.False(BooleanValue.Parse("x").Value);
+            Assert.True(BooleanValue.ParseBooleanOperand("True").Value);
+            Assert.True(BooleanValue.ParseBooleanOperand("true").Value);
+            Assert.False(BooleanValue.ParseBooleanOperand("False").Value);
+            Assert.False(BooleanValue.ParseBooleanOperand("false").Value);
+            Assert.False(BooleanValue.ParseBooleanOperand("1").Value);
+            Assert.False(BooleanValue.ParseBooleanOperand("Anything").Value);
 
             Assert.Equal("abc", StringValue.ParseEscaped("abc").Value);
             Assert.Equal(@"abc""", StringValue.ParseEscaped(@"abc\""").Value);

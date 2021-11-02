@@ -285,10 +285,13 @@ namespace ISB.Runtime
                     this.GenerateIdentifierExpressionSyntax(node);
                     break;
                 case SyntaxNodeKind.NumberLiteralExpressionSyntax:
-                    this.GeneranteNumberLiteralExpressionSyntax(node);
+                    this.GenerateNumberLiteralExpressionSyntax(node);
                     break;
                 case SyntaxNodeKind.StringLiteralExpressionSyntax:
-                    this.GeneranteStringLiteralExpressionSyntax(node);
+                    this.GenerateStringLiteralExpressionSyntax(node);
+                    break;
+                case SyntaxNodeKind.BooleanLiteralExpressionSyntax:
+                    this.GenerateBooleanLiteralExpressionSyntax(node);
                     break;
                 case SyntaxNodeKind.InvocationExpressionSyntax:
                     this.GenerateInvocationExpressionSyntax(node, inExpressionStatement);
@@ -308,18 +311,26 @@ namespace ISB.Runtime
             this.AddInstruction(node.Range, null, Instruction.LOAD, identifier.Text, null);
         }
 
-        private void GeneranteNumberLiteralExpressionSyntax(SyntaxNode node)
+        private void GenerateNumberLiteralExpressionSyntax(SyntaxNode node)
         {
             Token number = node.Terminator;
             this.AddInstruction(node.Range, null, Instruction.PUSH, number.Text, null);
         }
 
-        private void GeneranteStringLiteralExpressionSyntax(SyntaxNode node)
+        private void GenerateStringLiteralExpressionSyntax(SyntaxNode node)
         {
             Token str = node.Terminator;
             // Removes the leading and trailing quotes that the scanner has kept.
             string s = str.Text.Trim('"');
             this.AddInstruction(node.Range, null, Instruction.PUSHS, s, null);
+        }
+
+        private void GenerateBooleanLiteralExpressionSyntax(SyntaxNode node)
+        {
+            Token str = node.Terminator;
+            string s = str.Text.ToLower() == Instruction.TrueLiteral.ToLower() ?
+                Instruction.TrueLiteral : Instruction.FalseLiteral;
+            this.AddInstruction(node.Range, null, Instruction.PUSHB, s, null);
         }
 
         private void GenerateUnaryOperatorExpressionSyntax(SyntaxNode node, bool inExpressionStatement)
@@ -450,10 +461,10 @@ namespace ISB.Runtime
             this.GenerateExpressionSyntax(right, inExpressionStatement);
             this.AddInstruction(node.Range, null, Instruction.BR_IF, labelResultIsTrue, labelResultIsFalse);
             this.AddInstruction(node.Range, labelResultIsTrue, Instruction.NOP, null, null);
-            this.AddInstruction(node.Range, null, Instruction.PUSH, Instruction.TrueLiteral, null);
+            this.AddInstruction(node.Range, null, Instruction.PUSHB, Instruction.TrueLiteral, null);
             this.AddInstruction(node.Range, null, Instruction.BR, labelDone, null);
             this.AddInstruction(node.Range, labelResultIsFalse, Instruction.NOP, null, null);
-            this.AddInstruction(node.Range, null, Instruction.PUSH, Instruction.FalseLiteral, null);
+            this.AddInstruction(node.Range, null, Instruction.PUSHB, Instruction.FalseLiteral, null);
             this.AddInstruction(node.Range, labelDone, Instruction.NOP, null, null);
         }
 
@@ -473,10 +484,10 @@ namespace ISB.Runtime
             this.GenerateExpressionSyntax(right, inExpressionStatement);
             this.AddInstruction(node.Range, null, Instruction.BR_IF, labelResultIsTrue, labelResultIsFalse);
             this.AddInstruction(node.Range, labelResultIsTrue, Instruction.NOP, null, null);
-            this.AddInstruction(node.Range, null, Instruction.PUSH, Instruction.TrueLiteral, null);
+            this.AddInstruction(node.Range, null, Instruction.PUSHB, Instruction.TrueLiteral, null);
             this.AddInstruction(node.Range, null, Instruction.BR, labelDone, null);
             this.AddInstruction(node.Range, labelResultIsFalse, Instruction.NOP, null, null);
-            this.AddInstruction(node.Range, null, Instruction.PUSH, Instruction.FalseLiteral, null);
+            this.AddInstruction(node.Range, null, Instruction.PUSHB, Instruction.FalseLiteral, null);
             this.AddInstruction(node.Range, labelDone, Instruction.NOP, null, null);
         }
 

@@ -205,6 +205,7 @@ namespace ISB.Parsing
                 case TokenKind.Minus:
                 case TokenKind.NumberLiteral:
                 case TokenKind.StringLiteral:
+                case TokenKind.BooleanLiteral:
                 case TokenKind.LeftParen:
                     return this.ParseExpressionStatement();
 
@@ -555,6 +556,10 @@ namespace ISB.Parsing
                 case TokenKind.StringLiteral:
                     var stringToken = this.Eat(TokenKind.StringLiteral);
                     return SyntaxNode.CreateTerminal(SyntaxNodeKind.StringLiteralExpressionSyntax, stringToken);
+
+                case TokenKind.BooleanLiteral:
+                    var booleanToken = this.Eat(TokenKind.BooleanLiteral);
+                    return SyntaxNode.CreateTerminal(SyntaxNodeKind.BooleanLiteralExpressionSyntax, booleanToken);
 
                 case TokenKind.LeftParen:
                     var leftParenToken = this.Eat(TokenKind.LeftParen);
