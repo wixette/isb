@@ -1,8 +1,14 @@
 using Xunit;
+using System;
 using ISB.Runtime;
 
 namespace ISB.Tests
 {
+    class CustomLib
+    {
+        public StringValue Name { get; set; }
+    }
+
     public class EngineTest
     {
         [Fact]
@@ -273,6 +279,20 @@ namespace ISB.Tests
             Assert.False(engine.HasError);
             Assert.Equal(1, engine.StackCount);
             Assert.Equal(3.14159m, engine.StackTop.ToNumber(), 4);
+        }
+
+        [Fact]
+        public void TestCustomLib()
+        {
+            Engine engine = new Engine("Program", new Type[] { typeof(CustomLib) });
+            engine.Compile(@"customlib.name = ""hello""
+            a = customlib.name
+            a", true);
+            Assert.False(engine.HasError);
+            engine.Run(true);
+            Assert.False(engine.HasError);
+            Assert.Equal(1, engine.StackCount);
+            Assert.Equal("hello", engine.StackTop.ToString());
         }
 
         [Fact]

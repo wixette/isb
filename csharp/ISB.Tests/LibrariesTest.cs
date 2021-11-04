@@ -6,6 +6,7 @@ namespace ISB.Tests
 {
     class Foo
     {
+        public StringValue Name { get; set; }
         public NumberValue Bar()
         {
             return new NumberValue(3);
@@ -57,7 +58,12 @@ namespace ISB.Tests
             Libraries libs = new Libraries(new Type[] { typeof(Foo) });
             Assert.True(libs.HasBuiltInFunction("Print"));
             Assert.True(libs.HasFunction("Math", "Sin"));
+            Assert.True(libs.HasProperty("Foo", "Name"));
             Assert.True(libs.HasFunction("Foo", "Bar"));
+            Assert.True(libs.SetPropertyValue("foo", "name", new StringValue("hello")));
+            var name = libs.GetPropertyValue("foo", "name");
+            Assert.True(name is StringValue);
+            Assert.Equal("hello", (name as StringValue).ToString());
             Assert.True(libs.InvokeFunction("foo", "bar", null, out BaseValue ret));
             Assert.Equal(3, ret.ToNumber());
         }
