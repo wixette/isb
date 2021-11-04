@@ -21,6 +21,7 @@ namespace ISB.Scanning
         Sub,
         EndSub,
         GoTo,
+        Not,
         Or,
         And,
         Dot,
@@ -69,6 +70,7 @@ namespace ISB.Scanning
                 case TokenKind.Sub: return "Sub";
                 case TokenKind.EndSub: return "EndSub";
                 case TokenKind.GoTo: return "GoTo";
+                case TokenKind.Not: return "Not";
                 case TokenKind.Or: return "Or";
                 case TokenKind.And: return "And";
                 case TokenKind.Dot: return ".";

@@ -351,6 +351,20 @@ __Program_0__:
     nop
 ";
 
+        const string code28 = @"not (3 > 4)";
+        const string assembly28 = @"    push 3
+    push 4
+    gt
+    br_if __Program_0__ __Program_1__
+__Program_0__:
+    pushb False
+    br __Program_2__
+__Program_1__:
+    pushb True
+__Program_2__:
+    nop
+";
+
         [Theory]
         [InlineData (code1, assembly1)]
         [InlineData (code2, assembly2)]
@@ -379,6 +393,7 @@ __Program_0__:
         [InlineData (code25, assembly25)]
         [InlineData (code26, assembly26)]
         [InlineData (code27, assembly27)]
+        [InlineData (code28, assembly28)]
         public void TestFormatAndParse(string code, string assembly)
         {
             DiagnosticBag diagnostics = new DiagnosticBag();

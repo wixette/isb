@@ -39,7 +39,7 @@ namespace ISB.Tests
         }
 
         [Fact]
-        public void TestBooleanExpressions()
+        public void TestLogicalOperators()
         {
             Engine engine = new Engine("Program");
             string code = "True and True";
@@ -79,6 +79,24 @@ namespace ISB.Tests
 
             engine.Reset();
             code = "(false or true) and (true and (true and true))";
+            engine.Compile(code, true);
+            Assert.False(engine.HasError);
+            engine.Run(true);
+            Assert.False(engine.HasError);
+            Assert.Equal(1, engine.StackCount);
+            Assert.True(engine.StackTop.ToBoolean());
+
+            engine.Reset();
+            code = "not false";
+            engine.Compile(code, true);
+            Assert.False(engine.HasError);
+            engine.Run(true);
+            Assert.False(engine.HasError);
+            Assert.Equal(1, engine.StackCount);
+            Assert.True(engine.StackTop.ToBoolean());
+
+            engine.Reset();
+            code = "((7 > 5) and False) or not (3 <> 3) or not true and true";
             engine.Compile(code, true);
             Assert.False(engine.HasError);
             engine.Run(true);

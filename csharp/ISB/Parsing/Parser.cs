@@ -203,6 +203,7 @@ namespace ISB.Parsing
                 // standalone expression statements to make itself a quick
                 // "calculator".
                 case TokenKind.Minus:
+                case TokenKind.Not:
                 case TokenKind.NumberLiteral:
                 case TokenKind.StringLiteral:
                 case TokenKind.BooleanLiteral:
@@ -403,17 +404,26 @@ namespace ISB.Parsing
 
         private SyntaxNode ParseUnaryOperator()
         {
-            if (this.index < this.tokens.Count && this.Peek() == TokenKind.Minus)
+            if (this.index < this.tokens.Count)
             {
-                var minusToken = this.Eat(TokenKind.Minus);
-                var expression = this.ParseCoreExpression();
-
-                return SyntaxNode.CreateNonTerminal(SyntaxNodeKind.UnaryOperatorExpressionSyntax,
-                    SyntaxNode.CreateTerminal(SyntaxNodeKind.PunctuationSyntax, minusToken),
-                    expression
-                );
+                switch (this.Peek())
+                {
+                    case TokenKind.Minus:
+                        var minusToken = this.Eat(TokenKind.Minus);
+                        var minusExpression = this.ParseCoreExpression();
+                        return SyntaxNode.CreateNonTerminal(
+                            SyntaxNodeKind.UnaryOperatorExpressionSyntax,
+                            SyntaxNode.CreateTerminal(SyntaxNodeKind.PunctuationSyntax, minusToken),
+                            minusExpression);
+                    case TokenKind.Not:
+                        var notToken = this.Eat(TokenKind.Not);
+                        var notExpression = this.ParseCoreExpression();
+                        return SyntaxNode.CreateNonTerminal(
+                            SyntaxNodeKind.UnaryOperatorExpressionSyntax,
+                            SyntaxNode.CreateTerminal(SyntaxNodeKind.PunctuationSyntax, notToken),
+                            notExpression);
+                }
             }
-
             return this.ParseCoreExpression();
         }
 

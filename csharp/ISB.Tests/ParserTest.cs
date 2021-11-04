@@ -393,7 +393,7 @@ EndSub";
       NumberLiteralExpressionSyntax: 0
 ";
 
-const string code20 = @"a.b.c = 0";
+        const string code20 = @"a.b.c = 0";
         const string tree20 = @"StatementBlockSyntax
   ExpressionStatementSyntax
     BinaryOperatorExpressionSyntax
@@ -408,7 +408,7 @@ const string code20 = @"a.b.c = 0";
       NumberLiteralExpressionSyntax: 0
 ";
 
-const string code21 = @"a()()";
+        const string code21 = @"a()()";
         const string tree21 = @"StatementBlockSyntax
   ExpressionStatementSyntax
     InvocationExpressionSyntax
@@ -422,7 +422,7 @@ const string code21 = @"a()()";
       PunctuationSyntax: )
 ";
 
-const string code22 = @"a = b = True";
+        const string code22 = @"a = b = True";
         const string tree22 = @"StatementBlockSyntax
   ExpressionStatementSyntax
     BinaryOperatorExpressionSyntax
@@ -434,7 +434,7 @@ const string code22 = @"a = b = True";
       BooleanLiteralExpressionSyntax: True
 ";
 
-const string code23 = @"a = (b = True)";
+        const string code23 = @"a = (b = True)";
         const string tree23 = @"StatementBlockSyntax
   ExpressionStatementSyntax
     BinaryOperatorExpressionSyntax
@@ -464,6 +464,65 @@ const string code24 = @"3 = 3 and 4 = 4";
         NumberLiteralExpressionSyntax: 4
 ";
 
+        const string code25 = @"True and not True";
+        const string tree25 = @"StatementBlockSyntax
+  ExpressionStatementSyntax
+    BinaryOperatorExpressionSyntax
+      BooleanLiteralExpressionSyntax: True
+      PunctuationSyntax: and
+      UnaryOperatorExpressionSyntax
+        PunctuationSyntax: not
+        BooleanLiteralExpressionSyntax: True
+";
+
+        const string code26 = @"not True and not True";
+        const string tree26 = @"StatementBlockSyntax
+  ExpressionStatementSyntax
+    BinaryOperatorExpressionSyntax
+      UnaryOperatorExpressionSyntax
+        PunctuationSyntax: not
+        BooleanLiteralExpressionSyntax: True
+      PunctuationSyntax: and
+      UnaryOperatorExpressionSyntax
+        PunctuationSyntax: not
+        BooleanLiteralExpressionSyntax: True
+";
+
+        const string code27 = @"not a mod not (3 = 3)";
+        const string tree27 = @"StatementBlockSyntax
+  ExpressionStatementSyntax
+    BinaryOperatorExpressionSyntax
+      UnaryOperatorExpressionSyntax
+        PunctuationSyntax: not
+        IdentifierExpressionSyntax: a
+      PunctuationSyntax: mod
+      UnaryOperatorExpressionSyntax
+        PunctuationSyntax: not
+        ParenthesisExpressionSyntax
+          PunctuationSyntax: (
+          BinaryOperatorExpressionSyntax
+            NumberLiteralExpressionSyntax: 3
+            PunctuationSyntax: =
+            NumberLiteralExpressionSyntax: 3
+          PunctuationSyntax: )
+";
+
+        const string code28 = @"not False + not 3 = 3";
+        const string tree28 = @"StatementBlockSyntax
+  ExpressionStatementSyntax
+    BinaryOperatorExpressionSyntax
+      BinaryOperatorExpressionSyntax
+        UnaryOperatorExpressionSyntax
+          PunctuationSyntax: not
+          BooleanLiteralExpressionSyntax: False
+        PunctuationSyntax: +
+        UnaryOperatorExpressionSyntax
+          PunctuationSyntax: not
+          NumberLiteralExpressionSyntax: 3
+      PunctuationSyntax: =
+      NumberLiteralExpressionSyntax: 3
+";
+
         [Theory]
         [InlineData(code0, tree0)]
         [InlineData(code1, tree1)]
@@ -490,6 +549,10 @@ const string code24 = @"3 = 3 and 4 = 4";
         [InlineData(code22, tree22)]
         [InlineData(code23, tree23)]
         [InlineData(code24, tree24)]
+        [InlineData(code25, tree25)]
+        [InlineData(code26, tree26)]
+        [InlineData(code27, tree27)]
+        [InlineData(code28, tree28)]
         public void TestExpectedParsing(string input, string expected)
         {
             DiagnosticBag diagnostics = new DiagnosticBag();

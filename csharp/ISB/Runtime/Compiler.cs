@@ -357,6 +357,9 @@ namespace ISB.Runtime
                     this.GenerateExpressionSyntax(expression);
                     this.AddInstruction(node.Range, null, Instruction.SUB, null, null);
                     break;
+                case TokenKind.Not:
+                    this.GenerateLogicalNotOperatorExpressionSyntax(node);
+                    break;
                 default:
                     Debug.Fail("Unknown unary operator.");
                     break;
@@ -447,6 +450,22 @@ namespace ISB.Runtime
                 }
                 this.AddInstruction(node.Range, null, instructionName, null, null);
             }
+        }
+
+        private void GenerateLogicalNotOperatorExpressionSyntax(SyntaxNode node)
+        {
+            SyntaxNode expression = node.Children[1];
+            string labelResultIsTrue = this.NewLabel();
+            string labelResultIsFalse = this.NewLabel();
+            string labelDone = this.NewLabel();
+            this.GenerateExpressionSyntax(expression);
+            this.AddInstruction(node.Range, null, Instruction.BR_IF, labelResultIsTrue, labelResultIsFalse);
+            this.AddInstruction(node.Range, labelResultIsTrue, Instruction.NOP, null, null);
+            this.AddInstruction(node.Range, null, Instruction.PUSHB, Instruction.FalseLiteral, null);
+            this.AddInstruction(node.Range, null, Instruction.BR, labelDone, null);
+            this.AddInstruction(node.Range, labelResultIsFalse, Instruction.NOP, null, null);
+            this.AddInstruction(node.Range, null, Instruction.PUSHB, Instruction.TrueLiteral, null);
+            this.AddInstruction(node.Range, labelDone, Instruction.NOP, null, null);
         }
 
         private void GenerateLogicalAndOperatorExpressionSyntax(SyntaxNode node)
