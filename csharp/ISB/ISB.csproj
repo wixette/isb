@@ -1,15 +1,20 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+    <TargetFrameworks>net5.0;netstandard2.0</TargetFrameworks>
+    <OutputType>Library</OutputType>
     <PackageId>ISB</PackageId>
-    <Version>0.1.0</Version>
+    <ReleaseTag>preview</ReleaseTag>
+    <VersionPrefix>0.1.2</VersionPrefix>
+    <AssemblyVersion>$(VersionPrefix)</AssemblyVersion>
+    <Version Condition="'$(ReleaseTag)' != 'release'">$(VersionPrefix)-$(ReleaseTag)$([System.DateTime]::UtcNow.ToString("yyyyMMddHHmmss"))</Version>
+    <Version Condition="'$(ReleaseTag)' == 'release'">$(VersionPrefix)+$([System.DateTime]::UtcNow.ToString("yyyyMMddHHmmss"))</Version>
+    <Copyright>Copyright 2021 wixette</Copyright>
     <Authors>wixette</Authors>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <RepositoryUrl>https://github.com/wixette/isb</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
-    <Description>The Programming Shell of Iteractive Small Basic (ISB)</Description>
-    <OutputType>Library</OutputType>
-    <TargetFrameworks>net5.0;netstandard2.0</TargetFrameworks>
+    <Description>Interactive Small Basic (ISB) - Simple scripting language to be embedded in Unity games or shell environments.</Description>
   </PropertyGroup>
 
   <ItemGroup>
