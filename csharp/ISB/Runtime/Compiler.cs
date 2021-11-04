@@ -259,27 +259,39 @@ namespace ISB.Runtime
             //   (1) Assignment expression statements.
             //   (2) Standalone expression statements.
             //
-            // For case (1), if the top most syntax of the expression statement is assignment,
-            // the final value of the expression will be consumed by the left value of the expression.
+            // For case (1), if the top most syntax of the expression statement is assignment, the
+            // final value of the expression will be consumed by the left value of the expression.
             // Nothing is left on the stack top once the statement is done.
             //
             // For case (2), the final value of the expression will be left on the stack top
             // since no one consumes it.
-            this.GenerateExpressionSyntax(node.Children[0], true);
+            var expressionSyntaxNode = node.Children[0];
+            if (expressionSyntaxNode.Kind == SyntaxNodeKind.BinaryOperatorExpressionSyntax &&
+                expressionSyntaxNode.Children[1].Terminator.Kind == TokenKind.Equal)
+            {
+                // The equal token "=" is only explained as an assignment operator in this
+                // particular cases. It will be explained as the logical equal operator in all other
+                // cases.
+                this.GenerateAssignmentExpressionSyntax(expressionSyntaxNode);
+            }
+            else
+            {
+                this.GenerateExpressionSyntax(expressionSyntaxNode);
+            }
         }
 
-        private void GenerateExpressionSyntax(SyntaxNode node, bool inExpressionStatement)
+        private void GenerateExpressionSyntax(SyntaxNode node)
         {
             switch (node.Kind)
             {
                 case SyntaxNodeKind.UnaryOperatorExpressionSyntax:
-                    this.GenerateUnaryOperatorExpressionSyntax(node, inExpressionStatement);
+                    this.GenerateUnaryOperatorExpressionSyntax(node);
                     break;
                 case SyntaxNodeKind.BinaryOperatorExpressionSyntax:
-                    this.GenerateBinaryOperatorExpressionSyntax(node, inExpressionStatement);
+                    this.GenerateBinaryOperatorExpressionSyntax(node);
                     break;
                 case SyntaxNodeKind.ParenthesisExpressionSyntax:
-                    this.GenerateExpressionSyntax(node.Children[1], inExpressionStatement);
+                    this.GenerateExpressionSyntax(node.Children[1]);
                     break;
                 case SyntaxNodeKind.IdentifierExpressionSyntax:
                     this.GenerateIdentifierExpressionSyntax(node);
@@ -294,13 +306,13 @@ namespace ISB.Runtime
                     this.GenerateBooleanLiteralExpressionSyntax(node);
                     break;
                 case SyntaxNodeKind.InvocationExpressionSyntax:
-                    this.GenerateInvocationExpressionSyntax(node, inExpressionStatement);
+                    this.GenerateInvocationExpressionSyntax(node);
                     break;
                 case SyntaxNodeKind.ObjectAccessExpressionSyntax:
-                    this.GenerateObjectAccessExpressionSyntax(node, inExpressionStatement, false);
+                    this.GenerateObjectAccessExpressionSyntax(node, false);
                     break;
                 case SyntaxNodeKind.ArrayAccessExpressionSyntax:
-                    this.GenerateArrayAccessExpressionSyntax(node, inExpressionStatement, false);
+                    this.GenerateArrayAccessExpressionSyntax(node, false);
                     break;
             }
         }
@@ -333,7 +345,7 @@ namespace ISB.Runtime
             this.AddInstruction(node.Range, null, Instruction.PUSHB, s, null);
         }
 
-        private void GenerateUnaryOperatorExpressionSyntax(SyntaxNode node, bool inExpressionStatement)
+        private void GenerateUnaryOperatorExpressionSyntax(SyntaxNode node)
         {
             Token op = node.Children[0].Terminator;
             SyntaxNode expression = node.Children[1];
@@ -342,7 +354,7 @@ namespace ISB.Runtime
                 case TokenKind.Minus:
                     // Same as (0 - exp).
                     this.AddInstruction(node.Range, null, Instruction.PUSH, Instruction.ZeroLiteral, null);
-                    this.GenerateExpressionSyntax(expression, inExpressionStatement);
+                    this.GenerateExpressionSyntax(expression);
                     this.AddInstruction(node.Range, null, Instruction.SUB, null, null);
                     break;
                 default:
@@ -351,56 +363,48 @@ namespace ISB.Runtime
             }
         }
 
-        private void GenerateBinaryOperatorExpressionSyntax(SyntaxNode node, bool inExpressionStatement)
+        private void GenerateAssignmentExpressionSyntax(SyntaxNode node) {
+            Token op = node.Children[1].Terminator;
+            SyntaxNode left = node.Children[0];
+            SyntaxNode right = node.Children[2];
+            if (left.Kind == SyntaxNodeKind.IdentifierExpressionSyntax)
+            {
+                this.GenerateAssignToVariableExpressionSyntax(node);
+            }
+            else if (left.Kind == SyntaxNodeKind.ArrayAccessExpressionSyntax)
+            {
+                this.GenerateAssignToArrayItemExpressionSyntax(node);
+            }
+            else if (left.Kind == SyntaxNodeKind.ObjectAccessExpressionSyntax)
+            {
+                this.GenerateAssignToLibPropertyExpressionSyntax(node);
+            }
+            else
+            {
+                // The left expression cannot result in a valid left value.
+                if (this.diagnostics != null)
+                    this.diagnostics.Add(Diagnostic.ReportExpectedALeftValue(left.Range));
+            }
+        }
+
+        private void GenerateBinaryOperatorExpressionSyntax(SyntaxNode node)
         {
             Token op = node.Children[1].Terminator;
             SyntaxNode left = node.Children[0];
             SyntaxNode right = node.Children[2];
             if (op.Kind == TokenKind.And)
             {
-                this.GenerateLogicalAndOperatorExpressionSyntax(node, inExpressionStatement);
+                this.GenerateLogicalAndOperatorExpressionSyntax(node);
             }
             else if (op.Kind == TokenKind.Or)
             {
-                this.GenerateLogicalOrOperatorExpressionSyntax(node, inExpressionStatement);
-            }
-            else if (op.Kind == TokenKind.Equal && inExpressionStatement)
-            {
-                // The "=" token is always treated as the assignment operator in expression statements.
-                // Otherwise, it is treated as the logical equal operator. Mixed cases like
-                //
-                //   a = (a = 3)
-                //
-                // as standalone statements are not supported. while cases like
-                //
-                //   while a = 3 and b = 4
-                //   endwhile
-                //
-                // are supported.
-                if (left.Kind == SyntaxNodeKind.IdentifierExpressionSyntax)
-                {
-                    this.GenerateAssignToVariableExpressionSyntax(node, inExpressionStatement);
-                }
-                else if (left.Kind == SyntaxNodeKind.ArrayAccessExpressionSyntax)
-                {
-                    this.GenerateAssignToArrayItemExpressionSyntax(node, inExpressionStatement);
-                }
-                else if (left.Kind == SyntaxNodeKind.ObjectAccessExpressionSyntax)
-                {
-                    this.GenerateAssignToLibPropertyExpressionSyntax(node, inExpressionStatement);
-                }
-                else
-                {
-                    // The left expression cannot result in a valid left value.
-                    if (this.diagnostics != null)
-                        this.diagnostics.Add(Diagnostic.ReportExpectedALeftValue(left.Range));
-                }
+                this.GenerateLogicalOrOperatorExpressionSyntax(node);
             }
             else
             {
                 // Evaluates and pushes left operand then right operand.
-                this.GenerateExpressionSyntax(left, inExpressionStatement);
-                this.GenerateExpressionSyntax(right, inExpressionStatement);
+                this.GenerateExpressionSyntax(left);
+                this.GenerateExpressionSyntax(right);
                 string instructionName = null;
                 switch (op.Kind)
                 {
@@ -445,7 +449,7 @@ namespace ISB.Runtime
             }
         }
 
-        private void GenerateLogicalAndOperatorExpressionSyntax(SyntaxNode node, bool inExpressionStatement)
+        private void GenerateLogicalAndOperatorExpressionSyntax(SyntaxNode node)
         {
             SyntaxNode left = node.Children[0];
             SyntaxNode right = node.Children[2];
@@ -455,10 +459,10 @@ namespace ISB.Runtime
             string labelResultIsFalse = this.NewLabel();
             string labelDone = this.NewLabel();
 
-            this.GenerateExpressionSyntax(left, inExpressionStatement);
+            this.GenerateExpressionSyntax(left);
             this.AddInstruction(node.Range, null, Instruction.BR_IF, labelLeftIsTrue, labelResultIsFalse);
             this.AddInstruction(node.Range, labelLeftIsTrue, Instruction.NOP, null, null);
-            this.GenerateExpressionSyntax(right, inExpressionStatement);
+            this.GenerateExpressionSyntax(right);
             this.AddInstruction(node.Range, null, Instruction.BR_IF, labelResultIsTrue, labelResultIsFalse);
             this.AddInstruction(node.Range, labelResultIsTrue, Instruction.NOP, null, null);
             this.AddInstruction(node.Range, null, Instruction.PUSHB, Instruction.TrueLiteral, null);
@@ -468,7 +472,7 @@ namespace ISB.Runtime
             this.AddInstruction(node.Range, labelDone, Instruction.NOP, null, null);
         }
 
-        private void GenerateLogicalOrOperatorExpressionSyntax(SyntaxNode node, bool inExpressionStatement)
+        private void GenerateLogicalOrOperatorExpressionSyntax(SyntaxNode node)
         {
             SyntaxNode left = node.Children[0];
             SyntaxNode right = node.Children[2];
@@ -478,10 +482,10 @@ namespace ISB.Runtime
             string labelResultIsFalse = this.NewLabel();
             string labelDone = this.NewLabel();
 
-            this.GenerateExpressionSyntax(left, inExpressionStatement);
+            this.GenerateExpressionSyntax(left);
             this.AddInstruction(node.Range, null, Instruction.BR_IF, labelResultIsTrue, labelLeftIsFalse);
             this.AddInstruction(node.Range, labelLeftIsFalse, Instruction.NOP, null, null);
-            this.GenerateExpressionSyntax(right, inExpressionStatement);
+            this.GenerateExpressionSyntax(right);
             this.AddInstruction(node.Range, null, Instruction.BR_IF, labelResultIsTrue, labelResultIsFalse);
             this.AddInstruction(node.Range, labelResultIsTrue, Instruction.NOP, null, null);
             this.AddInstruction(node.Range, null, Instruction.PUSHB, Instruction.TrueLiteral, null);
@@ -491,34 +495,34 @@ namespace ISB.Runtime
             this.AddInstruction(node.Range, labelDone, Instruction.NOP, null, null);
         }
 
-        private void GenerateAssignToVariableExpressionSyntax(SyntaxNode node, bool inExpressionStatement)
+        private void GenerateAssignToVariableExpressionSyntax(SyntaxNode node)
         {
             SyntaxNode left = node.Children[0];
             SyntaxNode right = node.Children[2];
             string variableName = left.Terminator.Text;
-            this.GenerateExpressionSyntax(right, inExpressionStatement);
+            this.GenerateExpressionSyntax(right);
             this.AddInstruction(node.Range, null, Instruction.STORE, variableName, null);
         }
 
-        private void GenerateAssignToArrayItemExpressionSyntax(SyntaxNode node, bool inExpressionStatement)
+        private void GenerateAssignToArrayItemExpressionSyntax(SyntaxNode node)
         {
             SyntaxNode left = node.Children[0];
             SyntaxNode right = node.Children[2];
-            this.GenerateExpressionSyntax(right, inExpressionStatement);
-            this.GenerateArrayAccessExpressionSyntax(left, inExpressionStatement, true);
+            this.GenerateExpressionSyntax(right);
+            this.GenerateArrayAccessExpressionSyntax(left, true);
         }
 
-        private void GenerateAssignToLibPropertyExpressionSyntax(SyntaxNode node, bool inExpressionStatement)
+        private void GenerateAssignToLibPropertyExpressionSyntax(SyntaxNode node)
         {
             SyntaxNode left = node.Children[0];
             SyntaxNode right = node.Children[2];
-            this.GenerateExpressionSyntax(right, inExpressionStatement);
-            this.GenerateObjectAccessExpressionSyntax(left, inExpressionStatement, true);
+            this.GenerateExpressionSyntax(right);
+            this.GenerateObjectAccessExpressionSyntax(left, true);
         }
 
-        private void GenerateArrayAccessExpressionSyntax(SyntaxNode node, bool inExpressionStatement, bool forLeftValue)
+        private void GenerateArrayAccessExpressionSyntax(SyntaxNode node, bool forLeftValue)
         {
-            var (dimension, arrayName) = this.GenerateArrayIndex(node, inExpressionStatement);
+            var (dimension, arrayName) = this.GenerateArrayIndex(node);
             if (forLeftValue)
             {
                 this.AddInstruction(node.Range, null, Instruction.STORE_ARR, arrayName, dimension.ToString());
@@ -529,16 +533,16 @@ namespace ISB.Runtime
             }
         }
 
-        private (int, string) GenerateArrayIndex(SyntaxNode node, bool inExpressionStatement)
+        private (int, string) GenerateArrayIndex(SyntaxNode node)
         {
-            this.GenerateExpressionSyntax(node.Children[2], inExpressionStatement);
+            this.GenerateExpressionSyntax(node.Children[2]);
             if (node.Children[0].IsTerminator)
             {
                 return (1, node.Children[0].Terminator.Text);
             }
             else
             {
-                var (dimension, arrayName) = this.GenerateArrayIndex(node.Children[0], inExpressionStatement);
+                var (dimension, arrayName) = this.GenerateArrayIndex(node.Children[0]);
                 return (1 + dimension, arrayName);
             }
         }
@@ -551,7 +555,7 @@ namespace ISB.Runtime
         }
 
         private void GenerateObjectAccessExpressionSyntax(
-            SyntaxNode node, bool inExpressionStatement, bool forLeftValue)
+            SyntaxNode node, bool forLeftValue)
         {
             if (node.Children[0].Kind != SyntaxNodeKind.IdentifierExpressionSyntax)
             {
@@ -589,7 +593,7 @@ namespace ISB.Runtime
             }
         }
 
-        private void GenerateInvocationExpressionSyntax(SyntaxNode node, bool inExpressionStatement)
+        private void GenerateInvocationExpressionSyntax(SyntaxNode node)
         {
             switch (node.Children[0].Kind)
             {
@@ -598,12 +602,12 @@ namespace ISB.Runtime
                     if (this.HasSubName(subName))
                         this.GenerateCallSub(node);
                     else if (this.env.Libs.HasBuiltInFunction(subName))
-                        this.GenerateCallLib(node, true, inExpressionStatement);
+                        this.GenerateCallLib(node, true);
                     else if (this.diagnostics != null)
                         this.diagnostics.Add(Diagnostic.ReportUnsupportedInvocationBaseExpression(node.Range));
                     break;
                 case SyntaxNodeKind.ObjectAccessExpressionSyntax:
-                    this.GenerateCallLib(node, false, inExpressionStatement);
+                    this.GenerateCallLib(node, false);
                     break;
                 default:
                     // Embedded InvocationExpressionSyntax like "a()()" is not supported.
@@ -629,7 +633,7 @@ namespace ISB.Runtime
             this.AddInstruction(node.Range, null, Instruction.CALL, subLabel, null);
         }
 
-        private void GenerateCallLib(SyntaxNode node, bool isBuiltInFunction, bool inExpressionStatement)
+        private void GenerateCallLib(SyntaxNode node, bool isBuiltInFunction)
         {
             if (!isBuiltInFunction &&
                 node.Children[0].Children[0].Kind != SyntaxNodeKind.IdentifierExpressionSyntax)
@@ -649,7 +653,7 @@ namespace ISB.Runtime
                 for (int i = argumentGroupNode.Children.Count - 1; i >= 0; i--)
                 {
                     SyntaxNode argumentExpression = argumentGroupNode.Children[i].Children[0];
-                    GenerateExpressionSyntax(argumentExpression, inExpressionStatement);
+                    GenerateExpressionSyntax(argumentExpression);
                 }
             }
 
@@ -716,7 +720,7 @@ namespace ISB.Runtime
 
             string trueLabel = this.NewLabel();
             string falseLabel = this.NewLabel();
-            this.GenerateExpressionSyntax(conditionNode, false);
+            this.GenerateExpressionSyntax(conditionNode);
             this.AddInstruction(node.Range, null, Instruction.BR_IF, trueLabel, falseLabel);
             this.AddInstruction(node.Range, trueLabel, Instruction.NOP, null, null);
             this.GenerateStatementBlockSyntax(bodyNode);
@@ -732,7 +736,7 @@ namespace ISB.Runtime
             this.AddInstruction(node.Range, startLabel, Instruction.NOP, null, null);
 
             SyntaxNode conditionNode = node.Children[1];
-            this.GenerateExpressionSyntax(conditionNode, false);
+            this.GenerateExpressionSyntax(conditionNode);
             this.AddInstruction(node.Range, null, Instruction.BR_IF, bodyLabel, endLabel);
             this.AddInstruction(node.Range, bodyLabel, Instruction.NOP, null, null);
 
@@ -755,7 +759,7 @@ namespace ISB.Runtime
             SyntaxNode bodyNode = node.Children[7];
 
             // Initializes the loop variable.
-            this.GenerateExpressionSyntax(fromExpressionNode, false);
+            this.GenerateExpressionSyntax(fromExpressionNode);
             this.AddInstruction(node.Range, null, Instruction.STORE, loopVariableName, null);
 
             string startLabel = this.NewLabel();
@@ -771,7 +775,7 @@ namespace ISB.Runtime
             // Calculates the step value and stores it to register[0].
             if (stepExpressionNode != null)
             {
-                this.GenerateExpressionSyntax(stepExpressionNode, false);
+                this.GenerateExpressionSyntax(stepExpressionNode);
                 this.AddInstruction(node.Range, null, Instruction.SET, "0", null);
             }
             else
@@ -799,7 +803,7 @@ namespace ISB.Runtime
             // Continues the for loop if true, breaks the for loop otherwise.
             this.AddInstruction(node.Range, leCompareLabel, Instruction.NOP, null, null);
             this.AddInstruction(node.Range, null, Instruction.LOAD, loopVariableName, null);
-            this.GenerateExpressionSyntax(toExpressionNode, false);
+            this.GenerateExpressionSyntax(toExpressionNode);
             this.AddInstruction(node.Range, null, Instruction.LE, null, null);
             this.AddInstruction(node.Range, null, Instruction.BR_IF, startLabel, endLabel);
 
@@ -807,7 +811,7 @@ namespace ISB.Runtime
             // Continues the for loop if true, breaks the for loop otherwise.
             this.AddInstruction(node.Range, geCompareLabel, Instruction.NOP, null, null);
             this.AddInstruction(node.Range, null, Instruction.LOAD, loopVariableName, null);
-            this.GenerateExpressionSyntax(toExpressionNode, false);
+            this.GenerateExpressionSyntax(toExpressionNode);
             this.AddInstruction(node.Range, null, Instruction.GE, null, null);
             this.AddInstruction(node.Range, null, Instruction.BR_IF, startLabel, endLabel);
 

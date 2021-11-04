@@ -422,6 +422,48 @@ const string code21 = @"a()()";
       PunctuationSyntax: )
 ";
 
+const string code22 = @"a = b = True";
+        const string tree22 = @"StatementBlockSyntax
+  ExpressionStatementSyntax
+    BinaryOperatorExpressionSyntax
+      BinaryOperatorExpressionSyntax
+        IdentifierExpressionSyntax: a
+        PunctuationSyntax: =
+        IdentifierExpressionSyntax: b
+      PunctuationSyntax: =
+      BooleanLiteralExpressionSyntax: True
+";
+
+const string code23 = @"a = (b = True)";
+        const string tree23 = @"StatementBlockSyntax
+  ExpressionStatementSyntax
+    BinaryOperatorExpressionSyntax
+      IdentifierExpressionSyntax: a
+      PunctuationSyntax: =
+      ParenthesisExpressionSyntax
+        PunctuationSyntax: (
+        BinaryOperatorExpressionSyntax
+          IdentifierExpressionSyntax: b
+          PunctuationSyntax: =
+          BooleanLiteralExpressionSyntax: True
+        PunctuationSyntax: )
+";
+
+const string code24 = @"3 = 3 and 4 = 4";
+        const string tree24 = @"StatementBlockSyntax
+  ExpressionStatementSyntax
+    BinaryOperatorExpressionSyntax
+      BinaryOperatorExpressionSyntax
+        NumberLiteralExpressionSyntax: 3
+        PunctuationSyntax: =
+        NumberLiteralExpressionSyntax: 3
+      PunctuationSyntax: and
+      BinaryOperatorExpressionSyntax
+        NumberLiteralExpressionSyntax: 4
+        PunctuationSyntax: =
+        NumberLiteralExpressionSyntax: 4
+";
+
         [Theory]
         [InlineData(code0, tree0)]
         [InlineData(code1, tree1)]
@@ -445,6 +487,9 @@ const string code21 = @"a()()";
         [InlineData(code19, tree19)]
         [InlineData(code20, tree20)]
         [InlineData(code21, tree21)]
+        [InlineData(code22, tree22)]
+        [InlineData(code23, tree23)]
+        [InlineData(code24, tree24)]
         public void TestExpectedParsing(string input, string expected)
         {
             DiagnosticBag diagnostics = new DiagnosticBag();
