@@ -74,10 +74,10 @@ __Program_0__:
     lt
     br_if __Program_1__ __Program_2__
 __Program_1__:
-    push 1
+    pushb True
     br __Program_3__
 __Program_2__:
-    push 0
+    pushb False
 __Program_3__:
     nop
 ";
@@ -93,10 +93,10 @@ __Program_0__:
     le
     br_if __Program_1__ __Program_2__
 __Program_1__:
-    push 1
+    pushb True
     br __Program_3__
 __Program_2__:
-    push 0
+    pushb False
 __Program_3__:
     nop
 ";
@@ -321,10 +321,10 @@ __Program_3__:
     eq
     br_if __Program_4__ __Program_5__
 __Program_4__:
-    push 1
+    pushb True
     br __Program_6__
 __Program_5__:
-    push 0
+    pushb False
 __Program_6__:
     br_if __Program_1__ __Program_2__
 __Program_1__:
@@ -348,6 +348,20 @@ __Program_1__:
 __Program_2__:
     nop
 __Program_0__:
+    nop
+";
+
+        const string code28 = @"not (3 > 4)";
+        const string assembly28 = @"    push 3
+    push 4
+    gt
+    br_if __Program_0__ __Program_1__
+__Program_0__:
+    pushb False
+    br __Program_2__
+__Program_1__:
+    pushb True
+__Program_2__:
     nop
 ";
 
@@ -379,6 +393,7 @@ __Program_0__:
         [InlineData (code25, assembly25)]
         [InlineData (code26, assembly26)]
         [InlineData (code27, assembly27)]
+        [InlineData (code28, assembly28)]
         public void TestFormatAndParse(string code, string assembly)
         {
             DiagnosticBag diagnostics = new DiagnosticBag();

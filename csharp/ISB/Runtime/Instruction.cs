@@ -18,7 +18,8 @@ namespace ISB.Runtime
             Identifier,
             Integer,
             Number,
-            String
+            String,
+            Boolean
         }
 
         // Does nothing.
@@ -93,6 +94,12 @@ namespace ISB.Runtime
         //
         //   (1) Stack.Push(str)
         public const string PUSHS = "pushs";
+
+        // Pushes a boolean value into the stack.
+        //   push <bool>
+        //
+        //   (1) Stack.Push(bool)
+        public const string PUSHB = "pushb";
 
         // Calls a function.
         // It's the caller's duty to push arguments into the stack.
@@ -253,8 +260,8 @@ namespace ISB.Runtime
         public const string GE = "ge";
 
         public const string ZeroLiteral = "0";
-        public const string TrueLiteral = "1";
-        public const string FalseLiteral = "0";
+        public const string TrueLiteral = "True";
+        public const string FalseLiteral = "False";
 
         private static readonly Dictionary<string, (OperandKind, OperandKind)> instructionSet =
             new Dictionary<string, (OperandKind, OperandKind)>()
@@ -270,6 +277,7 @@ namespace ISB.Runtime
             { LOAD_ARR, (OperandKind.Identifier, OperandKind.Integer) },
             { PUSH, (OperandKind.Number, OperandKind.None) },
             { PUSHS, (OperandKind.String, OperandKind.None) },
+            { PUSHB, (OperandKind.Boolean, OperandKind.None) },
             { CALL, (OperandKind.Label, OperandKind.None) },
             { RET, (OperandKind.Integer, OperandKind.None) },
             { CALL_LIB, (OperandKind.Label, OperandKind.Label) },
@@ -333,30 +341,35 @@ namespace ISB.Runtime
             switch (kind)
             {
                 case OperandKind.None:
-                    if (operand != null)
+                    if (!(operand is null))
                         return false;
                     break;
                 case OperandKind.Identifier:
                 case OperandKind.Label:
-                    if (operand == null || operand.Length <= 0)
+                    if (string.IsNullOrEmpty(operand))
                         return false;
                     operandValue = new StringValue(operand);
                     break;
                 case OperandKind.Integer:
-                    if (operand == null || operand.Length <= 0)
+                    if (string.IsNullOrEmpty(operand))
                         return false;
                     var n = NumberValue.Parse(operand);
                     operandValue = new NumberValue(Math.Floor(n.Value));
                     break;
                 case OperandKind.Number:
-                    if (operand == null || operand.Length <= 0)
+                    if (string.IsNullOrEmpty(operand))
                         return false;
                     operandValue = NumberValue.Parse(operand);
                     break;
                 case OperandKind.String:
-                    if (operand == null || operand.Length < 0)
+                    if (operand is null)
                         return false;
                     operandValue = new StringValue(operand);
+                    break;
+                case OperandKind.Boolean:
+                    if (string.IsNullOrEmpty(operand))
+                        return false;
+                    operandValue = BooleanValue.ParseBooleanOperand(operand);
                     break;
 
             }
@@ -399,6 +412,8 @@ namespace ISB.Runtime
                     return operand.ToDisplayString();
                 case OperandKind.String:
                     return "\"" + StringValue.Escape(operand.ToString()) + "\"";
+                case OperandKind.Boolean:
+                    return operand.ToDisplayString();
                 case OperandKind.Integer:
                     return ((int)operand.ToNumber()).ToString();
                 default:

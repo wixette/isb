@@ -12,23 +12,19 @@ namespace ISB.Runtime
 
         public bool Value { get; private set; }
 
-        public override string ToDisplayString() => this.Value ? "True" : "False";
+        public override string ToDisplayString() =>
+            this.Value ? Instruction.TrueLiteral : Instruction.FalseLiteral;
 
         public override bool ToBoolean() => this.Value;
 
         public override decimal ToNumber() => this.Value ? 1 : 0;
 
-        public static BooleanValue Parse(string s)
-        {
-            switch (s.Trim().ToLower())
-            {
-                case "true":
-                    return new BooleanValue(true);
-                case "false":
-                default:
-                    return new BooleanValue(false);
-            }
-        }
+        // Note: this parser is only used to parse boolean operands in assembly instructions such as
+        // PUSHB. The implicit value-to-boolean conversion must not rely on this parser since the
+        // rules are different.
+        public static BooleanValue ParseBooleanOperand(string s) =>
+            s.ToLower() == Instruction.TrueLiteral.ToLower() ?
+                new BooleanValue(true) : new BooleanValue(false);
 
         public override object Clone()
         {

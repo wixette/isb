@@ -37,6 +37,7 @@ namespace ISB.Parsing
         NumberLiteralExpressionSyntax,
         PunctuationSyntax,
         StringLiteralExpressionSyntax,
+        BooleanLiteralExpressionSyntax,
         UnrecognizedExpressionSyntax,
         UnrecognizedStatementSyntax,
     }
@@ -77,6 +78,7 @@ namespace ISB.Parsing
                 case SyntaxNodeKind.NumberLiteralExpressionSyntax: return "NumberLiteralExpressionSyntax";
                 case SyntaxNodeKind.PunctuationSyntax: return "PunctuationSyntax";
                 case SyntaxNodeKind.StringLiteralExpressionSyntax: return "StringLiteralExpressionSyntax";
+                case SyntaxNodeKind.BooleanLiteralExpressionSyntax: return "BooleanLiteralExpressionSyntax";
                 case SyntaxNodeKind.UnrecognizedExpressionSyntax: return "UnrecognizedExpressionSyntax";
                 case SyntaxNodeKind.UnrecognizedStatementSyntax: return "UnrecognizedStatementSyntax";
                 default: throw ExceptionUtilities.UnexpectedEnumValue(kind);

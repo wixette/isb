@@ -383,6 +383,15 @@ namespace ISB.Runtime
                     break;
                 }
 
+                case Instruction.PUSHB:
+                {
+                    var value = instruction.Operand1;
+                    Debug.Assert(value is BooleanValue);
+                    this.env.RuntimeStack.Push(value);
+                    this.env.IP++;
+                    break;
+                }
+
                 case Instruction.CALL:
                 {
                     string subLabel = instruction.Operand1.ToString();

@@ -21,6 +21,7 @@ namespace ISB.Scanning
         Sub,
         EndSub,
         GoTo,
+        Not,
         Or,
         And,
         Dot,
@@ -44,6 +45,7 @@ namespace ISB.Scanning
         Identifier,
         NumberLiteral,
         StringLiteral,
+        BooleanLiteral,
         Comment,
         Unrecognized,
     }
@@ -68,6 +70,7 @@ namespace ISB.Scanning
                 case TokenKind.Sub: return "Sub";
                 case TokenKind.EndSub: return "EndSub";
                 case TokenKind.GoTo: return "GoTo";
+                case TokenKind.Not: return "Not";
                 case TokenKind.Or: return "Or";
                 case TokenKind.And: return "And";
                 case TokenKind.Dot: return ".";
@@ -91,6 +94,7 @@ namespace ISB.Scanning
                 case TokenKind.Identifier: return "identifier";
                 case TokenKind.NumberLiteral: return "number";
                 case TokenKind.StringLiteral: return "string";
+                case TokenKind.BooleanLiteral: return "boolean";
                 case TokenKind.Comment: return "comment";
                 case TokenKind.Unrecognized: return "unrecognized";
                 default: throw ExceptionUtilities.UnexpectedEnumValue(kind);

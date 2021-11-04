@@ -224,9 +224,12 @@ namespace ISB.Scanning
                 case "endwhile": this.AddToken(word, TokenKind.EndWhile); return;
                 case "sub": this.AddToken(word, TokenKind.Sub); return;
                 case "endsub": this.AddToken(word, TokenKind.EndSub); return;
+                case "not": this.AddToken(word, TokenKind.Not); return;
                 case "or": this.AddToken(word, TokenKind.Or); return;
                 case "and": this.AddToken(word, TokenKind.And); return;
                 case "mod": this.AddToken(word, TokenKind.Mod); return;
+                case "true": this.AddToken(word, TokenKind.BooleanLiteral); return;
+                case "false": this.AddToken(word, TokenKind.BooleanLiteral); return;
                 default: this.AddToken(word, TokenKind.Identifier); return;
             }
         }
