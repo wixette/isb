@@ -16,37 +16,46 @@ public class Program : MonoBehaviour
         uiButton.onClick.AddListener(onButtonClick);
     }
 
-    void Update()
-    {
-    }
-
     void onButtonClick()
     {
         string code = uiInput.text;
         Debug.Log(code);
 
         Engine engine = new Engine("Unity", new Type[] { typeof(Game) });
-        if (engine.Compile(code, true) && engine.Run(true))
+        if (!engine.Compile(code, true))
         {
-            if (engine.StackCount > 0)
+            ReportErrors(engine);
+            return;
+        }
+
+        // Runs the program in a Unity coroutine.
+        Action<bool> doneCallback = (value) =>
+        {
+            if (!value)
+            {
+                ReportErrors(engine);
+            }
+            else if (engine.StackCount > 0)
             {
                 string ret = engine.StackTop.ToDisplayString();
                 PrintDebugInfo(ret);
             }
-            else
-            {
-                PrintDebugInfo(null);
-            }
-        }
-        else
+        };
+        // Prevents the scripting engine to be stuck in an infinite loop.
+        int maxInstructionsToExecute = 1000000;
+        Func<int, bool> canContinueCallback =
+            (counter) => counter >= maxInstructionsToExecute ? false : true;
+        StartCoroutine(engine.RunAsCoroutine(doneCallback, canContinueCallback));
+    }
+
+    private void ReportErrors(Engine engine)
+    {
+        var buffer = new List<string>();
+        foreach (var content in engine.ErrorInfo.Contents)
         {
-            var buffer = new List<string>();
-            foreach (var content in engine.ErrorInfo.Contents)
-            {
-                buffer.Add(content.ToDisplayString());
-            }
-            PrintDebugInfo(string.Join("\n", buffer));
+            buffer.Add(content.ToDisplayString());
         }
+        PrintDebugInfo(string.Join("\n", buffer));
     }
 
     private void PrintDebugInfo(string message)

@@ -2,6 +2,7 @@
 // The original code is licensed under the MIT License.
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reflection;
@@ -55,7 +56,8 @@ namespace ISB.Runtime
             this.CodeLines.Clear();
         }
 
-        public bool Compile(string code, bool reset)
+        // Compile an ISB source code. Returns false if there are compile errors.
+        public bool Compile(string code, bool reset = true)
         {
             if (reset)
             {
@@ -69,8 +71,10 @@ namespace ISB.Runtime
             {
                 return false;
             }
-            Assembly newAssembly = Compiler.Compile(tree, this.env, this.moduleName, this.diagnostics,
-                out HashSet<string> newCompileTimeLabels, out HashSet<string> newCompileTimeSubNames);
+            Assembly newAssembly =
+                Compiler.Compile(tree, this.env, this.moduleName, this.diagnostics,
+                                 out HashSet<string> newCompileTimeLabels,
+                                 out HashSet<string> newCompileTimeSubNames);
             if (this.HasError)
             {
                 return false;
@@ -90,11 +94,68 @@ namespace ISB.Runtime
             this.env.Reset();
             this.CodeLines.Clear();
             this.diagnostics.Reset();
-            // TODO: checks and reports errors. (the current implementation simply ignores parsing errors.)
+            // TODO: checks and reports errors. (the current implementation simply ignores parsing
+            // errors.)
             this.assembly = Compiler.ParseAssembly(assemblyCode);
         }
 
-        public bool Run(bool reset)
+        // Runs a compiled program until the end. Returns false if there are runtime errors.
+        public bool Run(bool reset = true)
+        {
+            BeforeExecution(reset);
+            this.ExecuteAssembly();
+            return !this.HasError;
+        }
+
+        // Runs a compiled program as in a coroutine context.
+        //
+        // The process yields with an integer counter every time once numInstructionsPerStep
+        // instructions are executed.
+        //
+        // If doneCallback is not null, the callback action will be invoked when the execution is
+        // done, with the success flag as the only argument.
+        //
+        // If canContinueCallback is not null, the callback function will be invoked every step to
+        // check if the execution can be continued or not. A counter value will also be passed into
+        // the canContinueCallback function.
+        //
+        // If the execution has been cancelled due to a false return value of canContinueCallback,
+        // the ISB engine will have a runtime error info to record that.
+        //
+        // This can be used in Unity to build a run-per-frame scripting sandbox, with the ability to
+        // check and cancel a program if it contains time-consuming logic such as an infinite loop.
+        public IEnumerator RunAsCoroutine(Action<bool> doneCallback = null,
+                                          Func<int, bool> canContinueCallback = null,
+                                          bool reset = true,
+                                          int maxInstructionsPerStep = 10000)
+        {
+            BeforeExecution(reset);
+            int counter = 0;
+            while (true)
+            {
+                counter += this.ExecuteAssemblyForOneStep(maxInstructionsPerStep);
+                if (this.HasError || this.env.IP >= this.assembly.Instructions.Count)
+                {
+                    break;
+                }
+                else if (!(canContinueCallback is null) && !canContinueCallback(counter))
+                {
+                    this.ReportCoroutineCancelled();
+                    break;
+                }
+                else
+                {
+                    yield return counter;
+                }
+            }
+            if (!(doneCallback is null))
+            {
+                doneCallback(!this.HasError);
+            }
+        }
+
+        // Scans for new labels and updates the label dictionary.
+        private void BeforeExecution(bool reset)
         {
             if (reset)
             {
@@ -103,13 +164,6 @@ namespace ISB.Runtime
                 this.stackFrameBases.Clear();
             }
             this.diagnostics.Reset();
-            this.ExecuteAssembly();
-            return !this.HasError;
-        }
-
-        private void ExecuteAssembly()
-        {
-            // Scans for new labels and updates the label dictionary.
             for (int i = this.env.IP; i < this.assembly.Instructions.Count; i++)
             {
                 var instruction = this.assembly.Instructions[i];
@@ -118,30 +172,52 @@ namespace ISB.Runtime
                     this.env.RuntimeLabels[instruction.Label] = i;
                 }
             }
+        }
 
+        private void ExecuteAssembly()
+        {
             // Executes instructions one by one.
             while (this.env.IP < this.assembly.Instructions.Count && !this.HasError)
             {
-                Instruction instruction = this.assembly.Instructions[this.env.IP];
-                try
-                {
-                    ExecuteInstruction(instruction);
-                }
-                catch (TargetInvocationException e)
-                {
-                    if (e.InnerException is OverflowException)
-                        this.ReportOverflow(e.Message);
-                    else
-                        this.ReportRuntimeError(e.InnerException.Message);
-                }
-                catch (OverflowException e)
-                {
+                ExecuteNextInstruction();
+            }
+        }
+
+        private int ExecuteAssemblyForOneStep(int maxInstructionsPerStep)
+        {
+            // Executes at most numInstructionsPerStep instructions.
+            int count = 0;
+            while (this.env.IP < this.assembly.Instructions.Count &&
+                   count < maxInstructionsPerStep &&
+                   !this.HasError)
+            {
+                ExecuteNextInstruction();
+                count++;
+            }
+            return count;
+        }
+
+        private void ExecuteNextInstruction()
+        {
+            Instruction instruction = this.assembly.Instructions[this.env.IP];
+            try
+            {
+                ExecuteInstruction(instruction);
+            }
+            catch (TargetInvocationException e)
+            {
+                if (e.InnerException is OverflowException)
                     this.ReportOverflow(e.Message);
-                }
-                catch (StackOverflowException e)
-                {
-                    this.ReportStackOverflow(e.Message);
-                }
+                else
+                    this.ReportRuntimeError(e.InnerException.Message);
+            }
+            catch (OverflowException e)
+            {
+                this.ReportOverflow(e.Message);
+            }
+            catch (StackOverflowException e)
+            {
+                this.ReportStackOverflow(e.Message);
             }
         }
 
@@ -172,6 +248,12 @@ namespace ISB.Runtime
         {
             // TODO: moves this message to Resources.
             this.ReportRuntimeError($"Undefined assembly label, {label}");
+        }
+
+        private void ReportCoroutineCancelled()
+        {
+            // TODO: moves this message to Resources.
+            this.ReportRuntimeError($"The coroutine has been cancelled.");
         }
 
         private void ReportEmptyStack()
