@@ -56,7 +56,7 @@ namespace ISB.Runtime
             this.CodeLines.Clear();
         }
 
-        // Compile an ISB source code. Returns false if there are compile errors.
+        // Compiles an ISB source code. Returns false if there are compile errors.
         public bool Compile(string code, bool reset = true)
         {
             if (reset)
@@ -109,15 +109,15 @@ namespace ISB.Runtime
 
         // Runs a compiled program as in a coroutine context.
         //
-        // The process yields with an integer counter every time once numInstructionsPerStep
+        // The process yields with an integer instruction counter every time numInstructionsPerStep
         // instructions are executed.
         //
         // If doneCallback is not null, the callback action will be invoked when the execution is
         // done, with the success flag as the only argument.
         //
         // If canContinueCallback is not null, the callback function will be invoked every step to
-        // check if the execution can be continued or not. A counter value will also be passed into
-        // the canContinueCallback function.
+        // check if the execution can be continued or not. An instruction counter will also be
+        // passed into the canContinueCallback function.
         //
         // If the execution has been cancelled due to a false return value of canContinueCallback,
         // the ISB engine will have a runtime error info to record that.
