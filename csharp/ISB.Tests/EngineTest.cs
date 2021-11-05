@@ -447,5 +447,61 @@ endif", false));
 
             Assert.Equal(200, engine.StackTop.ToNumber());
         }
+
+        [Fact]
+        public void TestCoroutineWithoutCallbacks()
+        {
+            Engine engine = new Engine("Program");
+            string code = @"x = 0
+            for i = 1 to 10000
+              x = x + 1
+            endfor
+            x";
+            Assert.True(engine.Compile(code, true));
+            var enumerator = engine.RunAsCoroutine(null, null, true, 10000);
+            while (enumerator.MoveNext());
+            Assert.Equal(1, engine.StackCount);
+            Assert.Equal(10000, engine.StackTop.ToNumber());
+        }
+
+        [Fact]
+        public void TestCoroutineWithCallbacks()
+        {
+            Engine engine = new Engine("Program");
+            string code = @"x = 0
+            for i = 1 to 10000
+              x = x + 1
+            endfor
+            x";
+            Assert.True(engine.Compile(code, true));
+            Func<int, bool> canContinueCallback = (counter) => true;
+            bool isDone = false;
+            Action<bool> doneCallback = (state) => isDone = state;
+            var enumerator = engine.RunAsCoroutine(doneCallback, canContinueCallback, true, 10000);
+            while (enumerator.MoveNext());
+            Assert.True(isDone);
+            Assert.Equal(1, engine.StackCount);
+            Assert.Equal(10000, engine.StackTop.ToNumber());
+        }
+
+        [Fact]
+        public void TestCoroutineAndCancelIt()
+        {
+            Engine engine = new Engine("Program");
+            string code = @"x = 0
+            for i = 1 to 10000
+              x = x + 1
+            endfor
+            x";
+            Assert.True(engine.Compile(code, true));
+            Func<int, bool> canContinueCallback = (counter) => counter >= 100000 ? false : true;
+            bool isDone = false;
+            Action<bool> doneCallback = (value) => isDone = value;
+            var enumerator = engine.RunAsCoroutine(doneCallback, canContinueCallback, true, 10000);
+            while (enumerator.MoveNext());
+            Assert.False(isDone);
+            Assert.True(engine.HasError);
+            Assert.Equal(0, engine.StackCount);
+        }
     }
 }
