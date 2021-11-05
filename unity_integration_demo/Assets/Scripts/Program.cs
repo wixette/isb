@@ -29,9 +29,9 @@ public class Program : MonoBehaviour
         }
 
         // Runs the program in a Unity coroutine.
-        Action<bool> doneCallback = (value) =>
+        Action<bool> doneCallback = (isSuccess) =>
         {
-            if (!value)
+            if (!isSuccess)
             {
                 ReportErrors(engine);
             }
@@ -41,7 +41,7 @@ public class Program : MonoBehaviour
                 PrintDebugInfo(ret);
             }
         };
-        // Prevents the scripting engine to be stuck in an infinite loop.
+        // Prevents the scripting engine from being stuck in an infinite loop.
         int maxInstructionsToExecute = 1000000;
         Func<int, bool> canContinueCallback =
             (counter) => counter >= maxInstructionsToExecute ? false : true;
