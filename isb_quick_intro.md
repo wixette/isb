@@ -22,7 +22,7 @@ a = 10 Mod 7
 ### Logical operator `Not`
 
 ```BASIC
-` 3 will be printed.
+' 3 will be printed.
 a = 3
 If Not (a > 5) Then
   Print(a)
@@ -35,6 +35,7 @@ ISB reserves the keywords `True` and `False` as boolean literals. Boolean
 literals and logical operators can be used to construct boolean expressions:
 
 ```BASIC
+' "Passed" will be printed.
 toCheck = True
 a = 3
 b = 4
