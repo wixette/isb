@@ -1,3 +1,4 @@
+' ISB sample code to test if a number is prime or not.
 n = 1000117 ' number to be test.
 IsPrime = 0
 if n <= 3 then

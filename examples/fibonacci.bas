@@ -1,4 +1,4 @@
-' Small Basic Code to generate Fibonacci sequence.
+' ISB sample code to generate Fibonacci sequence.
 NUM = 30
 Fib[0] = 0
 Fib[1] = 1

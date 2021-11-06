@@ -5,41 +5,44 @@ Interactive Small Basic (ISB) is a simple scripting language derived from
 
 ## Background
 
-I implemented ISB to support the following scenarios mainly:
+I implemented ISB to support the following scenarios:
 
- * As an in-game scripting language, to be embedded in Unity games.
- * As a shell scripting language, to provide a command-line interface where simple code pieces can be executed to
-   control the host system.
+* As an in-game scripting language, to be embedded in Unity games.
+* As a shell scripting language, to provide a command-line interface where
+  simple code can be executed to control the host system.
 
-The first implementation of ISB is written in C# (as the original Microsoft Small Basic does) since C# is Unity's
-recommended scripting language.
+ISB is implemented in C# (as the original Microsoft Small Basic does) since C#
+is Unity's default scripting language.
 
-Compared to the original Microsoft Small Basic, ISB has the following updates:
+## ISB Programming Language
 
- * The compiler and the runtime support incremental invocations. Code pieces can be passed into the system one by one
-   without losing internal states.
- * The client program can access some internal states, such as the stack top, to provide an interactive experience.
-   E.g., it's easy to build a read-evaluate-print loop on top of ISB to implement a command-line calculator.
- * I simplified most of the XML-data-driven logic. I also used the reflection feature to support a way more
-   straightforward structure to add and maintain library functions and properties.
- * I implemented an IR (intermediate representation) to split the compiler into a front-end and a back-end. The IR
-   is a simple assembly language, which looks a little bit similar to WebAssembly.
- * Other trivial updates such as the "mod" operator.
+Microsoft maintains a [comprehensive introduction of Small
+Basic](https://smallbasic-publicwebsite.azurewebsites.net/tutorials/chapter1).
+It's recommended to read it first if you are not familiar with at least one
+BASIC dialects.
 
-## Usage
+Interactive Small Basic (ISB) has a couple of language and API differences
+compared with Microsoft Small Basic (MSB). I highlighted and described those
+features and APIs in the [Quick Intro: ISB Programming
+Language](./isb_quick_intro.md) doc.
 
-Build and test:
+## Build and Test
 
+Build and test from source code:
+
+```shell
+cd csharp
+
+dotnet build
+
+dotnet test
 ```
-$ cd csharp
-$ dotnet restore
-$ dotnet build
-$ dotnet test
-```
 
-Start the example shell and try the language:
+## ISB Interactive Shell
 
-```
+Run the interactive shell of ISB:
+
+```shell
 $ dotnet run -p ISB.Shell
 ISB.Shell ...
 Copyright (C) ...
@@ -48,9 +51,9 @@ Type "quit" to exit, "list" to show the code, "clear" to clear the code, "help" 
 ] print("Hello, World!")
 Hello, World!
 ]
-] for i = 1 to 10
->   print(math.log10(i))
-> endfor
+] For i = 1 To 10
+>   Print(Math.Log10(i))
+> EndFor
 0
 0.301029995663981
 0.477121254719662
@@ -65,9 +68,9 @@ Hello, World!
 $
 ```
 
-The example shell can also be used as a command-line ISB compiler:
+The shell can also be run as a command-line compiler and executor of ISB:
 
-```
+```shell
 $ dotnet run -p ISB.Shell -- --help
 ISB.Shell ...
 Copyright (C) ...
@@ -84,31 +87,117 @@ Copyright (C) ...
   --version        Display version information.
 ```
 
-## Unity In-Game Scripting: How to integrate ISB compiler and runtime with Unity projects
+For example, print the fibonacci sequence with the sample code:
 
-### Create a Unity project
+```shell
+dotnet run -p ISB.Shell -- -i ../examples/fibonacci.bas
+```
 
-Initiate the scene and the game objects in Unity. Typically, we need a multi-line input field to type BASIC code, and
-a button to trigger the execution.
+## Embed ISB in .Net Projects
 
-![](screenshots/01.png)
+To reference to the ISB DLL module from your .Net project, it's recommended to
+import ISB via NuGet (Of course, you can also copy the source code or the
+DLL of ISB to your project manually).
+
+ISB is released as a NuGet package at
+[https://www.nuget.org/packages/isb](https://www.nuget.org/packages/isb).
+
+In your .Net project, add the NuGet package of ISB:
+
+```shell
+dotnet add package ISB
+```
+
+Now you are ready to create an instance of the ISB engine to compile and run
+BASIC code. For example, here is a C# program that runs ISB:
+
+```CSharp
+using System.Collections.Generic;
+using ISB.Runtime;
+using ISB.Utilities;
+
+namespace test
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            var engine = new Engine("test");
+            string code = "print(\"Hello, World!\")";
+            engine.Compile(code, true);
+            if (engine.HasError)
+            {
+                ReportErrors(engine.ErrorInfo.Contents);
+                return;
+            }
+            engine.Run(true);
+            if (engine.HasError)
+            {
+                ReportErrors(engine.ErrorInfo.Contents);
+                return;
+            }
+        }
+
+        private static void ReportErrors(IReadOnlyList<Diagnostic> diagnostics)
+        {
+            foreach (var diagnostic in diagnostics)
+            {
+                System.Console.WriteLine(diagnostic.ToDisplayString());
+            }
+        }
+    }
+}
+```
+
+## Unity In-Game Scripting
+
+A main use scenario of ISB is Unity in-game scripting.
+
+The [Unity integration demo](./unity_integration_demo/) shows how ISB can be
+embedded in a Unity project to enable users to control game object via BASIC
+code.
+
+Below are some quick descriptions of the integration demo.
+
+### Prepare the Unity project
+
+Initiate the scene and the game objects in Unity. Typically, we need a
+multi-line input field to type BASIC code in, and a button to trigger the
+execution.
+
+![Unity Demo 1](screenshots/01.png)
 
 ### Import the ISB assembly
 
-Makes a `Scripts` dir under `Asserts` of the Unity project.
+Option 1: import ISB via NuGet
 
-Copy the ISB assembly `csharp/ISB/bin/Debug/netstandard2.0/ISB.dll` into the `Scripts` folder.
+[NuGetForUnity](https://github.com/GlitchEnzo/NuGetForUnity) is a unity package
+that helps manage NuGet dependencies. You can install
+[NuGetForUnity](https://github.com/GlitchEnzo/NuGetForUnity) first then use it
+to install the ISB NuGet package. Check its documentations for more details.
 
-### Connect Unity and ISB with C# code
+Option 2: import ISB Dll directly
 
-Create `Game.cs` under `Asserts/Scripts`. The class defined in `Game.cs` will be registered as an ISB external lib
-by the main program.
+Build the ISB dll from source code and copy the ISB assembly
+`ISB/bin/Debug/netstandard2.0/ISB.dll` to your Unity project's `Assets/Plugins`
+or `Assets/Script` dir.
 
-```
-// Game.cs
+### Define a BASIC library to control game objects
+
+Create `Game.cs` under `Asserts/Scripts`. The class defined in `Game.cs` will be
+registered as an ISB external library.
+
+```CSharp
+using ISB.Runtime;
+using ISB.Utilities;
+using UnityEngine;
+using UnityEngine.Scripting;
+
+[Preserve]
 public class Game
 {
     [Doc("Example lib function to access Unity objects.")]
+    [Preserve]
     public void AddBall(NumberValue x, NumberValue y, NumberValue z)
     {
         GameObject prefab = Resources.Load<GameObject>("Prefabs/Sphere");
@@ -126,36 +215,35 @@ public class Game
 }
 ```
 
-The lib funciton `AddBall` simply loads the sphere prefab and instantiates a clone object then places it at the
-location specified by the function's arguments.
+The lib function `AddBall` simply loads the sphere prefab and instantiates a
+clone object then places it at the location specified by the function's
+arguments. In-game BASIC code can then invoke `AddBall(x, y, z)` to put balls
+onto the scene.
 
-In-game BASIC code can invoke `AddBall(x, y, z)` to put balls onto the scene.
+Note that the attribute `[Preserve]` is used to preventing Unity from stripping
+the library code. See Unity's [Managed code
+stripping](https://docs.unity3d.com/Manual/ManagedCodeStripping.html) for more
+details.
 
-Then, creates an empty GameObject in Unity to host the main program `Program.cs`. Link the button and the input
-field to the members of the `Program` class via Unity.
+### Run the ISB engine in Game
 
-```
-// Program.cs
+Now in the button handler code, an ISB engine can be set up to compile and run
+BASIC code.
+
+```CSharp
 public class Program : MonoBehaviour
 {
     public Button uiButton;
     public InputField uiInput;
-    public GameObject objBall;
 
     void Start()
     {
         uiButton.onClick.AddListener(onButtonClick);
     }
 
-    void Update()
-    {
-    }
-
     void onButtonClick()
     {
         string code = uiInput.text;
-        Debug.Log(code);
-
         Engine engine = new Engine("Unity", new Type[] { typeof(Game) });
         if (engine.Compile(code, true) && engine.Run(true))
         {
@@ -176,17 +264,18 @@ public class Program : MonoBehaviour
 }
 ```
 
-The code `Engine engine = new Engine("Unity", new Type[] { typeof(Game) });` registers the class `Game` into
-the ISB engine.
+The code `Engine engine = new Engine("Unity", new Type[] { typeof(Game) });`
+registers the class `Game` into the ISB engine.
 
-The click event handler of the button reads the BASIC code from the input field then compiles and runs it
-with the ISB engine. Error messages got from the ISB engine will be reported to Unity's `Debug.Log`.
+The button click event handler reads BASIC code from the input field then
+compiles and runs it with the ISB engine. Error messages got from the ISB engine
+will be reported to Unity's `Debug.Log`.
 
-### Start the game and execute BASIC code
+### Run the Unity project
 
-Start the Unity game. Type the following example code in the input field:
+Start the Unity game. Type the following BASIC code in the input field:
 
-```
+```BASIC
 For x = -3 To 3
   For z = -3 To 3
      Game.AddBall(x, 5, z)
@@ -198,7 +287,53 @@ Click the "Run" button.
 
 49 bouncing balls will be put onto the main scene. Enjoy them!
 
-![](screenshots/02.png)
+![Unity Demo 2](screenshots/02.png)
 
-![](screenshots/03.gif)
+![Unity Demo 3](screenshots/03.gif)
 
+### Run BASIC code as Unity Coroutine
+
+To prevent an execution of BASIC code from blocking Unity's animation loop, the
+ISB engine also provides an interface to run BASIC code as a [Unity
+coroutine](https://docs.unity3d.com/Manual/Coroutines.html).
+
+Here is the coroutine version of the button's click handler:
+
+```CSharp
+    void onButtonClick()
+    {
+        string code = uiInput.text;
+
+        Engine engine = new Engine("Unity", new Type[] { typeof(Game) });
+        if (!engine.Compile(code, true))
+        {
+            // Reports errors ...
+            return;
+        }
+
+        // Runs the program in a Unity coroutine.
+        Action<bool> doneCallback = (isSuccess) =>
+        {
+            if (!isSuccess)
+            {
+                // Reports errors ...
+            }
+            else if (engine.StackCount > 0)
+            {
+                string ret = engine.StackTop.ToDisplayString();
+                PrintDebugInfo(ret);
+            }
+        };
+        // Prevents the scripting engine from being stuck in an infinite loop.
+        int maxInstructionsToExecute = 1000000;
+        Func<int, bool> canContinueCallback =
+            (counter) => counter >= maxInstructionsToExecute ? false : true;
+        StartCoroutine(engine.RunAsCoroutine(doneCallback, canContinueCallback));
+    }
+```
+
+A `doneCallback` can be passed in to receive the final execution state.
+
+The code also uses a `canContinueCallback` to check if the BASIC code has
+time-consuming logic such as infinite loops. The execution will be canceled if
+the it exceeds a large number of IR instructions.
