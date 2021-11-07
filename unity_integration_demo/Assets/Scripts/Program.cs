@@ -4,6 +4,53 @@ using ISB.Runtime;
 using UnityEngine;
 using UnityEngine.UI;
 
+public class Foo
+{
+    // A library function that starts an inner ISB Engine.
+    public StringValue Bar(StringValue code)
+    {
+        if (code.ToString().Length <= 0)
+        {
+            // If no code is passed in, a prime check example will be executed.
+            code = new StringValue(@"n = 1000117 ' number to be test.
+                  IsPrime = False
+                  if n <= 3 then
+                    if n > 1 then
+                      IsPrime = True
+                      goto TheEnd
+                    else
+                      IsPrime = False
+                      goto TheEnd
+                    endif
+                  elseif n mod 2 = 0 or n mod 3 = 0 then
+                    IsPrime = False
+                    goto TheEnd
+                  else
+                    i = 5
+                    while i * i <= n
+                      if n mod i = 0 or n mod (i + 2) = 0 then
+                        IsPrime = False
+                        goto TheEnd
+                      endif
+                      i = i + 6
+                    endwhile
+                    IsPrime = True
+                  endif
+                  TheEnd:
+                  IsPrime");
+        }
+        Debug.Log($"Foo.Bar, running:\n{code}");
+        Engine engine = new Engine("Foo.Bar", new Type[] { typeof(Game) });
+        if (engine.Compile(code.ToString(), true) &&
+            engine.Run(true) &&
+            engine.StackCount > 0)
+        {
+                return new StringValue(engine.StackTop.ToDisplayString());
+        }
+        return StringValue.Empty;
+    }
+}
+
 public class Program : MonoBehaviour
 {
     public Button uiButton;
@@ -21,7 +68,7 @@ public class Program : MonoBehaviour
         string code = uiInput.text;
         Debug.Log(code);
 
-        Engine engine = new Engine("Unity", new Type[] { typeof(Game) });
+        Engine engine = new Engine("Unity", new Type[] { typeof(Game), typeof(Foo) });
         if (!engine.Compile(code, true))
         {
             ReportErrors(engine);
