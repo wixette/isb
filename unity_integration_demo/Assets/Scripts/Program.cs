@@ -74,25 +74,16 @@ public class Program : MonoBehaviour
             ReportErrors(engine);
             return;
         }
-
-        // Runs the program in a Unity coroutine.
-        Action<bool> doneCallback = (isSuccess) =>
+        if (!engine.Run(true))
         {
-            if (!isSuccess)
-            {
-                ReportErrors(engine);
-            }
-            else if (engine.StackCount > 0)
-            {
-                string ret = engine.StackTop.ToDisplayString();
-                PrintDebugInfo(ret);
-            }
-        };
-        // Prevents the scripting engine from being stuck in an infinite loop.
-        int maxInstructionsToExecute = 1000000;
-        Func<int, bool> canContinueCallback =
-            (counter) => counter >= maxInstructionsToExecute ? false : true;
-        StartCoroutine(engine.RunAsCoroutine(doneCallback, canContinueCallback));
+            ReportErrors(engine);
+            return;
+        }
+        if (engine.StackCount > 0)
+        {
+            string ret = engine.StackTop.ToDisplayString();
+            PrintDebugInfo(ret);
+        }
     }
 
     private void ReportErrors(Engine engine)
