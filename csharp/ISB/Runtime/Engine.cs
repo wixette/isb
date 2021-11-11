@@ -20,9 +20,11 @@ namespace ISB.Runtime
         private Assembly assembly;
         private Stack<int> stackFrameBases = new Stack<int>();
 
-        public Engine(string moduleName, IEnumerable<Type> externalLibClasses=null)
+        public Engine(string moduleName,
+            IEnumerable<Type> externalLibClasses=null,
+            IEnumerable<Type> disabledLibClasses=null)
         {
-            this.env = new Environment(externalLibClasses);
+            this.env = new Environment(externalLibClasses, disabledLibClasses);
             this.moduleName = moduleName;
             this.diagnostics = new DiagnosticBag();
             this.assembly = new Assembly();

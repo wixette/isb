@@ -18,7 +18,7 @@ namespace ISB.Tests
         [Fact]
         void TestProperties()
         {
-            Libraries libs = new Libraries(null);
+            Libraries libs = new Libraries(null, null);
             Assert.True(libs.HasProperty("Math", "Pi"));
             Assert.True(libs.HasProperty("Math", "PI"));
             Assert.True(libs.HasProperty("math", "pi"));
@@ -32,7 +32,7 @@ namespace ISB.Tests
         [Fact]
         void TestFunctions()
         {
-            Libraries libs = new Libraries(null);
+            Libraries libs = new Libraries(null, null);
             Assert.True(libs.HasBuiltInFunction("Print"));
             Assert.True(libs.HasBuiltInFunction("PRINT"));
             Assert.True(libs.HasBuiltInFunction("PRINT"));
@@ -55,7 +55,7 @@ namespace ISB.Tests
         [Fact]
         void TestExternalLibClasses()
         {
-            Libraries libs = new Libraries(new Type[] { typeof(Foo) });
+            Libraries libs = new Libraries(new Type[] { typeof(Foo) }, null);
             Assert.True(libs.HasBuiltInFunction("Print"));
             Assert.True(libs.HasFunction("Math", "Sin"));
             Assert.True(libs.HasProperty("Foo", "Name"));
@@ -66,6 +66,19 @@ namespace ISB.Tests
             Assert.Equal("hello", (name as StringValue).ToString());
             Assert.True(libs.InvokeFunction("foo", "bar", null, out BaseValue ret));
             Assert.Equal(3, ret.ToNumber());
+        }
+
+        [Fact]
+        void TestDisabledlLibClasses()
+        {
+            Libraries libs = new Libraries(
+                new Type[] { typeof(Foo) },
+                new Type[] { typeof(Lib.BuiltIn), typeof(Lib.Math) });
+            Assert.False(libs.HasBuiltInFunction("Print"));
+            Assert.False(libs.HasFunction("Math", "Sin"));
+            Assert.True(libs.HasFunction("String", "ToLower"));
+            Assert.True(libs.HasProperty("Foo", "Name"));
+            Assert.True(libs.HasFunction("Foo", "Bar"));
         }
     }
 }
