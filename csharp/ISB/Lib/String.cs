@@ -25,6 +25,13 @@ namespace ISB.Lib
             return new StringValue(s1.ToDisplayString() + s2.ToDisplayString());
         }
 
+        [Doc("Compares two strings and returns an integer - negative if s1 < s2, 0 if s1 = s2, positive if s1 > s2.")]
+        [Preserve]
+        public NumberValue Compare(StringValue s1, StringValue s2)
+        {
+            return new NumberValue(string.Compare(s1.ToDisplayString(), s2.ToDisplayString()));
+        }
+
         [Doc("Determines whether the input string ends with subStr.")]
         [Preserve]
         public BooleanValue EndsWith(StringValue s, StringValue subStr)
@@ -33,7 +40,7 @@ namespace ISB.Lib
             return new BooleanValue(ret);
         }
 
-        [Doc("Returns the zero-based index of the first occurrence of subStr in the input string, or -1 if not found. ")]
+        [Doc("Returns the zero-based index of the first occurrence of subStr in the input string, or -1 if not found.")]
         [Preserve]
         public NumberValue IndexOf(StringValue s, StringValue subStr)
         {

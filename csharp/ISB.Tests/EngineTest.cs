@@ -328,6 +328,30 @@ namespace ISB.Tests
             Assert.False(engine.HasError);
             Assert.Equal(1, engine.StackCount);
             Assert.Equal(0m, engine.StackTop.ToNumber(), 4);
+
+            engine.Compile(@"a = String.Compare(""a"", ""b"")
+            a", true);
+            Assert.False(engine.HasError);
+            engine.Run(true);
+            Assert.False(engine.HasError);
+            Assert.Equal(1, engine.StackCount);
+            Assert.Equal(-1, engine.StackTop.ToNumber());
+
+            engine.Compile(@"a = String.Compare(""a"", ""a"")
+            a", true);
+            Assert.False(engine.HasError);
+            engine.Run(true);
+            Assert.False(engine.HasError);
+            Assert.Equal(1, engine.StackCount);
+            Assert.Equal(0, engine.StackTop.ToNumber());
+
+            engine.Compile(@"a = String.Compare(""b"", ""a"")
+            a", true);
+            Assert.False(engine.HasError);
+            engine.Run(true);
+            Assert.False(engine.HasError);
+            Assert.Equal(1, engine.StackCount);
+            Assert.Equal(1, engine.StackTop.ToNumber());
         }
 
         [Fact]
@@ -502,6 +526,38 @@ endif", false));
             Assert.False(isDone);
             Assert.True(engine.HasError);
             Assert.Equal(0, engine.StackCount);
+        }
+
+        [Theory]
+
+        [InlineData (@"(""a"" = ""a"")", true)]
+        [InlineData (@"(""a"" <> ""a"")", false)]
+        [InlineData (@"(""a"" = ""b"")", false)]
+        [InlineData (@"(""a"" <> ""b"")", true)]
+        [InlineData (@"(""3"" = ""3"")", true)]
+        [InlineData (@"(""3"" = 3)", true)]
+        [InlineData (@"(""3"" = ""4"")", false)]
+        [InlineData (@"(""3"" = 4)", false)]
+        [InlineData (@"(""3"" > 2)", true)]
+        [InlineData (@"(""3"" > ""2"")", true)]
+        [InlineData (@"(""3"" > 4)", false)]
+        [InlineData (@"(""3"" > ""4"")", false)]
+        // The same behavior with Microsoft Small Basic - ">", "<", ">=", "<=" are not doing
+        // real string comparisons. They simply convert strings to numbers than compare numbers.
+        [InlineData (@"(""b"" > ""a"")", false)]
+        [InlineData (@"(""a"" > ""b"")", false)]
+        [InlineData (@"(""3"" > ""2.95"")", true)]
+        [InlineData (@"(""3"" < ""2.95"")", false)]
+        [InlineData (@"(""3"" < ""3.05"")", true)]
+        [InlineData (@"(""3"" > ""3.05"")", false)]
+        public void TestStringComparisons(string code, bool ret)
+        {
+            Engine engine = new Engine("Program");
+            engine.Compile(code, true);
+            engine.Run(true);
+            Assert.False(engine.HasError);
+            Assert.Equal(1, engine.StackCount);
+            Assert.Equal(ret, engine.StackTop.ToBoolean());
         }
     }
 }
