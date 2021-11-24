@@ -5,7 +5,7 @@
     <OutputType>Library</OutputType>
     <PackageId>ISB</PackageId>
     <ReleaseTag>preview</ReleaseTag>
-    <VersionPrefix>0.1.3</VersionPrefix>
+    <VersionPrefix>0.1.4</VersionPrefix>
     <AssemblyVersion>$(VersionPrefix)</AssemblyVersion>
     <Version Condition="'$(ReleaseTag)' != 'release'">$(VersionPrefix)-$(ReleaseTag)$([System.DateTime]::UtcNow.ToString("yyyyMMddHHmmss"))</Version>
     <Version Condition="'$(ReleaseTag)' == 'release'">$(VersionPrefix)+$([System.DateTime]::UtcNow.ToString("yyyyMMddHHmmss"))</Version>
