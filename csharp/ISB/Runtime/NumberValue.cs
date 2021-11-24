@@ -28,11 +28,25 @@ namespace ISB.Runtime
 
         public override decimal ToNumber() => this.Value;
 
+        public static bool TryParse(string s, out NumberValue numberValue) {
+            if (Decimal.TryParse(s.Trim(), NumberStyle,
+                NumberFormatInfo.CurrentInfo, out decimal decimalResult))
+            {
+                numberValue = new NumberValue(decimalResult);
+                return true;
+            }
+            else
+            {
+                numberValue = null;
+                return false;
+            }
+        }
+
         public static NumberValue Parse(string s)
         {
-            if (Decimal.TryParse(s.Trim(), NumberStyle, NumberFormatInfo.CurrentInfo, out decimal decimalResult))
+            if (NumberValue.TryParse(s.Trim(), out NumberValue numberValue))
             {
-                return new NumberValue(decimalResult);
+                return numberValue;
             }
             else
             {

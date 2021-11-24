@@ -628,14 +628,14 @@ namespace ISB.Runtime
 
                 case Instruction.EQ:
                 {
-                    if (this.BinaryLogicalOperation((op1, op2) => op1 == op2))
+                    if (this.BinaryLogicalEqualOperation())
                         this.env.IP++;
                     break;
                 }
 
                 case Instruction.NE:
                 {
-                    if (this.BinaryLogicalOperation((op1, op2) => op1 != op2))
+                    if (this.BinaryLogicalNotEqualOperation())
                         this.env.IP++;
                     break;
                 }
@@ -709,6 +709,56 @@ namespace ISB.Runtime
             }
             decimal result = operation(op1, op2);
             this.env.RuntimeStack.Push(new NumberValue(result));
+            return true;
+        }
+
+        private bool BinaryLogicalEqualOperation()
+        {
+            if (this.env.RuntimeStack.Count < 2)
+            {
+                this.ReportEmptyStack();
+                return false;
+            }
+            bool result = false;
+            BaseValue op2 = this.env.RuntimeStack.Pop();
+            BaseValue op1 = this.env.RuntimeStack.Pop();
+            string s1 = op1.ToDisplayString();
+            string s2 = op2.ToDisplayString();
+            if (NumberValue.TryParse(s1, out NumberValue v1) &&
+                NumberValue.TryParse(s2, out NumberValue v2))
+            {
+                result = v1.ToNumber() == v2.ToNumber();
+            }
+            else
+            {
+                result = s1 == s2;
+            }
+            this.env.RuntimeStack.Push(new BooleanValue(result));
+            return true;
+        }
+
+        private bool BinaryLogicalNotEqualOperation()
+        {
+            if (this.env.RuntimeStack.Count < 2)
+            {
+                this.ReportEmptyStack();
+                return false;
+            }
+            bool result = false;
+            BaseValue op2 = this.env.RuntimeStack.Pop();
+            BaseValue op1 = this.env.RuntimeStack.Pop();
+            string s1 = op1.ToDisplayString();
+            string s2 = op2.ToDisplayString();
+            if (NumberValue.TryParse(s1, out NumberValue v1) &&
+                NumberValue.TryParse(s2, out NumberValue v2))
+            {
+                result = v1.ToNumber() != v2.ToNumber();
+            }
+            else
+            {
+                result = s1 != s2;
+            }
+            this.env.RuntimeStack.Push(new BooleanValue(result));
             return true;
         }
 
