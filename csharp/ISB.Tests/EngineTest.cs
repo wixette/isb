@@ -135,23 +135,32 @@ namespace ISB.Tests
             Assert.False(engine.StackTop.ToBoolean());
         }
 
-        [Fact]
-        public void TestStringConcatenation()
+        [Theory]
+
+        [InlineData (@"3 + 4.5", "7.5")]
+        [InlineData (@"3 + 0", "3")]
+        [InlineData (@"""Hello, "" + ""World!""", "Hello, World!")]
+        [InlineData (@"3 + """"", "3")]
+        [InlineData (@"3 + """" + 3", "6")]
+        [InlineData (@"""3"" + """"", "3")]
+        [InlineData (@"""3"" + """" + 3", "33")]
+        [InlineData (@""""" + 3", "3")]
+        [InlineData (@""""" + 3 + 3", "6")]
+        [InlineData (@""""" + 3 + ""3""", "33")]
+        [InlineData (@"""Ret: "" + (3 + 3)", "Ret: 6")]
+        [InlineData (@"True + False", "TrueFalse")]
+        [InlineData (@"True + 3", "True3")]
+        [InlineData (@"""Ret: "" + True", "Ret: True")]
+        [InlineData (@"""Ret: "" + (20 > 30)", "Ret: False")]
+        public void TestAddOrStringConcatenation(string code, string result)
         {
             Engine engine = new Engine("Program");
-            engine.Compile(@"""Hello, "" + ""World!""", true);
+            engine.Compile(code, true);
             Assert.False(engine.HasError);
             engine.Run(true);
             Assert.False(engine.HasError);
             Assert.Equal(1, engine.StackCount);
-            Assert.Equal("Hello, World!", engine.StackTop.ToString());
-
-            engine.Compile(@"""Hello "" + 233", true);
-            Assert.False(engine.HasError);
-            engine.Run(true);
-            Assert.False(engine.HasError);
-            Assert.Equal(1, engine.StackCount);
-            Assert.Equal("Hello 233", engine.StackTop.ToString());
+            Assert.Equal(result, engine.StackTop.ToString());
         }
 
         [Fact]

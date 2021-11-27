@@ -785,7 +785,8 @@ namespace ISB.Runtime
             }
             BaseValue op2 = this.env.RuntimeStack.Pop();
             BaseValue op1 = this.env.RuntimeStack.Pop();
-            if (op1 is NumberValue && op2 is NumberValue)
+            if ((op1 is NumberValue || (op1 is StringValue op1Str && op1Str.IsEmpty())) &&
+                (op2 is NumberValue || (op2 is StringValue op2Str && op2Str.IsEmpty())))
             {
                 var result = op1.ToNumber() + op2.ToNumber();
                 this.env.RuntimeStack.Push(new NumberValue(result));

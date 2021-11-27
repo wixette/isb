@@ -18,9 +18,11 @@ namespace ISB.Runtime
 
         public static StringValue Empty => new StringValue(String.Empty);
 
+        public bool IsEmpty() => this.Value.Length == 0;
+
         public override string ToDisplayString() => this.Value;
 
-        public override bool ToBoolean() => this.Value.Length == 0 ? false : true;
+        public override bool ToBoolean() => IsEmpty() ? false : true;
 
         public override decimal ToNumber()
         {
