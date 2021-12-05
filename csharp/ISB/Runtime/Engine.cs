@@ -19,6 +19,7 @@ namespace ISB.Runtime
         private DiagnosticBag diagnostics;
         private Assembly assembly;
         private Stack<int> stackFrameBases = new Stack<int>();
+        private bool pausingCoroutine = false;
 
         public Engine(string moduleName,
             IEnumerable<Type> externalLibClasses=null,
@@ -40,6 +41,9 @@ namespace ISB.Runtime
         public string AssemblyInTextFormat => this.assembly.ToTextFormat();
 
         public int IP => this.env.IP;
+
+        public TextRange CurrentSourceTextRange =>
+            IP >= 0 && IP < assembly.Instructions.Count ? assembly.SourceMap[IP] : TextRange.None;
 
         public int StackCount => this.env.RuntimeStack.Count;
 
@@ -117,9 +121,9 @@ namespace ISB.Runtime
         // If doneCallback is not null, the callback action will be invoked when the execution is
         // done, with the success flag as the only argument.
         //
-        // If canContinueCallback is not null, the callback function will be invoked every step to
-        // check if the execution can be continued or not. An instruction counter will also be
-        // passed into the canContinueCallback function.
+        // If stepCallback is not null, the callback function will be invoked every step. An
+        // instruction counter will be fed into the callback. If stepCallback returns false to
+        // the engine, the coroutine will be cancelled immediately.
         //
         // If the execution has been cancelled due to a false return value of canContinueCallback,
         // the ISB engine will have a runtime error info to record that.
@@ -127,7 +131,7 @@ namespace ISB.Runtime
         // This can be used in Unity to build a run-per-frame scripting sandbox, with the ability to
         // check and cancel a program if it contains time-consuming logic such as an infinite loop.
         public IEnumerator RunAsCoroutine(Action<bool> doneCallback = null,
-                                          Func<int, bool> canContinueCallback = null,
+                                          Func<int, bool> stepCallback = null,
                                           bool reset = true,
                                           int maxInstructionsPerStep = 10000)
         {
@@ -135,25 +139,39 @@ namespace ISB.Runtime
             int counter = 0;
             while (true)
             {
-                counter += this.ExecuteAssemblyForOneStep(maxInstructionsPerStep);
+                counter +=
+                    this.ExecuteAssemblyForOneStep(maxInstructionsPerStep);
                 if (this.HasError || this.env.IP >= this.assembly.Instructions.Count)
                 {
                     break;
                 }
-                else if (!(canContinueCallback is null) && !canContinueCallback(counter))
+                else if (!(stepCallback is null) && !stepCallback(counter))
                 {
                     this.ReportCoroutineCancelled();
                     break;
                 }
                 else
                 {
-                    yield return counter;
+                    while (pausingCoroutine)
+                    {
+                        yield return counter;
+                    }
                 }
             }
             if (!(doneCallback is null))
             {
                 doneCallback(!this.HasError);
             }
+        }
+
+        // Pauses the coroutine started by RunAsCoroutine, until ResumeCoroutine is called.
+        public void PauseCoroutine() {
+            pausingCoroutine = true;
+        }
+
+        // Resumes the coroutine started by RunAsCoroutine.
+        public void ResumeCoroutine() {
+            pausingCoroutine = false;
         }
 
         // Scans for new labels and updates the label dictionary.
@@ -191,6 +209,7 @@ namespace ISB.Runtime
             int count = 0;
             while (this.env.IP < this.assembly.Instructions.Count &&
                    count < maxInstructionsPerStep &&
+                   !pausingCoroutine &&
                    !this.HasError)
             {
                 ExecuteNextInstruction();
