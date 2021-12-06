@@ -1,18 +1,17 @@
 # Interactive Small Basic (ISB)
 
-Interactive Small Basic (ISB) is a simple scripting language derived from
-[Microsoft Small Basic](https://github.com/sb).
+[Interactive Small Basic (ISB)](https://github.com/wixette/isb) is a simple
+scripting language derived from [Microsoft Small Basic](https://github.com/sb).
 
 ## Background
 
-I implemented ISB to support the following scenarios:
+ISB is a light-weight solution to mainly support the following scenarios:
 
 * As an in-game scripting language, to be embedded in Unity games.
 * As a shell scripting language, to provide a command-line interface where
   simple code can be executed to control the host system.
 
-ISB is implemented in C# (as the original Microsoft Small Basic does) since C#
-is Unity's default scripting language.
+ISB is implemented in C# as the original Microsoft Small Basic does.
 
 ## ISB Programming Language
 

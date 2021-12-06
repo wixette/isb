@@ -4,7 +4,7 @@
     <OutputType>Exe</OutputType>
     <TargetFramework>net5.0</TargetFramework>
     <PackageId>ISB.Shell</PackageId>
-    <Version>0.1.4</Version>
+    <Version>0.2.0</Version>
     <Authors>wixette</Authors>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <RepositoryUrl>https://github.com/wixette/isb</RepositoryUrl>

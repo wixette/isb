@@ -5,7 +5,7 @@
     <OutputType>Library</OutputType>
     <PackageId>ISB</PackageId>
     <ReleaseTag>preview</ReleaseTag>
-    <VersionPrefix>0.1.4</VersionPrefix>
+    <VersionPrefix>0.2.0</VersionPrefix>
     <AssemblyVersion>$(VersionPrefix)</AssemblyVersion>
     <Version Condition="'$(ReleaseTag)' != 'release'">$(VersionPrefix)-$(ReleaseTag)$([System.DateTime]::UtcNow.ToString("yyyyMMddHHmmss"))</Version>
     <Version Condition="'$(ReleaseTag)' == 'release'">$(VersionPrefix)+$([System.DateTime]::UtcNow.ToString("yyyyMMddHHmmss"))</Version>
@@ -15,10 +15,12 @@
     <RepositoryUrl>https://github.com/wixette/isb</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <Description>Interactive Small Basic (ISB) - Simple scripting language to be embedded in Unity games or shell environments.</Description>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
 
   <ItemGroup>
     <Folder Include="Properties\" />
+    <None Include="..\README.md" Pack="true" PackagePath="\"/>
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Update="Properties\Resources.resx">
