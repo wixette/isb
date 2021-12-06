@@ -15,12 +15,12 @@
     <RepositoryUrl>https://github.com/wixette/isb</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <Description>Interactive Small Basic (ISB) - Simple scripting language to be embedded in Unity games or shell environments.</Description>
-    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageReadmeFile>README.nuget.md</PackageReadmeFile>
   </PropertyGroup>
 
   <ItemGroup>
     <Folder Include="Properties\" />
-    <None Include="..\README.md" Pack="true" PackagePath="\"/>
+    <None Include="..\..\README.nuget.md" Pack="true" PackagePath="\"/>
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Update="Properties\Resources.resx">
