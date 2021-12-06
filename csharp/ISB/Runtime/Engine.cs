@@ -20,6 +20,7 @@ namespace ISB.Runtime
         private Assembly assembly;
         private Stack<int> stackFrameBases = new Stack<int>();
         private bool pausingCoroutine = false;
+        private bool isCoroutineRunning = false;
 
         public Engine(string moduleName,
             IEnumerable<Type> externalLibClasses=null,
@@ -57,6 +58,11 @@ namespace ISB.Runtime
 
         public void Reset()
         {
+            if (isCoroutineRunning)
+            {
+                this.ReportCoroutineReentered();
+                return;
+            }
             this.env.Reset();
             this.assembly.Clear();
             this.CodeLines.Clear();
@@ -65,6 +71,11 @@ namespace ISB.Runtime
         // Compiles an ISB source code. Returns false if there are compile errors.
         public bool Compile(string code, bool reset = true)
         {
+            if (isCoroutineRunning)
+            {
+                this.ReportCoroutineReentered();
+                return false;
+            }
             if (reset)
             {
                 // A full reset for the compilation.
@@ -97,6 +108,11 @@ namespace ISB.Runtime
         // existing instructions and environment states are cleared.
         public void ParseAssembly(string assemblyCode)
         {
+            if (isCoroutineRunning)
+            {
+                this.ReportCoroutineReentered();
+                return;
+            }
             this.env.Reset();
             this.CodeLines.Clear();
             this.diagnostics.Reset();
@@ -108,6 +124,11 @@ namespace ISB.Runtime
         // Runs a compiled program until the end. Returns false if there are runtime errors.
         public bool Run(bool reset = true)
         {
+            if (isCoroutineRunning)
+            {
+                this.ReportCoroutineReentered();
+                return false;
+            }
             BeforeExecution(reset);
             this.ExecuteAssembly();
             return !this.HasError;
@@ -135,6 +156,13 @@ namespace ISB.Runtime
                                           bool reset = true,
                                           int maxInstructionsPerStep = 10000)
         {
+            if (isCoroutineRunning)
+            {
+                this.ReportCoroutineReentered();
+                yield break;
+            }
+            isCoroutineRunning = true;
+            pausingCoroutine = false;
             BeforeExecution(reset);
             int counter = 0;
             while (true)
@@ -162,6 +190,7 @@ namespace ISB.Runtime
             {
                 doneCallback(!this.HasError);
             }
+            isCoroutineRunning = false;
         }
 
         // Pauses the coroutine started by RunAsCoroutine, until ResumeCoroutine is called.
@@ -269,6 +298,12 @@ namespace ISB.Runtime
         {
             // TODO: moves this message to Resources.
             this.ReportRuntimeError($"Undefined assembly label, {label}");
+        }
+
+        private void ReportCoroutineReentered()
+        {
+            // TODO: moves this message to Resources.
+            this.ReportRuntimeError($"A coroutine is already running in this engine.");
         }
 
         private void ReportCoroutineCancelled()

@@ -29,12 +29,14 @@ public class GameManager : MonoBehaviour
         leftBall = left.transform.Find("Cannon")?.Find("Ball")?.gameObject;
         right = transform.Find("Right")?.gameObject;
         rightBall = right.transform.Find("Cannon")?.Find("Ball")?.gameObject;
+
+        ISBEngine = new Engine("UnityIntegration", new Type[] { typeof(Game) });
         Game.Manager = this;
     }
 
     public void OnExample()
     {
-        Code.text = @"For i = 1 To 5
+        Code.text = @"For i = 1 To 3
   Game.Rotate(0)
   Game.Fire(0)
   Game.Rotate(1)
@@ -44,14 +46,13 @@ EndFor";
 
     public void OnRun()
     {
+        Message.text = "";
         string code = Code.text;
-        ISBEngine = new Engine("UnityIntegration", new Type[] { typeof(Game) });
         if (!ISBEngine.Compile(code, true))
         {
             ReportErrors(ISBEngine);
             return;
         }
-
         Action<bool> doneCallback = (isSuccess) =>
         {
             if (!isSuccess)
@@ -61,14 +62,21 @@ EndFor";
             else if (ISBEngine.StackCount > 0)
             {
                 string ret = ISBEngine.StackTop.ToDisplayString();
-                PrintDebugInfo(ret);
+                PrintDebugInfo($"Done: ${ret}");
+            }
+            else
+            {
+                PrintDebugInfo($"Done.");
             }
         };
         // Prevents the scripting engine from being stuck in an infinite loop.
         int maxInstructionsToExecute = 1000000;
-        Func<int, bool> canContinueCallback =
-            (counter) => counter >= maxInstructionsToExecute ? false : true;
-        StartCoroutine(ISBEngine.RunAsCoroutine(doneCallback, canContinueCallback));
+        Func<int, bool> stepCallback = (counter) =>
+        {
+            PrintDebugInfo($"Current code pos: {ISBEngine.CurrentSourceTextRange}");
+            return counter < maxInstructionsToExecute;
+        };
+        StartCoroutine(ISBEngine.RunAsCoroutine(doneCallback, stepCallback));
     }
 
     [Preserve]
