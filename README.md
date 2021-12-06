@@ -153,11 +153,12 @@ namespace test
 
 A main use scenario of ISB is Unity in-game scripting.
 
-The [Unity integration demo](./unity_integration_demo/) shows how ISB can be
-embedded in a Unity project to enable users to control game object via BASIC
+The [Unity integration demos](./unity_integration_demos) show how ISB can be
+embedded in Unity projects to enable users to control game object via BASIC
 code.
 
-Below are some quick descriptions of the integration demo.
+Below are some quick descriptions of the
+[AddGameObject](./unity_integration_demos/AddGameObjects/) demo.
 
 ### Prepare the Unity project
 
