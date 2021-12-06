@@ -4,30 +4,22 @@ using ISB.Runtime;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class Program : MonoBehaviour
+public class GameManager : MonoBehaviour
 {
-    public Button uiButton;
-    public InputField uiInput;
+    public InputField Code;
     public Text DebugInfo;
     public GameObject objBall;
 
-    void Start()
+    public void OnRun()
     {
-        uiButton.onClick.AddListener(onButtonClick);
-    }
-
-    void onButtonClick()
-    {
-        string code = uiInput.text;
-        Debug.Log(code);
-
-        Engine engine = new Engine("Unity", new Type[] { typeof(Game) });
+        string code = Code.text;
+        DebugInfo.text = "";
+        Engine engine = new Engine("UnityDemo", new Type[] { typeof(Game) });
         if (!engine.Compile(code, true))
         {
             ReportErrors(engine);
             return;
         }
-
         // Runs the program in a Unity coroutine.
         Action<bool> doneCallback = (isSuccess) =>
         {
@@ -43,9 +35,9 @@ public class Program : MonoBehaviour
         };
         // Prevents the scripting engine from being stuck in an infinite loop.
         int maxInstructionsToExecute = 1000000;
-        Func<int, bool> canContinueCallback =
+        Func<int, bool> stepCallback =
             (counter) => counter >= maxInstructionsToExecute ? false : true;
-        StartCoroutine(engine.RunAsCoroutine(doneCallback, canContinueCallback));
+        StartCoroutine(engine.RunAsCoroutine(doneCallback, stepCallback));
     }
 
     private void ReportErrors(Engine engine)

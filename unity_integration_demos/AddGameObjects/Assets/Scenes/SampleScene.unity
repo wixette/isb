@@ -205,7 +205,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 51511232}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1469221805}
+        m_TargetAssemblyTypeName: GameManager, Assembly-CSharp
+        m_MethodName: OnRun
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &51511232
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -364,10 +376,10 @@ MonoBehaviour:
       m_Calls: []
   m_FontData:
     m_Font: {fileID: 12800000, guid: 3a1d21ab65570487599c2685ba1f4d5c, type: 3}
-    m_FontSize: 20
+    m_FontSize: 18
     m_FontStyle: 2
     m_BestFit: 0
-    m_MinSize: 2
+    m_MinSize: 1
     m_MaxSize: 40
     m_Alignment: 0
     m_AlignByGeometry: 0
@@ -375,7 +387,11 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Enter code...
+  m_Text: 'Enter BASIC code...
+
+
+    Game.AddBall(x, y, z) - add a new game object
+    at (x, y, z)'
 --- !u!222 &607692011
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -612,8 +628,8 @@ MonoBehaviour:
   m_ReferencePixelsPerUnit: 100
   m_ScaleFactor: 1
   m_ReferenceResolution: {x: 1280, y: 800}
-  m_ScreenMatchMode: 2
-  m_MatchWidthOrHeight: 0
+  m_ScreenMatchMode: 0
+  m_MatchWidthOrHeight: 1
   m_PhysicalUnit: 3
   m_FallbackScreenDPI: 96
   m_DefaultSpriteDPI: 96
@@ -673,7 +689,7 @@ GameObject:
   - component: {fileID: 1469221806}
   - component: {fileID: 1469221805}
   m_Layer: 0
-  m_Name: GameObject
+  m_Name: GameManager
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -691,8 +707,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c3f491b1369004dd384f27741cfe35bb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  uiButton: {fileID: 51511231}
-  uiInput: {fileID: 1567200822}
+  Code: {fileID: 1567200822}
   DebugInfo: {fileID: 1582777932}
   objBall: {fileID: 1284240573575441366, guid: e3f16534952134c41815b7a75a4d680e, type: 3}
 --- !u!4 &1469221806
@@ -768,10 +783,10 @@ MonoBehaviour:
       m_Calls: []
   m_FontData:
     m_Font: {fileID: 12800000, guid: 3a1d21ab65570487599c2685ba1f4d5c, type: 3}
-    m_FontSize: 20
+    m_FontSize: 18
     m_FontStyle: 0
     m_BestFit: 0
-    m_MinSize: 2
+    m_MinSize: 1
     m_MaxSize: 40
     m_Alignment: 4
     m_AlignByGeometry: 0
@@ -1037,7 +1052,7 @@ MonoBehaviour:
       m_Calls: []
   m_FontData:
     m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
-    m_FontSize: 16
+    m_FontSize: 18
     m_FontStyle: 0
     m_BestFit: 0
     m_MinSize: 1
