@@ -231,20 +231,20 @@ Now in the button handler code, an ISB engine can be set up to compile and run
 BASIC code.
 
 ```CSharp
-public class Program : MonoBehaviour
+public class GameManager : MonoBehaviour
 {
-    public Button uiButton;
-    public InputField uiInput;
+    public Button RunButton;
+    public InputField CodeInput;
 
     void Start()
     {
-        uiButton.onClick.AddListener(onButtonClick);
+        RunButton.onClick.AddListener(OnRun);
     }
 
-    void onButtonClick()
+    public void OnRun()
     {
-        string code = uiInput.text;
-        Engine engine = new Engine("Unity", new Type[] { typeof(Game) });
+        string code = CodeInput.text;
+        Engine engine = new Engine("UnityDemo", new Type[] { typeof(Game) });
         if (engine.Compile(code, true) && engine.Run(true))
         {
             if (engine.StackCount > 0)
@@ -300,23 +300,22 @@ coroutine](https://docs.unity3d.com/Manual/Coroutines.html).
 Here is the coroutine version of the button's click handler:
 
 ```CSharp
-    void onButtonClick()
+    public void OnRun()
     {
-        string code = uiInput.text;
-
-        Engine engine = new Engine("Unity", new Type[] { typeof(Game) });
+        string code = Code.text;
+        DebugInfo.text = "";
+        Engine engine = new Engine("UnityDemo", new Type[] { typeof(Game) });
         if (!engine.Compile(code, true))
         {
-            // Reports errors ...
+            ReportErrors(engine);
             return;
         }
-
         // Runs the program in a Unity coroutine.
         Action<bool> doneCallback = (isSuccess) =>
         {
             if (!isSuccess)
             {
-                // Reports errors ...
+                ReportErrors(engine);
             }
             else if (engine.StackCount > 0)
             {
@@ -326,14 +325,14 @@ Here is the coroutine version of the button's click handler:
         };
         // Prevents the scripting engine from being stuck in an infinite loop.
         int maxInstructionsToExecute = 1000000;
-        Func<int, bool> canContinueCallback =
+        Func<int, bool> stepCallback =
             (counter) => counter >= maxInstructionsToExecute ? false : true;
-        StartCoroutine(engine.RunAsCoroutine(doneCallback, canContinueCallback));
+        StartCoroutine(engine.RunAsCoroutine(doneCallback, stepCallback));
     }
 ```
 
 A `doneCallback` can be passed in to receive the final execution state.
 
-The code also uses a `canContinueCallback` to check if the BASIC code has
+The code also uses a `stepCallback` to check if the BASIC code has
 time-consuming logic such as infinite loops. The execution will be canceled if
 the it exceeds a large number of IR instructions.
